@@ -99,70 +99,49 @@
     .pc-notes  { font-size: 12px; color: var(--text-muted); margin-top: 8px; font-style: italic; }
     .pc-footer { display: flex; gap: 6px; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); }
 
-    /* ── Calendar ─── */
-    .cal-nav { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
-    .cal-month-label { font-size: 18px; font-weight: 700; min-width: 180px; }
-    .cal-actions { margin-left: auto; display: flex; gap: 8px; }
+    /* ── Kanban ─── */
+    .kanban-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; flex-wrap: wrap; gap: 10px; }
+    .kanban-week-label { font-size: 13px; color: var(--text-muted); }
 
-    .cal-grid-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
-    .cal-dow-row { display: grid; grid-template-columns: repeat(7,1fr); border-bottom: 1px solid var(--border); }
-    .cal-dow { padding: 8px 0; text-align: center; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); }
-    .cal-weeks { display: grid; }
-    .cal-week  { display: grid; grid-template-columns: repeat(7,1fr); border-bottom: 1px solid var(--border); }
-    .cal-week:last-child { border-bottom: none; }
+    .kanban-board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; align-items: start; }
+    @media (max-width: 700px) { .kanban-board { grid-template-columns: 1fr; } }
 
-    .cal-day {
-      min-height: 88px;
-      padding: 6px 7px;
-      border-right: 1px solid var(--border);
-      cursor: pointer;
-      transition: background 0.1s;
-      overflow: hidden;
-    }
-    .cal-day:last-child { border-right: none; }
-    .cal-day:hover { background: var(--bg); }
-    .cal-day.other-month { opacity: 0.45; }
-    .cal-day.is-today { background: #FFFBEB; }
-    .cal-day.selected { background: #EEF2FF; }
+    .kanban-col { background: var(--bg); border-radius: var(--radius); border: 1px solid var(--border); min-height: 200px; }
+    .kanban-col.drag-over { background: #EEF2FF; border-color: #A5B4FC; }
 
-    .cal-day-num { font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 4px; }
-    .cal-day.is-today .cal-day-num { background: var(--text); color: #fff; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; }
+    .kanban-col-head { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px 10px; border-bottom: 1px solid var(--border); }
+    .kanban-col-label { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; }
+    .kanban-col-bar { width: 10px; height: 10px; border-radius: 3px; }
+    .kanban-col-count { font-size: 11px; background: var(--surface); border: 1px solid var(--border); padding: 1px 7px; border-radius: 99px; color: var(--text-muted); font-weight: 600; }
 
-    .cal-chip {
-      font-size: 11px;
-      padding: 2px 6px;
-      border-radius: 4px;
-      margin-bottom: 2px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      line-height: 1.4;
-    }
-    .cal-chip-deadline { font-weight: 600; }
-    .cal-chip-event    { opacity: 0.85; }
-    .cal-chip-more     { font-size: 10px; color: var(--text-muted); padding: 0 6px; }
+    .kanban-cards { padding: 10px 10px 6px; min-height: 60px; }
 
-    .cal-detail {
+    .kanban-card {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 18px 20px;
-      margin-top: 14px;
+      border-radius: 10px;
+      padding: 11px 13px;
+      margin-bottom: 8px;
+      cursor: grab;
       box-shadow: var(--shadow);
+      transition: box-shadow 0.15s, opacity 0.15s;
+      user-select: none;
     }
-    .cal-detail-title { font-size: 15px; font-weight: 600; margin-bottom: 14px; }
-    .cal-detail-empty { color: var(--text-muted); font-size: 13px; }
-    .cal-detail-item { display: flex; align-items: flex-start; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--border); }
-    .cal-detail-item:last-child { border-bottom: none; }
-    .cal-detail-dot  { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
-    .cal-detail-info { flex: 1; }
-    .cal-detail-name { font-size: 14px; font-weight: 500; }
-    .cal-detail-sub  { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
-    .cal-detail-time { font-size: 12px; font-weight: 600; flex-shrink: 0; }
+    .kanban-card:hover { box-shadow: var(--shadow-md); }
+    .kanban-card.dragging { opacity: 0.35; cursor: grabbing; }
+    .kanban-card.drag-placeholder { border: 2px dashed #A5B4FC; background: #EEF2FF; box-shadow: none; min-height: 52px; }
 
-    /* ── Gcal legend ─── */
-    .gcal-legend { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
-    .gcal-legend-item { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--text-muted); }
+    .kc-top { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 6px; }
+    .kc-proj-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+    .kc-title { font-size: 13px; font-weight: 500; line-height: 1.4; flex: 1; }
+    .kc-actions { display: flex; gap: 3px; opacity: 0; transition: opacity 0.15s; flex-shrink: 0; }
+    .kanban-card:hover .kc-actions { opacity: 1; }
+
+    .kc-proj-tag { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; padding: 2px 7px; border-radius: 99px; font-weight: 500; }
+    .kc-notes { font-size: 11px; color: var(--text-muted); margin-top: 5px; font-style: italic; line-height: 1.4; }
+
+    .kanban-add-btn { display: flex; align-items: center; gap: 6px; width: 100%; padding: 8px 14px; border: none; background: transparent; color: var(--text-muted); font-size: 13px; cursor: pointer; border-top: 1px solid var(--border); border-radius: 0 0 var(--radius) var(--radius); transition: background 0.12s, color 0.12s; }
+    .kanban-add-btn:hover { background: var(--surface); color: var(--text); }
 
     /* ── Buttons ─── */
     .btn { display: inline-flex; align-items: center; gap: 5px; padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 500; border: none; cursor: pointer; transition: all 0.15s; font-family: inherit; white-space: nowrap; }
@@ -171,8 +150,6 @@
     .btn-primary:hover:not(:disabled) { background: #374151; }
     .btn-ai         { background: #4F46E5; color: #fff; }
     .btn-ai:hover:not(:disabled) { background: #4338CA; }
-    .btn-green      { background: #059669; color: #fff; }
-    .btn-green:hover:not(:disabled) { background: #047857; }
     .btn-secondary  { background: var(--bg); color: var(--text); border: 1px solid var(--border); }
     .btn-secondary:hover:not(:disabled) { background: #F3F4F6; }
     .btn-ghost      { background: transparent; color: var(--text-muted); border: 1px solid var(--border); padding: 5px 8px; border-radius: 6px; }
@@ -195,7 +172,7 @@
     .fg label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 5px; }
     .fi { width: 100%; padding: 9px 11px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; color: var(--text); background: var(--surface); font-family: inherit; transition: border-color 0.15s; }
     .fi:focus { outline: none; border-color: #9CA3AF; }
-    textarea.fi { resize: vertical; min-height: 100px; }
+    textarea.fi { resize: vertical; min-height: 80px; }
 
     .color-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
     .swatch { width: 26px; height: 26px; border-radius: 50%; cursor: pointer; border: 3px solid transparent; transition: border-color 0.15s, transform 0.15s; }
@@ -224,13 +201,6 @@
     .file-upload-btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; border: 1px dashed var(--border); border-radius: 8px; font-size: 13px; color: var(--text-muted); cursor: pointer; transition: all 0.15s; background: var(--bg); margin-top: 6px; }
     .file-upload-btn:hover { border-color: #9CA3AF; color: var(--text); background: #F3F4F6; }
 
-    /* ── Gcal entry row ─── */
-    .gcal-row { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--border); }
-    .gcal-row:last-child { border-bottom: none; }
-    .gcal-row-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; cursor: pointer; }
-    .gcal-row-name { flex: 1; font-size: 13px; font-weight: 500; }
-    .gcal-row-url  { font-size: 11px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
-
     /* ── Misc ─── */
     .empty  { text-align: center; padding: 36px; color: var(--text-muted); font-size: 14px; }
     .hidden { display: none !important; }
@@ -240,7 +210,6 @@
 </head>
 <body>
 
-<!-- Header -->
 <header>
   <div class="header-left">
     <h1>Work Dashboard</h1>
@@ -256,15 +225,14 @@
 <div class="container">
   <div class="stats-bar" id="statsBar"></div>
 
-  <!-- Tabs -->
   <div class="tabs">
     <button class="tab active" onclick="setTab('deadlines')">Prazos</button>
     <button class="tab"        onclick="setTab('timeline')">Timeline</button>
-    <button class="tab"        onclick="setTab('calendar')">📅 Calendário</button>
+    <button class="tab"        onclick="setTab('kanban')">Semana</button>
     <button class="tab"        onclick="setTab('projects')">Projetos</button>
   </div>
 
-  <!-- View: Prazos -->
+  <!-- Prazos -->
   <div id="view-deadlines" class="section">
     <div class="section-header">
       <div class="section-title">Próximos prazos</div>
@@ -275,7 +243,7 @@
     <div class="deadline-list" id="deadlineList"></div>
   </div>
 
-  <!-- View: Timeline -->
+  <!-- Timeline -->
   <div id="view-timeline" class="section hidden">
     <div class="section-header">
       <div class="section-title">Timeline — próximos 60 dias</div>
@@ -285,35 +253,22 @@
     </div>
   </div>
 
-  <!-- View: Calendário -->
-  <div id="view-calendar" class="section hidden">
-    <div class="cal-nav">
-      <button class="btn btn-secondary btn-sm" onclick="prevMonth()">←</button>
-      <div class="cal-month-label" id="calMonthLabel"></div>
-      <button class="btn btn-secondary btn-sm" onclick="nextMonth()">→</button>
-      <div class="cal-actions">
-        <button class="btn btn-secondary btn-sm" onclick="goToday()">Hoje</button>
-        <button class="btn btn-green btn-sm" id="calRefreshBtn" onclick="refreshCalendars()">↺ Agendas</button>
-        <button class="btn btn-secondary btn-sm" onclick="openGcalModal()">⚙ Agendas Google</button>
+  <!-- Kanban -->
+  <div id="view-kanban" class="section hidden">
+    <div class="kanban-header">
+      <div>
+        <div class="section-title">Semana atual</div>
+        <div class="kanban-week-label" id="kanbanWeekLabel"></div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-secondary btn-sm" onclick="clearDoneCards()">Limpar concluídos</button>
+        <button class="btn btn-primary btn-sm"   onclick="openTaskModal(null,'todo')">+ Tarefa</button>
       </div>
     </div>
-    <div id="gcalLegend" class="gcal-legend"></div>
-    <div id="calFetchStatus" style="font-size:13px;margin-bottom:10px;min-height:20px;display:flex;align-items:center;gap:8px"></div>
-    <div class="cal-grid-wrap">
-      <div class="cal-dow-row">
-        <div class="cal-dow">Dom</div><div class="cal-dow">Seg</div><div class="cal-dow">Ter</div>
-        <div class="cal-dow">Qua</div><div class="cal-dow">Qui</div><div class="cal-dow">Sex</div>
-        <div class="cal-dow">Sáb</div>
-      </div>
-      <div class="cal-weeks" id="calWeeks"></div>
-    </div>
-    <div class="cal-detail hidden" id="calDetail">
-      <div class="cal-detail-title" id="calDetailTitle"></div>
-      <div id="calDetailBody"></div>
-    </div>
+    <div class="kanban-board" id="kanbanBoard"></div>
   </div>
 
-  <!-- View: Projetos -->
+  <!-- Projetos -->
   <div id="view-projects" class="section hidden">
     <div class="section-header">
       <div class="section-title">Projetos</div>
@@ -322,9 +277,7 @@
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════════
-     Modal: Importar Prazos
-════════════════════════════════════════════════════════ -->
+<!-- ══════════════ Modal: Importar Prazos ══════════════ -->
 <div class="overlay hidden" id="importModal">
   <div class="modal modal-wide">
     <div class="modal-head">
@@ -332,20 +285,14 @@
       <button class="btn-ghost" onclick="closeImportModal()">✕</button>
     </div>
     <div class="modal-body">
-
-      <!-- Mode tabs -->
       <div class="import-mode-tabs">
         <div class="import-mode-tab active" id="modeTabAuto" onclick="setImportMode('auto')">🧠 Automático (grátis)</div>
         <div class="import-mode-tab"        id="modeTabAI"   onclick="setImportMode('ai')">✨ Com IA (API key)</div>
       </div>
-
-      <!-- Step indicator -->
       <div class="ai-steps">
         <div class="ai-step active" id="impStep1"></div>
         <div class="ai-step"        id="impStep2"></div>
       </div>
-
-      <!-- Panel: Input (both modes) -->
       <div id="impPanelInput">
         <div class="info-box" id="impModeHint">
           Cole qualquer texto com datas — cronograma, e-mail, planilha. O parser detecta automaticamente formatos como <strong>DD/MM</strong>, <strong>DD/MM/YYYY</strong>, <strong>DD de Mês</strong>, intervalos de semana, etc.
@@ -353,19 +300,16 @@
         <div class="fg">
           <label>Texto com datas e tarefas</label>
           <textarea class="fi" id="impText" rows="9"
-            placeholder="Exemplos:&#10;• 25/05 – Apresentação diagnóstico Macro&#10;• Dr. Bingo: entrega final dos posicionamentos 05/06&#10;• Semana 3 (27/05–02/06): Positioning v1&#10;(Cole e-mail, planilha ou qualquer texto)"></textarea>
+            placeholder="Exemplos:&#10;• 25/05 – Apresentação diagnóstico Macro&#10;• Dr. Bingo: entrega final dos posicionamentos 05/06&#10;• Semana 3 (27/05–02/06): Positioning v1"></textarea>
         </div>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
           <label class="file-upload-btn">
             📎 Carregar arquivo (txt, csv)
             <input type="file" accept=".txt,.csv,.md" style="display:none" onchange="loadImpFile(event)">
           </label>
-          <span style="font-size:12px;color:var(--text-muted)">PDF: copie o texto e cole acima</span>
         </div>
-
-        <!-- AI-only: key setup -->
         <div id="aiKeyPanel" class="hidden" style="margin-top:14px">
-          <div class="warn-box">A chave fica salva só no seu navegador e nunca sai do dispositivo, exceto na chamada à API do provedor escolhido.</div>
+          <div class="warn-box">A chave fica salva só no seu navegador.</div>
           <div class="fg" style="margin-bottom:8px">
             <label>Provedor</label>
             <select class="fi" id="aiProvider" onchange="updateAiProviderHint()">
@@ -379,16 +323,12 @@
           </div>
           <button class="btn btn-secondary btn-sm" style="margin-top:8px" onclick="clearAiKey()">Limpar chave salva</button>
         </div>
-
         <div class="ai-status" id="impStatus"></div>
       </div>
-
-      <!-- Panel: Preview -->
       <div id="impPanelPreview" class="hidden">
         <p style="font-size:13px;margin-bottom:12px;font-weight:500">Prazos encontrados — desmarque os que não quiser importar:</p>
         <div id="impPreviewList"></div>
       </div>
-
     </div>
     <div class="modal-foot">
       <div id="impFootActions" style="display:flex;width:100%;gap:8px;align-items:center"></div>
@@ -396,113 +336,47 @@
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════════
-     Modal: Google Calendar
-════════════════════════════════════════════════════════ -->
-<div class="overlay hidden" id="gcalModal">
-  <div class="modal modal-wide">
+<!-- ══════════════ Modal: Tarefa Kanban ══════════════ -->
+<div class="overlay hidden" id="taskModal">
+  <div class="modal">
     <div class="modal-head">
-      <div class="modal-title">Agendas do Google Calendar</div>
-      <button class="btn-ghost" onclick="closeGcalModal()">✕</button>
+      <div class="modal-title" id="tmTitle">Nova Tarefa</div>
+      <button class="btn-ghost" onclick="closeTaskModal()">✕</button>
     </div>
     <div class="modal-body">
-
-      <!-- Proxy setup -->
-      <details id="gcalProxyDetails" style="margin-bottom:14px">
-        <summary style="cursor:pointer;font-size:13px;font-weight:600;padding:8px 10px;background:var(--bg);border-radius:8px;border:1px solid var(--border);list-style:none;display:flex;justify-content:space-between;align-items:center">
-          ⚙ Configuração de proxy CORS
-          <span id="gcalProxyBadge" style="font-size:11px;font-weight:500;padding:2px 8px;border-radius:99px;background:#DCFCE7;color:#166534">Padrão (público)</span>
-        </summary>
-        <div style="border:1px solid var(--border);border-top:none;border-radius:0 0 8px 8px;padding:14px">
-          <div class="warn-box" style="margin-bottom:12px">
-            <strong>Proxies públicos gratuitos estão instáveis.</strong> A solução mais confiável é criar seu próprio proxy com Google Apps Script (gratuito, 2 min de setup):
-          </div>
-          <ol style="font-size:12px;line-height:1.8;padding-left:18px;color:var(--text);margin-bottom:12px">
-            <li>Acesse <strong>script.google.com</strong> → clique em <strong>"Novo projeto"</strong></li>
-            <li>Apague o conteúdo e cole o código abaixo</li>
-            <li>Clique em <strong>Implantar → Nova implantação → App Web</strong></li>
-            <li>Em "Quem tem acesso" escolha <strong>"Qualquer pessoa"</strong> → Implantar</li>
-            <li>Copie a URL do deploy (começa com <code>https://script.google.com/macros/s/…/exec</code>)</li>
-            <li>Cole no campo "URL do proxy" abaixo e salve</li>
-          </ol>
-          <pre style="background:#1E1E1E;color:#D4D4D4;padding:10px 12px;border-radius:8px;font-size:11px;overflow-x:auto;margin-bottom:12px">function doGet(e) {
-  if (e.parameter.calId) return getByCalId(e.parameter.calId);
-  var res = UrlFetchApp.fetch(e.parameter.url, {muteHttpExceptions:true});
-  return ContentService.createTextOutput(res.getContentText());
-}
-function getByCalId(calId) {
-  var cal = CalendarApp.getCalendarById(calId);
-  if (!cal) return ContentService.createTextOutput('ERROR:not_found:' + calId);
-  var now = new Date(), end = new Date(now.getTime() + 180*24*60*60*1000);
-  var evs = cal.getEvents(now, end);
-  var lines = ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Script//EN'];
-  evs.forEach(function(ev) {
-    lines.push('BEGIN:VEVENT');
-    lines.push('SUMMARY:' + ev.getTitle().replace(/\n/g,'\\n'));
-    if (ev.isAllDayEvent()) {
-      lines.push('DTSTART;VALUE=DATE:' + fmt(ev.getStartTime(),true));
-      lines.push('DTEND;VALUE=DATE:' + fmt(ev.getEndTime(),true));
-    } else {
-      lines.push('DTSTART:' + fmt(ev.getStartTime(),false));
-      lines.push('DTEND:' + fmt(ev.getEndTime(),false));
-    }
-    lines.push('END:VEVENT');
-  });
-  lines.push('END:VCALENDAR');
-  return ContentService.createTextOutput(lines.join('\r\n'));
-}
-function fmt(d,allDay) {
-  return Utilities.formatDate(d,'UTC',allDay?"yyyyMMdd":"yyyyMMdd'T'HHmmss'Z'");
-}</pre>
-          <div class="warn-box" style="margin-top:4px;margin-bottom:12px">
-            ⚠️ Se você já tinha o script antigo, <strong>apague tudo e cole o código novo acima</strong>. Depois clique em <strong>Implantar → Gerenciar implantações → edite (✎) → "Nova versão" → Implantar</strong>.
-          </div>
-          <div class="fg" style="margin-bottom:8px">
-            <label style="font-size:12px">URL do seu proxy Apps Script</label>
-            <input class="fi" id="gcalCustomProxy" placeholder="https://script.google.com/macros/s/…/exec">
-          </div>
-          <div style="display:flex;gap:8px">
-            <button class="btn btn-secondary btn-sm" onclick="saveCustomProxy()">Salvar proxy</button>
-            <button class="btn btn-danger-soft btn-sm" onclick="clearCustomProxy()">Remover proxy personalizado</button>
-          </div>
-        </div>
-      </details>
-
-      <div id="gcalModalStatus" style="font-size:13px;min-height:20px;margin-bottom:8px;display:flex;align-items:center;gap:8px"></div>
-      <div id="gcalList"></div>
-
-      <div style="border-top:1px solid var(--border);margin-top:12px;padding-top:16px">
-        <div style="font-size:13px;font-weight:600;margin-bottom:4px">Adicionar agenda</div>
-        <div class="info-box" style="margin-bottom:12px">
-          <strong>Com o Apps Script configurado:</strong> basta usar seu <strong>email do Google</strong> como ID da agenda (ex: <code>nome@gmail.com</code>).<br>
-          Para agendas secundárias ou de grupo, use o ID que aparece em Configurações da agenda (formato <code>…@group.calendar.google.com</code>).
-        </div>
-        <div class="fg">
-          <label>Nome da agenda</label>
-          <input class="fi" id="gcalNewName" placeholder="Ex: Pessoal, Trabalho, Freelas…">
-        </div>
-        <div class="fg">
-          <label>Email / ID da agenda</label>
-          <input class="fi" id="gcalNewUrl" placeholder="nome@gmail.com  (ou URL iCal se não usar Apps Script)">
-        </div>
-        <div class="fg" style="margin-bottom:0">
-          <label>Cor</label>
-          <div class="color-row" id="gcalColorRow"></div>
-        </div>
-        <div id="gcalTestResult" style="margin-top:10px;font-size:11px;display:none;background:#F8F9FA;border:1px solid var(--border);border-radius:8px;padding:10px;word-break:break-all;max-height:120px;overflow-y:auto;font-family:monospace;white-space:pre-wrap"></div>
+      <input type="hidden" id="tmId">
+      <div class="fg">
+        <label>Tarefa *</label>
+        <input class="fi" id="tmText" placeholder="O que precisa ser feito esta semana?">
+      </div>
+      <div class="fg">
+        <label>Projeto (opcional)</label>
+        <select class="fi" id="tmProject">
+          <option value="">— sem projeto —</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label>Coluna</label>
+        <select class="fi" id="tmCol">
+          <option value="todo">A Fazer</option>
+          <option value="doing">Em andamento</option>
+          <option value="done">Concluído</option>
+        </select>
+      </div>
+      <div class="fg" style="margin-bottom:0">
+        <label>Notas</label>
+        <textarea class="fi" id="tmNotes" rows="3" placeholder="Contexto, links, observações…"></textarea>
       </div>
     </div>
     <div class="modal-foot">
-      <button class="btn btn-secondary" onclick="testGcalUrl()" id="gcalTestBtn" style="margin-right:auto">🔍 Testar URL</button>
-      <button class="btn btn-secondary" onclick="closeGcalModal()">Fechar</button>
-      <button class="btn btn-primary"   onclick="addGcalEntry()" id="gcalAddBtn">+ Adicionar</button>
+      <button class="btn btn-danger-soft btn-sm hidden" id="tmDelete" onclick="deleteTask()" style="margin-right:auto">Excluir</button>
+      <button class="btn btn-secondary" onclick="closeTaskModal()">Cancelar</button>
+      <button class="btn btn-primary"   onclick="saveTask()">Salvar</button>
     </div>
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════════
-     Modal: Projeto
-════════════════════════════════════════════════════════ -->
+<!-- ══════════════ Modal: Projeto ══════════════ -->
 <div class="overlay hidden" id="projectModal">
   <div class="modal">
     <div class="modal-head">
@@ -525,9 +399,7 @@ function fmt(d,allDay) {
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════════
-     Modal: Prazo
-════════════════════════════════════════════════════════ -->
+<!-- ══════════════ Modal: Prazo ══════════════ -->
 <div class="overlay hidden" id="deadlineModal">
   <div class="modal">
     <div class="modal-head">
@@ -555,64 +427,53 @@ function fmt(d,allDay) {
 // Config
 // ══════════════════════════════════════════════════════════
 const COLORS = ['#4F46E5','#0EA5E9','#10B981','#F59E0B','#EF4444','#EC4899','#8B5CF6','#14B8A6','#F97316','#64748B'];
-const GCAL_COLORS = ['#4285F4','#34A853','#EA4335','#FBBC05','#9C27B0','#00BCD4','#FF5722','#795548'];
 
-// ══════════════════════════════════════════════════════════
-// Default data
-// ══════════════════════════════════════════════════════════
 const DEFAULT_DATA = {
   projects: [
-    {
-      id: 'p-inpress', name: 'Inpress', type: 'emprego', client: '', color: '#4F46E5', notes: '',
-      deadlines: []
-    },
-    {
-      id: 'p-bingo', name: 'Dr. Bingo', type: 'freela', client: 'Dr. Bingo / Gamesmart', color: '#10B981',
-      notes: 'Brand Sprint (Semanas 1–7) + Reta Final: Character Build Up + Brandbook',
-      deadlines: [
-        { id: 'b01', title: 'Architecture + Framework (Sprint Semana 2)',       date: '2026-05-26', done: false, notes: 'Estratégia' },
-        { id: 'b02', title: 'Apresentação v1 dos posicionamentos',               date: '2026-06-01', done: false, notes: 'Bet, SG e Club' },
-        { id: 'b03', title: 'Envio final dos posicionamentos',                   date: '2026-06-05', done: false, notes: '' },
-        { id: 'b04', title: 'Briefing Character Build Up',                      date: '2026-06-08', done: false, notes: '' },
-        { id: 'b05', title: 'Apresentação propostas de frameworks (personagens)',date: '2026-06-24', done: false, notes: '' },
-        { id: 'b06', title: 'Apresentação v1 novos personagens',                date: '2026-07-03', done: false, notes: '' },
-        { id: 'b07', title: 'Envio final Character Build Up',                   date: '2026-07-07', done: false, notes: '' },
-        { id: 'b08', title: 'Apresentação IDV + Verbal',                        date: '2026-07-23', done: false, notes: '' },
-        { id: 'b09', title: 'Envio final IDV + Verbal',                         date: '2026-07-28', done: false, notes: '' },
-        { id: 'b10', title: 'Envio Brandbook v1',                               date: '2026-08-04', done: false, notes: '' },
-        { id: 'b11', title: 'Envio final Brandbook',                            date: '2026-08-07', done: false, notes: '' },
+    { id:'p-inpress', name:'Inpress',         type:'emprego', client:'',                    color:'#4F46E5', notes:'', deadlines:[] },
+    { id:'p-bingo',   name:'Dr. Bingo',       type:'freela',  client:'Dr. Bingo / Gamesmart', color:'#10B981',
+      notes:'Brand Sprint (Semanas 1–7) + Reta Final: Character Build Up + Brandbook',
+      deadlines:[
+        {id:'b01',title:'Architecture + Framework (Sprint Semana 2)',        date:'2026-05-26',done:false,notes:'Estratégia'},
+        {id:'b02',title:'Apresentação v1 dos posicionamentos',                date:'2026-06-01',done:false,notes:'Bet, SG e Club'},
+        {id:'b03',title:'Envio final dos posicionamentos',                    date:'2026-06-05',done:false,notes:''},
+        {id:'b04',title:'Briefing Character Build Up',                       date:'2026-06-08',done:false,notes:''},
+        {id:'b05',title:'Apresentação propostas de frameworks (personagens)', date:'2026-06-24',done:false,notes:''},
+        {id:'b06',title:'Apresentação v1 novos personagens',                 date:'2026-07-03',done:false,notes:''},
+        {id:'b07',title:'Envio final Character Build Up',                    date:'2026-07-07',done:false,notes:''},
+        {id:'b08',title:'Apresentação IDV + Verbal',                         date:'2026-07-23',done:false,notes:''},
+        {id:'b09',title:'Envio final IDV + Verbal',                          date:'2026-07-28',done:false,notes:''},
+        {id:'b10',title:'Envio Brandbook v1',                                date:'2026-08-04',done:false,notes:''},
+        {id:'b11',title:'Envio final Brandbook',                             date:'2026-08-07',done:false,notes:''},
       ]
     },
-    {
-      id: 'p-macro', name: 'Macro Arquitetos', type: 'freela', client: '', color: '#F59E0B',
-      notes: 'Imersão & Diagnóstico concluída. Fase atual: Posicionamento.',
-      deadlines: [
-        { id: 'm01', title: 'Apresentação do diagnóstico',    date: '2026-05-25', done: false, notes: '⚠️ Urgente' },
-        { id: 'm02', title: 'Entrega do posicionamento',      date: '2026-05-29', done: false, notes: '' },
-        { id: 'm03', title: 'Apresentação do posicionamento', date: '2026-06-01', done: false, notes: '' },
-        { id: 'm04', title: 'Entrega final posicionamento',   date: '2026-06-03', done: false, notes: '' },
+    { id:'p-macro', name:'Macro Arquitetos', type:'freela', client:'', color:'#F59E0B',
+      notes:'Imersão & Diagnóstico concluída. Fase atual: Posicionamento.',
+      deadlines:[
+        {id:'m01',title:'Apresentação do diagnóstico',   date:'2026-05-25',done:false,notes:'⚠️ Urgente'},
+        {id:'m02',title:'Entrega do posicionamento',     date:'2026-05-29',done:false,notes:''},
+        {id:'m03',title:'Apresentação do posicionamento',date:'2026-06-01',done:false,notes:''},
+        {id:'m04',title:'Entrega final posicionamento',  date:'2026-06-03',done:false,notes:''},
       ]
     },
-    {
-      id: 'p-arete', name: 'Aretê Búzios', type: 'freela', client: '', color: '#EC4899', notes: '',
-      deadlines: []
-    },
-    {
-      id: 'p-banco', name: 'Banco Atlântico', type: 'freela', client: '', color: '#0EA5E9',
-      notes: '5 entregas semanais de análise de concorrência (quartas-feiras)',
-      deadlines: [
-        { id: 'ba1', title: 'Análise de concorrência — Semana 1', date: '2026-05-27', done: false, notes: '' },
-        { id: 'ba2', title: 'Análise de concorrência — Semana 2', date: '2026-06-03', done: false, notes: '' },
-        { id: 'ba3', title: 'Análise de concorrência — Semana 3', date: '2026-06-10', done: false, notes: '' },
-        { id: 'ba4', title: 'Análise de concorrência — Semana 4', date: '2026-06-17', done: false, notes: '' },
-        { id: 'ba5', title: 'Análise de concorrência — Semana 5', date: '2026-06-24', done: false, notes: '' },
+    { id:'p-arete', name:'Aretê Búzios',    type:'freela', client:'', color:'#EC4899', notes:'', deadlines:[] },
+    { id:'p-banco', name:'Banco Atlântico', type:'freela', client:'', color:'#0EA5E9',
+      notes:'5 entregas semanais de análise de concorrência (quartas-feiras)',
+      deadlines:[
+        {id:'ba1',title:'Análise de concorrência — Semana 1',date:'2026-05-27',done:false,notes:''},
+        {id:'ba2',title:'Análise de concorrência — Semana 2',date:'2026-06-03',done:false,notes:''},
+        {id:'ba3',title:'Análise de concorrência — Semana 3',date:'2026-06-10',done:false,notes:''},
+        {id:'ba4',title:'Análise de concorrência — Semana 4',date:'2026-06-17',done:false,notes:''},
+        {id:'ba5',title:'Análise de concorrência — Semana 5',date:'2026-06-24',done:false,notes:''},
       ]
     },
-  ]
+  ],
+  kanban: []
 };
 
-let data = JSON.parse(localStorage.getItem('workdash_v2')) || DEFAULT_DATA;
-const save = () => localStorage.setItem('workdash_v2', JSON.stringify(data));
+let data = JSON.parse(localStorage.getItem('workdash_v3')) || DEFAULT_DATA;
+if (!data.kanban) data.kanban = [];
+const save = () => localStorage.setItem('workdash_v3', JSON.stringify(data));
 const uid  = () => Date.now().toString(36) + Math.random().toString(36).slice(2);
 
 // ══════════════════════════════════════════════════════════
@@ -623,7 +484,6 @@ const TODAY = (() => { const d = new Date(); d.setHours(0,0,0,0); return d; })()
 function daysUntil(dateStr) {
   return Math.round((new Date(dateStr + 'T00:00:00') - TODAY) / 86400000);
 }
-
 function urgencyColor(dateStr, done) {
   if (done) return '#9CA3AF';
   const d = daysUntil(dateStr);
@@ -632,22 +492,15 @@ function urgencyColor(dateStr, done) {
   if (d <= 7) return 'var(--warning)';
   return 'var(--success)';
 }
-
 function daysLabel(n) {
   if (n < 0)   return `${Math.abs(n)}d atrasado`;
   if (n === 0) return 'Hoje!';
   if (n === 1) return 'Amanhã';
   return `em ${n}d`;
 }
-
 function fmtDate(str) {
-  return new Date(str + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
+  return new Date(str + 'T00:00:00').toLocaleDateString('pt-BR', { day:'2-digit', month:'short' });
 }
-
-function toISODate(d) {
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-}
-
 function esc(str) {
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
     .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
@@ -660,12 +513,12 @@ let currentTab = 'deadlines';
 
 function setTab(tab) {
   currentTab = tab;
-  const tabs = ['deadlines','timeline','calendar','projects'];
-  document.querySelectorAll('.tab').forEach((el, i) => el.classList.toggle('active', tabs[i] === tab));
-  tabs.forEach(t => document.getElementById('view-' + t).classList.toggle('hidden', t !== tab));
+  const tabs = ['deadlines','timeline','kanban','projects'];
+  document.querySelectorAll('.tab').forEach((el,i) => el.classList.toggle('active', tabs[i] === tab));
+  tabs.forEach(t => document.getElementById('view-'+t).classList.toggle('hidden', t !== tab));
   if (tab === 'timeline') renderTimeline();
   if (tab === 'projects') renderProjects();
-  if (tab === 'calendar') { renderCalendar(); loadCachedEvents(); }
+  if (tab === 'kanban')   renderKanban();
 }
 
 // ══════════════════════════════════════════════════════════
@@ -676,22 +529,22 @@ function render() {
   renderDeadlines();
   if (currentTab === 'timeline') renderTimeline();
   if (currentTab === 'projects') renderProjects();
-  if (currentTab === 'calendar') renderCalendar();
+  if (currentTab === 'kanban')   renderKanban();
 }
 
 function renderStats() {
-  const all      = data.projects.flatMap(p => p.deadlines.map(d => ({ ...d, project: p })));
+  const all      = data.projects.flatMap(p => p.deadlines.map(d => ({...d, project:p})));
   const overdue  = all.filter(d => !d.done && daysUntil(d.date) < 0).length;
   const thisWeek = all.filter(d => !d.done && daysUntil(d.date) >= 0 && daysUntil(d.date) <= 7).length;
   const later    = all.filter(d => !d.done && daysUntil(d.date) > 7).length;
 
   document.getElementById('statsBar').innerHTML = `
-    <div class="stat-card ${overdue  > 0 ? 'stat-danger'  : ''}">
+    <div class="stat-card ${overdue>0?'stat-danger':''}">
       <div class="stat-label">Atrasados</div>
       <div class="stat-value">${overdue}</div>
       <div class="stat-sub">prazo(s) vencido(s)</div>
     </div>
-    <div class="stat-card ${thisWeek > 0 ? 'stat-warning' : ''}">
+    <div class="stat-card ${thisWeek>0?'stat-warning':''}">
       <div class="stat-label">Esta semana</div>
       <div class="stat-value">${thisWeek}</div>
       <div class="stat-sub">prazo(s) nos próx. 7d</div>
@@ -711,32 +564,33 @@ function renderStats() {
 function renderDeadlines() {
   const showDone = document.getElementById('showDone').checked;
   const list = data.projects
-    .flatMap(p => p.deadlines.map(d => ({ ...d, project: p })))
+    .flatMap(p => p.deadlines.map(d => ({...d, project:p})))
     .filter(d => showDone || !d.done)
     .sort((a,b) => { if (a.done !== b.done) return a.done ? 1 : -1; return a.date.localeCompare(b.date); });
 
   if (!list.length) {
-    document.getElementById('deadlineList').innerHTML = `<div class="empty">Nenhum prazo${showDone ? '' : ' pendente'}.<br>Use <strong>+ Prazo</strong> ou <strong>↑ Importar</strong> para adicionar.</div>`;
+    document.getElementById('deadlineList').innerHTML =
+      `<div class="empty">Nenhum prazo${showDone?'':' pendente'}.</div>`;
     return;
   }
 
   document.getElementById('deadlineList').innerHTML = list.map(d => {
     const days  = daysUntil(d.date);
     const color = urgencyColor(d.date, d.done);
-    return `<div class="deadline-card ${d.done ? 'is-done' : ''}">
+    return `<div class="deadline-card ${d.done?'is-done':''}">
       <div class="project-dot" style="background:${d.project.color}"></div>
       <div class="urgency-dot" style="background:${color}"></div>
       <div class="dl-info">
-        <div class="dl-title${d.done ? ' done' : ''}">${esc(d.title)}</div>
-        <div class="dl-sub">${esc(d.project.name)}${d.project.client ? ' · '+esc(d.project.client) : ''}</div>
-        ${d.notes ? `<div class="dl-notes">${esc(d.notes)}</div>` : ''}
+        <div class="dl-title${d.done?' done':''}">${esc(d.title)}</div>
+        <div class="dl-sub">${esc(d.project.name)}${d.project.client?' · '+esc(d.project.client):''}</div>
+        ${d.notes?`<div class="dl-notes">${esc(d.notes)}</div>`:''}
       </div>
       <div class="dl-date">
         <div class="dl-date-value">${fmtDate(d.date)}</div>
-        <div class="dl-days" style="color:${color}">${d.done ? 'Concluído' : daysLabel(days)}</div>
+        <div class="dl-days" style="color:${color}">${d.done?'Concluído':daysLabel(days)}</div>
       </div>
       <div class="dl-actions">
-        <button class="btn-ghost" title="${d.done ? 'Reabrir' : 'Concluir'}" onclick="toggleDone('${d.project.id}','${d.id}')">${d.done ? '↩' : '✓'}</button>
+        <button class="btn-ghost" title="${d.done?'Reabrir':'Concluir'}" onclick="toggleDone('${d.project.id}','${d.id}')">${d.done?'↩':'✓'}</button>
         <button class="btn-ghost" title="Editar" onclick="openDeadlineModal('${d.project.id}','${d.id}')">✎</button>
       </div>
     </div>`;
@@ -747,20 +601,19 @@ function renderTimeline() {
   const DAYS = 60;
   let labels = '';
   for (let i = 0; i <= DAYS; i += 10) {
-    const d = new Date(TODAY); d.setDate(d.getDate() + i);
+    const d = new Date(TODAY); d.setDate(d.getDate()+i);
     labels += `<div class="tl-label" style="left:${(i/DAYS*100).toFixed(1)}%">${d.toLocaleDateString('pt-BR',{day:'2-digit',month:'short'})}</div>`;
   }
-
   let rows = '';
   for (const p of data.projects) {
     let dots = `<div class="tl-today"></div>`;
     for (const d of p.deadlines) {
-      const dDate = new Date(d.date + 'T00:00:00');
-      const pct   = (dDate - TODAY) / (DAYS * 86400000) * 100;
-      if (pct < -5 || pct > 105) continue;
-      const clamp = Math.max(0, Math.min(100, pct)).toFixed(2);
-      dots += `<div class="tl-dot" style="left:${clamp}%;background:${urgencyColor(d.date, d.done)}"
-        title="${esc(d.title)} — ${fmtDate(d.date)}${d.done ? ' (concluído)' : ''}"
+      const dDate = new Date(d.date+'T00:00:00');
+      const pct   = (dDate-TODAY)/(DAYS*86400000)*100;
+      if (pct<-5||pct>105) continue;
+      const clamp = Math.max(0,Math.min(100,pct)).toFixed(2);
+      dots += `<div class="tl-dot" style="left:${clamp}%;background:${urgencyColor(d.date,d.done)}"
+        title="${esc(d.title)} — ${fmtDate(d.date)}${d.done?' (concluído)':''}"
         onclick="openDeadlineModal('${p.id}','${d.id}')"></div>`;
     }
     rows += `<div class="tl-row">
@@ -768,14 +621,12 @@ function renderTimeline() {
       <div class="tl-track">${dots}</div>
     </div>`;
   }
-
   const legend = `<div class="tl-legend">
     <div class="tl-legend-item"><div class="legend-dot" style="background:var(--danger)"></div>Urgente (≤3d)</div>
     <div class="tl-legend-item"><div class="legend-dot" style="background:var(--warning)"></div>Em breve (≤7d)</div>
     <div class="tl-legend-item"><div class="legend-dot" style="background:var(--success)"></div>OK</div>
     <div class="tl-legend-item"><div class="legend-dot" style="background:#9CA3AF"></div>Concluído</div>
   </div>`;
-
   document.getElementById('timelineGrid').innerHTML = !data.projects.length
     ? `<div class="empty">Nenhum projeto cadastrado.</div>`
     : `<div class="tl-header-row">${labels}</div>${rows}${legend}`;
@@ -783,25 +634,25 @@ function renderTimeline() {
 
 function renderProjects() {
   if (!data.projects.length) {
-    document.getElementById('projectsGrid').innerHTML = `<div class="empty">Nenhum projeto. Clique em "+ Projeto".</div>`;
+    document.getElementById('projectsGrid').innerHTML = `<div class="empty">Nenhum projeto.</div>`;
     return;
   }
   document.getElementById('projectsGrid').innerHTML = data.projects.map(p => {
-    const pending = p.deadlines.filter(d => !d.done).sort((a,b) => a.date.localeCompare(b.date));
+    const pending = p.deadlines.filter(d=>!d.done).sort((a,b)=>a.date.localeCompare(b.date));
     const next    = pending[0];
-    const color   = next ? urgencyColor(next.date, false) : 'var(--text-muted)';
+    const color   = next ? urgencyColor(next.date,false) : 'var(--text-muted)';
     return `<div class="project-card">
       <div class="pc-header">
         <div class="pc-dot" style="background:${p.color}"></div>
         <div class="pc-name">${esc(p.name)}</div>
         <span class="badge ${p.type==='emprego'?'badge-emprego':'badge-freela'}">${p.type==='emprego'?'Emprego':'Freela'}</span>
       </div>
-      ${p.client ? `<div class="pc-client">👤 ${esc(p.client)}</div>` : ''}
+      ${p.client?`<div class="pc-client">👤 ${esc(p.client)}</div>`:''}
       <div style="font-size:12px;color:var(--text-muted)">${pending.length} prazo(s) pendente(s)</div>
       <div class="pc-deadline-preview" style="color:${color}">
-        ${next ? `⏱ ${esc(next.title)} — ${fmtDate(next.date)} (${daysLabel(daysUntil(next.date))})` : `<span style="color:var(--text-muted)">Sem prazos</span>`}
+        ${next?`⏱ ${esc(next.title)} — ${fmtDate(next.date)} (${daysLabel(daysUntil(next.date))})`:`<span style="color:var(--text-muted)">Sem prazos</span>`}
       </div>
-      ${p.notes ? `<div class="pc-notes">${esc(p.notes)}</div>` : ''}
+      ${p.notes?`<div class="pc-notes">${esc(p.notes)}</div>`:''}
       <div class="pc-footer">
         <button class="btn btn-secondary btn-sm" onclick="openProjectModal('${p.id}')">✎ Editar</button>
         <button class="btn btn-secondary btn-sm" onclick="openDeadlineModal('${p.id}')">+ Prazo</button>
@@ -811,442 +662,299 @@ function renderProjects() {
 }
 
 // ══════════════════════════════════════════════════════════
-// Calendar state & rendering
+// Kanban
 // ══════════════════════════════════════════════════════════
-let calYear  = TODAY.getFullYear();
-let calMonth = TODAY.getMonth();
-let calSelectedDate = null;
-let gcalEvents = [];   // { date: 'YYYY-MM-DD', title, time, calName, color, allDay }
+const COLS = [
+  { id:'todo',  label:'A Fazer',       color:'#6B7280', barColor:'#E5E7EB' },
+  { id:'doing', label:'Em andamento',  color:'#2563EB', barColor:'#BFDBFE' },
+  { id:'done',  label:'Concluído',     color:'#059669', barColor:'#A7F3D0' },
+];
 
-const MONTH_NAMES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+let dragSrc = null;
 
-function prevMonth() { calMonth--; if (calMonth < 0) { calMonth = 11; calYear--; } renderCalendar(); }
-function nextMonth() { calMonth++; if (calMonth > 11) { calMonth = 0; calYear++; } renderCalendar(); }
-function goToday()   { calYear = TODAY.getFullYear(); calMonth = TODAY.getMonth(); renderCalendar(); }
+function renderKanban() {
+  // Week label
+  const mon = new Date(TODAY);
+  mon.setDate(TODAY.getDate() - ((TODAY.getDay()+6)%7));
+  const fri = new Date(mon); fri.setDate(mon.getDate()+6);
+  const fmt = d => d.toLocaleDateString('pt-BR',{day:'2-digit',month:'short'});
+  document.getElementById('kanbanWeekLabel').textContent = `${fmt(mon)} – ${fmt(fri)}`;
 
-function renderCalendar() {
-  document.getElementById('calMonthLabel').textContent = `${MONTH_NAMES[calMonth]} ${calYear}`;
+  const board = document.getElementById('kanbanBoard');
+  board.innerHTML = '';
 
-  // Build deadline map: date → [{title, color, done}]
-  const dlMap = {};
-  for (const p of data.projects) {
-    for (const d of p.deadlines) {
-      if (!dlMap[d.date]) dlMap[d.date] = [];
-      dlMap[d.date].push({ title: d.title, color: p.color, done: d.done, type: 'deadline', projectName: p.name, id: d.id, pid: p.id });
-    }
+  for (const col of COLS) {
+    const cards = data.kanban.filter(t => t.col === col.id);
+    const colEl = document.createElement('div');
+    colEl.className = 'kanban-col';
+    colEl.dataset.col = col.id;
+
+    colEl.innerHTML = `
+      <div class="kanban-col-head">
+        <div class="kanban-col-label">
+          <div class="kanban-col-bar" style="background:${col.barColor};border:1.5px solid ${col.color}22"></div>
+          <span style="color:${col.color}">${col.label}</span>
+        </div>
+        <span class="kanban-col-count">${cards.length}</span>
+      </div>
+      <div class="kanban-cards" id="cards-${col.id}">
+        ${cards.map(t => renderCard(t)).join('')}
+      </div>
+      <button class="kanban-add-btn" onclick="openTaskModal(null,'${col.id}')">
+        <span style="font-size:16px;line-height:1">+</span> Adicionar tarefa
+      </button>`;
+
+    board.appendChild(colEl);
+    setupColDrop(colEl);
   }
-
-  // Build event map
-  const evMap = {};
-  for (const ev of gcalEvents) {
-    if (!evMap[ev.date]) evMap[ev.date] = [];
-    evMap[ev.date].push(ev);
-  }
-
-  // First day of month
-  const first = new Date(calYear, calMonth, 1);
-  const startDow = first.getDay(); // 0=Sun
-  const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
-  const totalCells = Math.ceil((startDow + daysInMonth) / 7) * 7;
-
-  const todayStr = toISODate(TODAY);
-
-  let html = '';
-  for (let week = 0; week < totalCells / 7; week++) {
-    html += `<div class="cal-week">`;
-    for (let dow = 0; dow < 7; dow++) {
-      const cellIdx = week * 7 + dow;
-      const dayNum  = cellIdx - startDow + 1;
-      const isCurrentMonth = dayNum >= 1 && dayNum <= daysInMonth;
-      const cellDate = new Date(calYear, calMonth, dayNum);
-      const dateStr  = toISODate(cellDate);
-      const isToday  = dateStr === todayStr;
-      const isSelected = dateStr === calSelectedDate;
-
-      const dls = (dlMap[dateStr] || []).filter(d => !d.done);
-      const evs = evMap[dateStr] || [];
-
-      let inner = `<div class="cal-day-num">${isCurrentMonth ? dayNum : ''}</div>`;
-
-      const MAX_CHIPS = 3;
-      let shown = 0;
-      for (const dl of dls) {
-        if (shown >= MAX_CHIPS) break;
-        inner += `<div class="cal-chip cal-chip-deadline" style="background:${dl.color}22;color:${dl.color}">${esc(dl.title)}</div>`;
-        shown++;
-      }
-      for (const ev of evs) {
-        if (shown >= MAX_CHIPS) break;
-        const timeStr = ev.allDay ? '' : ev.time + ' ';
-        inner += `<div class="cal-chip cal-chip-event" style="background:${ev.color}22;color:${ev.color}">${esc(timeStr + ev.title)}</div>`;
-        shown++;
-      }
-      const remaining = (dls.length + evs.length) - shown;
-      if (remaining > 0) inner += `<div class="cal-chip-more">+${remaining} mais</div>`;
-
-      const classes = ['cal-day', !isCurrentMonth ? 'other-month' : '', isToday ? 'is-today' : '', isSelected ? 'selected' : ''].filter(Boolean).join(' ');
-      html += `<div class="${classes}" onclick="selectCalDay('${dateStr}')">${inner}</div>`;
-    }
-    html += `</div>`;
-  }
-  document.getElementById('calWeeks').innerHTML = html;
-
-  // Legend
-  const gcalEntries = getGcalEntries();
-  document.getElementById('gcalLegend').innerHTML = gcalEntries.map(e =>
-    `<div class="gcal-legend-item"><div class="legend-dot" style="background:${e.color}"></div>${esc(e.name)}</div>`
-  ).join('') + (gcalEntries.length ? '' : `<span style="font-size:12px;color:var(--text-muted)">Clique em ⚙ Agendas Google para conectar seu Google Calendar</span>`);
-
-  if (calSelectedDate) renderDayDetail(calSelectedDate, dlMap, evMap);
 }
 
-function selectCalDay(dateStr) {
-  calSelectedDate = calSelectedDate === dateStr ? null : dateStr;
-  renderCalendar();
+function renderCard(task) {
+  const p = data.projects.find(x => x.id === task.projectId);
+  const dot  = p ? `<div class="kc-proj-dot" style="background:${p.color}"></div>` : `<div class="kc-proj-dot" style="background:#E5E7EB"></div>`;
+  const tag  = p ? `<span class="kc-proj-tag" style="background:${p.color}18;color:${p.color}">${esc(p.name)}</span>` : '';
+  const done = task.col === 'done';
+  return `<div class="kanban-card" draggable="true"
+      id="card-${task.id}"
+      ondragstart="onDragStart(event,'${task.id}')"
+      ondragend="onDragEnd(event)">
+    <div class="kc-top">
+      ${dot}
+      <div class="kc-title" style="${done?'text-decoration:line-through;opacity:0.6':''}">${esc(task.title)}</div>
+      <div class="kc-actions">
+        <button class="btn-ghost" style="padding:3px 6px;font-size:12px" onclick="openTaskModal('${task.id}')" title="Editar">✎</button>
+        <button class="btn-ghost" style="padding:3px 6px;font-size:12px" onclick="moveCard('${task.id}',-1)" title="← mover">‹</button>
+        <button class="btn-ghost" style="padding:3px 6px;font-size:12px" onclick="moveCard('${task.id}',1)"  title="mover →">›</button>
+      </div>
+    </div>
+    ${tag ? `<div style="margin-top:2px">${tag}</div>` : ''}
+    ${task.notes ? `<div class="kc-notes">${esc(task.notes)}</div>` : ''}
+  </div>`;
 }
 
-function renderDayDetail(dateStr, dlMap, evMap) {
-  const d = new Date(dateStr + 'T00:00:00');
-  const label = d.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' });
-  document.getElementById('calDetailTitle').textContent = label.charAt(0).toUpperCase() + label.slice(1);
+function moveCard(id, dir) {
+  const task   = data.kanban.find(t => t.id === id);
+  const colIdx = COLS.findIndex(c => c.id === task.col);
+  const next   = COLS[colIdx + dir];
+  if (!next) return;
+  task.col = next.id;
+  save(); renderKanban();
+}
 
-  const dls = dlMap[dateStr] || [];
-  const evs = (evMap[dateStr] || []).sort((a,b) => (a.allDay ? '00:00' : a.time).localeCompare(b.allDay ? '00:00' : b.time));
+function clearDoneCards() {
+  if (!data.kanban.filter(t=>t.col==='done').length) return;
+  if (!confirm('Remover todas as tarefas concluídas?')) return;
+  data.kanban = data.kanban.filter(t => t.col !== 'done');
+  save(); renderKanban();
+}
 
-  if (!dls.length && !evs.length) {
-    document.getElementById('calDetailBody').innerHTML = `<div class="cal-detail-empty">Nenhum prazo ou evento neste dia.</div>`;
+// ── Drag & drop ──────────────────────────────────────────
+function onDragStart(e, id) {
+  dragSrc = id;
+  e.dataTransfer.effectAllowed = 'move';
+  setTimeout(() => { const el = document.getElementById('card-'+id); if (el) el.classList.add('dragging'); }, 0);
+}
+function onDragEnd(e) {
+  if (dragSrc) { const el = document.getElementById('card-'+dragSrc); if (el) el.classList.remove('dragging'); }
+  document.querySelectorAll('.kanban-col').forEach(c => c.classList.remove('drag-over'));
+  dragSrc = null;
+}
+
+function setupColDrop(colEl) {
+  colEl.addEventListener('dragover', e => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    document.querySelectorAll('.kanban-col').forEach(c => c.classList.remove('drag-over'));
+    colEl.classList.add('drag-over');
+  });
+  colEl.addEventListener('dragleave', e => {
+    if (!colEl.contains(e.relatedTarget)) colEl.classList.remove('drag-over');
+  });
+  colEl.addEventListener('drop', e => {
+    e.preventDefault();
+    colEl.classList.remove('drag-over');
+    if (!dragSrc) return;
+    const task = data.kanban.find(t => t.id === dragSrc);
+    if (task) { task.col = colEl.dataset.col; save(); renderKanban(); }
+    dragSrc = null;
+  });
+}
+
+// ── Task modal ───────────────────────────────────────────
+function openTaskModal(id, defaultCol) {
+  const sel = document.getElementById('tmProject');
+  sel.innerHTML = `<option value="">— sem projeto —</option>` +
+    data.projects.map(p => `<option value="${p.id}">${esc(p.name)}</option>`).join('');
+
+  if (id) {
+    const t = data.kanban.find(x => x.id === id);
+    document.getElementById('tmTitle').textContent = 'Editar Tarefa';
+    document.getElementById('tmId').value    = t.id;
+    document.getElementById('tmText').value  = t.title;
+    sel.value = t.projectId || '';
+    document.getElementById('tmCol').value   = t.col;
+    document.getElementById('tmNotes').value = t.notes || '';
+    document.getElementById('tmDelete').classList.remove('hidden');
   } else {
-    let html = '';
-    for (const ev of evs) {
-      html += `<div class="cal-detail-item">
-        <div class="cal-detail-dot" style="background:${ev.color}"></div>
-        <div class="cal-detail-info">
-          <div class="cal-detail-name">${esc(ev.title)}</div>
-          <div class="cal-detail-sub">${esc(ev.calName)}</div>
-        </div>
-        <div class="cal-detail-time">${ev.allDay ? 'Dia todo' : ev.time}</div>
-      </div>`;
-    }
-    for (const dl of dls) {
-      const urgColor = urgencyColor(dateStr, dl.done);
-      html += `<div class="cal-detail-item" onclick="openDeadlineModal('${dl.pid}','${dl.id}')" style="cursor:pointer">
-        <div class="cal-detail-dot" style="background:${dl.color}"></div>
-        <div class="cal-detail-info">
-          <div class="cal-detail-name">${esc(dl.title)}${dl.done ? ' ✓' : ''}</div>
-          <div class="cal-detail-sub">${esc(dl.projectName)} · prazo</div>
-        </div>
-        <div class="cal-detail-time" style="color:${urgColor}">${dl.done ? 'Concluído' : daysLabel(daysUntil(dateStr))}</div>
-      </div>`;
-    }
-    document.getElementById('calDetailBody').innerHTML = html;
+    document.getElementById('tmTitle').textContent = 'Nova Tarefa';
+    document.getElementById('tmId').value = document.getElementById('tmText').value =
+      document.getElementById('tmNotes').value = '';
+    sel.value = '';
+    document.getElementById('tmCol').value = defaultCol || 'todo';
+    document.getElementById('tmDelete').classList.add('hidden');
   }
+  document.getElementById('taskModal').classList.remove('hidden');
+  setTimeout(() => document.getElementById('tmText').focus(), 50);
+}
 
-  document.getElementById('calDetail').classList.remove('hidden');
+function closeTaskModal() { document.getElementById('taskModal').classList.add('hidden'); }
+
+function saveTask() {
+  const title = document.getElementById('tmText').value.trim();
+  if (!title) { alert('Informe a tarefa.'); return; }
+  const id = document.getElementById('tmId').value;
+  const payload = {
+    title,
+    projectId: document.getElementById('tmProject').value || null,
+    col:   document.getElementById('tmCol').value,
+    notes: document.getElementById('tmNotes').value.trim(),
+  };
+  if (id) {
+    Object.assign(data.kanban.find(t => t.id === id), payload);
+  } else {
+    data.kanban.push({ id: uid(), ...payload });
+  }
+  save(); renderKanban(); closeTaskModal();
+}
+
+function deleteTask() {
+  const id = document.getElementById('tmId').value;
+  if (!confirm('Excluir esta tarefa?')) return;
+  data.kanban = data.kanban.filter(t => t.id !== id);
+  save(); renderKanban(); closeTaskModal();
 }
 
 // ══════════════════════════════════════════════════════════
-// Google Calendar — iCal fetch & parse
+// Project modal
 // ══════════════════════════════════════════════════════════
-
-function getCustomProxy() { return localStorage.getItem('gcal_custom_proxy') || ''; }
-
-function isCalId(ref) {
-  // email or xxx@group.calendar.google.com — not an http URL
-  return !ref.startsWith('http') && ref.includes('@');
-}
-
-function buildProxyList(calRef) {
-  const custom = getCustomProxy();
-  const list   = [];
-  if (custom) {
-    const param = isCalId(calRef)
-      ? `calId=${encodeURIComponent(calRef)}`
-      : `url=${encodeURIComponent(calRef)}`;
-    list.push({ name: 'Apps Script', url: `${custom}?${param}` });
-  }
-  if (!isCalId(calRef)) {
-    // Public proxies only make sense for actual URLs
-    list.push(
-      { name: 'corsproxy.io', url: `https://corsproxy.io/?url=${encodeURIComponent(calRef)}` },
-      { name: 'codetabs',     url: `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(calRef)}` },
-      { name: 'thingproxy',   url: `https://thingproxy.freeboard.io/fetch/${calRef}` },
-    );
-  }
-  return list;
-}
-
-function saveCustomProxy() {
-  const val = document.getElementById('gcalCustomProxy').value.trim().replace(/\?.*$/, '').replace(/\/$/, '');
-  if (!val) { alert('Cole a URL do Apps Script.'); return; }
-  localStorage.setItem('gcal_custom_proxy', val);
-  updateProxyBadge();
-  document.getElementById('gcalModalStatus').innerHTML = `<span style="color:var(--success)">✓ Proxy salvo. Teste uma URL para confirmar.</span>`;
-}
-
-function clearCustomProxy() {
-  localStorage.removeItem('gcal_custom_proxy');
-  document.getElementById('gcalCustomProxy').value = '';
-  updateProxyBadge();
-  document.getElementById('gcalModalStatus').innerHTML = `<span style="color:var(--text-muted)">Proxy personalizado removido.</span>`;
-}
-
-function updateProxyBadge() {
-  const badge = document.getElementById('gcalProxyBadge');
-  if (!badge) return;
-  const hasCustom = !!getCustomProxy();
-  badge.style.background = hasCustom ? '#DBEAFE' : '#DCFCE7';
-  badge.style.color       = hasCustom ? '#1E40AF' : '#166534';
-  badge.textContent       = hasCustom ? 'Apps Script ✓' : 'Padrão (público)';
-}
-
-function getGcalEntries() {
-  return JSON.parse(localStorage.getItem('gcal_entries') || '[]');
-}
-function setGcalEntries(arr) { localStorage.setItem('gcal_entries', JSON.stringify(arr)); }
-
-function loadCachedEvents() {
-  const cached = localStorage.getItem('gcal_events_cache');
-  if (cached) { gcalEvents = JSON.parse(cached); renderCalendar(); }
-}
-
-async function tryFetchICS(calRef) {
-  if (isCalId(calRef) && !getCustomProxy()) {
-    return { ok: false, errors: ['Para usar o email da agenda, configure o Apps Script primeiro (⚙ Configuração de proxy CORS acima).'] };
-  }
-  const proxies = buildProxyList(calRef);
-  const errors  = [];
-  for (const proxy of proxies) {
-    try {
-      const res  = await fetch(proxy.url, { signal: AbortSignal.timeout(14000) });
-      const text = await res.text();
-      if (text.includes('BEGIN:VCALENDAR')) return { ok: true, text, proxyName: proxy.name };
-      if (text.startsWith('ERROR:not_found:')) {
-        errors.push(`${proxy.name}: agenda não encontrada — verifique o email/ID`);
-        break; // no point trying other proxies
-      }
-      errors.push(`${proxy.name}: respondeu mas não é iCal → "${text.slice(0,70).replace(/\n/g,' ')}"`);
-    } catch (e) {
-      errors.push(`${proxy.name}: ${e.message}`);
-    }
-  }
-  return { ok: false, errors };
-}
-
-async function fetchSingleCalendar(entry) {
-  const statusEl = document.getElementById('calFetchStatus');
-  if (statusEl) statusEl.innerHTML = `<div class="spinner"></div> Buscando ${esc(entry.name)}…`;
-  const r = await tryFetchICS(entry.url);
-  if (!r.ok) {
-    const msg = r.errors.join(' | ');
-    if (statusEl) statusEl.innerHTML = `<span style="color:var(--danger)">❌ ${esc(entry.name)}: ${esc(msg)}</span>`;
-    return { ok: false, error: msg };
-  }
-  const parsed = parseICS(r.text, entry.name, entry.color);
-  gcalEvents = gcalEvents.filter(e => e.calName !== entry.name);
-  gcalEvents.push(...parsed);
-  if (statusEl) statusEl.innerHTML = '';
-  return { ok: true, count: parsed.length };
-}
-
-async function refreshCalendars() {
-  const entries = getGcalEntries();
-  if (!entries.length) { openGcalModal(); return; }
-
-  const btn = document.getElementById('calRefreshBtn');
-  btn.textContent = '…';
-  btn.disabled = true;
-
-  const statusEl = document.getElementById('calFetchStatus');
-  if (statusEl) statusEl.innerHTML = '';
-
-  gcalEvents = [];
-  const errors = [];
-  for (const entry of entries) {
-    const r = await fetchSingleCalendar(entry);
-    if (!r.ok) errors.push(`${entry.name}: ${r.error}`);
-  }
-
-  localStorage.setItem('gcal_events_cache', JSON.stringify(gcalEvents));
-  btn.textContent = '↺ Agendas';
-  btn.disabled = false;
-
-  if (errors.length && statusEl) {
-    statusEl.innerHTML = `<span style="color:var(--danger)">❌ ${errors.map(esc).join(' | ')}</span>`;
-  } else if (statusEl) {
-    statusEl.innerHTML = `<span style="color:var(--success)">✓ ${gcalEvents.length} evento(s) carregado(s)</span>`;
-    setTimeout(() => { if (statusEl) statusEl.innerHTML = ''; }, 4000);
-  }
-
-  renderCalendar();
-}
-
-function parseICS(text, calName, color) {
-  const events = [];
-
-  // Unfold lines (continuation lines start with space/tab)
-  const raw = text.replace(/\r?\n[ \t]/g, '');
-  const lines = raw.split(/\r?\n/);
-
-  let cur = null;
-  for (const line of lines) {
-    if (line === 'BEGIN:VEVENT')         { cur = {}; continue; }
-    if (line === 'END:VEVENT' && cur)    { events.push(cur); cur = null; continue; }
-    if (!cur) continue;
-
-    const semi  = line.indexOf(';');
-    const colon = line.indexOf(':');
-    if (colon === -1) continue;
-    const rawKey = line.slice(0, colon);
-    const key    = (semi !== -1 && semi < colon) ? line.slice(0, semi) : rawKey;
-    const val    = line.slice(colon + 1);
-
-    // Store params for DTSTART/DTEND
-    if (key === 'DTSTART' || key === 'DTEND') {
-      cur[key + '_RAW'] = line;
-      cur[key] = val;
-    } else {
-      cur[key] = val;
-    }
-  }
-
-  const result = [];
-  for (const ev of events) {
-    const summary = (ev.SUMMARY || '').replace(/\\n/g,' ').replace(/\\,/g,',').trim();
-    if (!summary) continue;
-
-    const rawStart = ev['DTSTART_RAW'] || '';
-    const allDay   = rawStart.includes('VALUE=DATE') || (ev.DTSTART && ev.DTSTART.length === 8);
-    const startStr = ev.DTSTART || '';
-
-    let date, time;
-    if (allDay) {
-      const s = startStr.replace(/[^0-9]/g,'').slice(0,8);
-      date = `${s.slice(0,4)}-${s.slice(4,6)}-${s.slice(6,8)}`;
-      time = null;
-    } else {
-      // Could be UTC (Z) or local or with TZID
-      const s = startStr.replace('Z','').replace(/[^0-9]/g,'').slice(0,12);
-      date = `${s.slice(0,4)}-${s.slice(4,6)}-${s.slice(6,8)}`;
-      const h = s.slice(8,10), m = s.slice(10,12);
-      time = `${h}:${m}`;
-    }
-
-    if (!date || date === '----') continue;
-
-    result.push({ date, time, title: summary, calName, color, allDay });
-  }
-  return result;
-}
-
-// ══════════════════════════════════════════════════════════
-// Google Calendar settings modal
-// ══════════════════════════════════════════════════════════
-let gcalPickedColor = GCAL_COLORS[0];
-
-function openGcalModal() {
-  document.getElementById('gcalColorRow').innerHTML = GCAL_COLORS.map(c =>
-    `<div class="swatch ${c===gcalPickedColor?'sel':''}" style="background:${c}" data-c="${c}" onclick="pickGcalColor('${c}')"></div>`
+function openProjectModal(projectId) {
+  document.getElementById('colorRow').innerHTML = COLORS.map(c =>
+    `<div class="swatch" style="background:${c}" data-color="${c}" onclick="pickColor('${c}')"></div>`
   ).join('');
-  const saved = getCustomProxy();
-  if (saved) document.getElementById('gcalCustomProxy').value = saved;
-  updateProxyBadge();
-  renderGcalList();
-  document.getElementById('gcalModal').classList.remove('hidden');
-}
-
-function closeGcalModal() { document.getElementById('gcalModal').classList.add('hidden'); }
-
-function pickGcalColor(c) {
-  gcalPickedColor = c;
-  document.querySelectorAll('#gcalColorRow .swatch').forEach(s => s.classList.toggle('sel', s.dataset.c === c));
-}
-
-function renderGcalList() {
-  const entries = getGcalEntries();
-  document.getElementById('gcalList').innerHTML = entries.length
-    ? entries.map((e,i) => `
-      <div class="gcal-row">
-        <div class="gcal-row-dot" style="background:${e.color}" onclick="removeGcalEntry(${i})" title="Clique para remover"></div>
-        <div>
-          <div class="gcal-row-name">${esc(e.name)}</div>
-          <div class="gcal-row-url">${esc(e.url)}</div>
-        </div>
-        <button class="btn-ghost btn-sm" onclick="removeGcalEntry(${i})">✕</button>
-      </div>`).join('')
-    : `<div style="font-size:13px;color:var(--text-muted);padding:8px 0">Nenhuma agenda adicionada ainda.</div>`;
-}
-
-async function testGcalUrl() {
-  const url = document.getElementById('gcalNewUrl').value.trim();
-  const out = document.getElementById('gcalTestResult');
-  const btn = document.getElementById('gcalTestBtn');
-  if (!url) { alert('Cole a URL iCal acima para testar.'); return; }
-
-  out.style.display = 'block';
-  out.style.color   = 'var(--text-muted)';
-  out.style.background   = 'var(--bg)';
-  out.style.borderColor  = 'var(--border)';
-  out.textContent = 'Testando todos os proxies…';
-  btn.disabled = true;
-
-  const r = await tryFetchICS(url);
-  btn.disabled = false;
-  if (r.ok) {
-    const preview = r.text.split(/\r?\n/).slice(0, 8).join('\n');
-    out.style.color       = '#065F46';
-    out.style.background  = '#ECFDF5';
-    out.style.borderColor = '#A7F3D0';
-    out.textContent = `✓ Funcionou via ${r.proxyName}\n\n${preview}`;
+  if (projectId) {
+    const p = data.projects.find(x => x.id === projectId);
+    document.getElementById('pmModalTitle').textContent = 'Editar Projeto';
+    document.getElementById('pmId').value     = p.id;
+    document.getElementById('pmName').value   = p.name;
+    document.getElementById('pmType').value   = p.type;
+    document.getElementById('pmClient').value = p.client||'';
+    document.getElementById('pmNotes').value  = p.notes||'';
+    pickColor(p.color);
+    document.getElementById('pmDelete').classList.remove('hidden');
   } else {
-    out.style.color       = '#991B1B';
-    out.style.background  = '#FEF2F2';
-    out.style.borderColor = '#FECACA';
-    out.textContent = `❌ Todos os proxies falharam:\n\n${r.errors.join('\n')}`;
+    document.getElementById('pmModalTitle').textContent = 'Novo Projeto';
+    ['pmId','pmName','pmClient','pmNotes'].forEach(i => document.getElementById(i).value='');
+    document.getElementById('pmType').value = 'freela';
+    pickColor(COLORS[Math.floor(Math.random()*COLORS.length)]);
+    document.getElementById('pmDelete').classList.add('hidden');
   }
+  document.getElementById('projectModal').classList.remove('hidden');
+  setTimeout(()=>document.getElementById('pmName').focus(),50);
 }
+function pickColor(c) { document.querySelectorAll('.swatch').forEach(s=>s.classList.toggle('sel',s.dataset.color===c)); }
+function getColor()   { return (document.querySelector('.swatch.sel')||{}).dataset?.color||COLORS[0]; }
+function closeProjectModal() { document.getElementById('projectModal').classList.add('hidden'); }
 
-async function addGcalEntry() {
-  const name = document.getElementById('gcalNewName').value.trim();
-  const url  = document.getElementById('gcalNewUrl').value.trim();
-  if (!name) { alert('Informe o nome da agenda.'); return; }
-  if (!url)  { alert('Informe a URL iCal (.ics).'); return; }
-
-  const entries = getGcalEntries();
-  const entry = { name, url, color: gcalPickedColor };
-  entries.push(entry);
-  setGcalEntries(entries);
-  document.getElementById('gcalNewName').value = '';
-  document.getElementById('gcalNewUrl').value  = '';
-  renderGcalList();
-
-  // Auto-fetch immediately and show status in modal
-  const modalStatus = document.getElementById('gcalModalStatus');
-  if (modalStatus) modalStatus.innerHTML = `<div class="spinner" style="display:inline-block;width:14px;height:14px;border:2px solid #BAE6FD;border-top-color:#0369A1;border-radius:50%;animation:spin 0.7s linear infinite"></div> Buscando eventos de <strong>${esc(name)}</strong>…`;
-  const r = await fetchSingleCalendar(entry);
-  if (modalStatus) {
-    if (r.ok) {
-      modalStatus.innerHTML = `<span style="color:var(--success)">✓ ${r.count} evento(s) carregado(s) de <strong>${esc(name)}</strong></span>`;
-      setTimeout(() => { if (modalStatus) modalStatus.innerHTML = ''; }, 5000);
-    } else {
-      modalStatus.innerHTML = `<span style="color:var(--danger)">❌ Erro: ${esc(r.error)}</span>`;
-    }
+function saveProject() {
+  const name = document.getElementById('pmName').value.trim();
+  if (!name) { alert('Informe o nome do projeto.'); return; }
+  const id = document.getElementById('pmId').value;
+  if (id) {
+    Object.assign(data.projects.find(x=>x.id===id), {
+      name, type:document.getElementById('pmType').value,
+      client:document.getElementById('pmClient').value.trim(),
+      color:getColor(), notes:document.getElementById('pmNotes').value.trim()
+    });
+  } else {
+    data.projects.push({ id:uid(), name, type:document.getElementById('pmType').value,
+      client:document.getElementById('pmClient').value.trim(), color:getColor(),
+      notes:document.getElementById('pmNotes').value.trim(), deadlines:[] });
   }
-  localStorage.setItem('gcal_events_cache', JSON.stringify(gcalEvents));
-  renderCalendar();
+  save(); render(); closeProjectModal();
 }
-
-function removeGcalEntry(i) {
-  const entries = getGcalEntries();
-  entries.splice(i, 1);
-  setGcalEntries(entries);
-  localStorage.removeItem('gcal_events_cache');
-  gcalEvents = [];
-  renderGcalList();
-  renderCalendar();
+function deleteProject() {
+  if (!confirm('Excluir projeto e todos os seus prazos?')) return;
+  const id = document.getElementById('pmId').value;
+  data.projects = data.projects.filter(p=>p.id!==id);
+  data.kanban   = data.kanban.filter(t=>t.projectId!==id);
+  save(); render(); closeProjectModal();
 }
 
 // ══════════════════════════════════════════════════════════
-// Import Prazos (parser + AI)
+// Deadline modal
+// ══════════════════════════════════════════════════════════
+function openDeadlineModal(projectId, deadlineId) {
+  const sel = document.getElementById('dmProject');
+  sel.innerHTML = data.projects.map(p=>
+    `<option value="${p.id}">${esc(p.name)}${p.client?' ('+esc(p.client)+')':''}</option>`).join('');
+  if (projectId) sel.value = projectId;
+
+  if (deadlineId) {
+    const p = data.projects.find(x=>x.id===projectId);
+    const d = p.deadlines.find(x=>x.id===deadlineId);
+    document.getElementById('dmModalTitle').textContent = 'Editar Prazo';
+    document.getElementById('dmId').value           = d.id;
+    document.getElementById('dmOldProjectId').value = projectId;
+    document.getElementById('dmTitleInput').value   = d.title;
+    document.getElementById('dmDate').value         = d.date;
+    document.getElementById('dmNotes').value        = d.notes||'';
+    document.getElementById('dmDelete').classList.remove('hidden');
+  } else {
+    document.getElementById('dmModalTitle').textContent = 'Novo Prazo';
+    ['dmId','dmOldProjectId','dmTitleInput','dmDate','dmNotes'].forEach(i=>document.getElementById(i).value='');
+    document.getElementById('dmDelete').classList.add('hidden');
+  }
+  document.getElementById('deadlineModal').classList.remove('hidden');
+  setTimeout(()=>document.getElementById('dmTitleInput').focus(),50);
+}
+function closeDeadlineModal() { document.getElementById('deadlineModal').classList.add('hidden'); }
+
+function saveDeadline() {
+  const title = document.getElementById('dmTitleInput').value.trim();
+  const date  = document.getElementById('dmDate').value;
+  if (!title) { alert('Informe a descrição.'); return; }
+  if (!date)  { alert('Informe a data.'); return; }
+  const projectId = document.getElementById('dmProject').value;
+  const p = data.projects.find(x=>x.id===projectId);
+  const id = document.getElementById('dmId').value;
+  if (id) {
+    const oldProjId = document.getElementById('dmOldProjectId').value;
+    const oldP = data.projects.find(x=>x.id===oldProjId);
+    const d    = oldP.deadlines.find(x=>x.id===id);
+    Object.assign(d, { title, date, notes:document.getElementById('dmNotes').value.trim() });
+    if (oldProjId !== projectId) { oldP.deadlines = oldP.deadlines.filter(x=>x.id!==id); p.deadlines.push(d); }
+  } else {
+    p.deadlines.push({ id:uid(), title, date, notes:document.getElementById('dmNotes').value.trim(), done:false });
+  }
+  save(); render(); closeDeadlineModal();
+}
+function deleteDeadline() {
+  if (!confirm('Excluir este prazo?')) return;
+  const projId = document.getElementById('dmOldProjectId').value;
+  const id     = document.getElementById('dmId').value;
+  const p      = data.projects.find(x=>x.id===projId);
+  p.deadlines  = p.deadlines.filter(x=>x.id!==id);
+  save(); render(); closeDeadlineModal();
+}
+function toggleDone(projectId, deadlineId) {
+  const p = data.projects.find(x=>x.id===projectId);
+  const d = p.deadlines.find(x=>x.id===deadlineId);
+  d.done = !d.done;
+  save(); render();
+}
+
+// ══════════════════════════════════════════════════════════
+// Import Prazos
 // ══════════════════════════════════════════════════════════
 let _importMode = 'auto';
 let _importData = [];
@@ -1263,440 +971,205 @@ function closeImportModal() { document.getElementById('importModal').classList.a
 
 function setImportMode(mode) {
   _importMode = mode;
-  document.getElementById('modeTabAuto').classList.toggle('active', mode === 'auto');
-  document.getElementById('modeTabAI').classList.toggle('active',   mode === 'ai');
-
+  document.getElementById('modeTabAuto').classList.toggle('active', mode==='auto');
+  document.getElementById('modeTabAI').classList.toggle('active',   mode==='ai');
   const aiPanel = document.getElementById('aiKeyPanel');
-  if (mode === 'ai') {
-    aiPanel.classList.remove('hidden');
-    const hasKey = localStorage.getItem('ai_key_gemini') || localStorage.getItem('ai_key_anthropic');
-    if (hasKey) updateAiProviderHint();
-  } else {
-    aiPanel.classList.add('hidden');
-  }
-
-  document.getElementById('impModeHint').innerHTML = mode === 'auto'
+  mode==='ai' ? aiPanel.classList.remove('hidden') : aiPanel.classList.add('hidden');
+  document.getElementById('impModeHint').innerHTML = mode==='auto'
     ? 'Cole qualquer texto com datas — cronograma, e-mail, planilha. O parser detecta automaticamente formatos como <strong>DD/MM</strong>, <strong>DD/MM/YYYY</strong>, <strong>DD de Mês</strong>, intervalos de semana, etc.'
-    : 'O texto será enviado à API de IA escolhida para extração mais inteligente de prazos. Use quando o parser automático não reconhecer o formato.';
+    : 'O texto será enviado à API de IA escolhida para extração mais inteligente de prazos.';
 }
 
 function updateAiProviderHint() {
   const prov = document.getElementById('aiProvider').value;
-  document.getElementById('aiKeyLabel').textContent = prov === 'gemini'
-    ? 'API Key Gemini (aistudio.google.com → Get API Key)'
-    : 'API Key Anthropic (console.anthropic.com)';
+  document.getElementById('aiKeyLabel').textContent = prov==='gemini'
+    ? 'API Key Gemini (aistudio.google.com)' : 'API Key Anthropic';
   const saved = localStorage.getItem(`ai_key_${prov}`);
   document.getElementById('aiKeyInput').value = saved ? '••••••••' : '';
-  document.getElementById('aiKeyInput').placeholder = prov === 'gemini' ? 'AIza...' : 'sk-ant-...';
 }
-
 function clearAiKey() {
-  const prov = document.getElementById('aiProvider').value;
-  localStorage.removeItem(`ai_key_${prov}`);
+  localStorage.removeItem(`ai_key_${document.getElementById('aiProvider').value}`);
   document.getElementById('aiKeyInput').value = '';
 }
 
 function setImportStep(step) {
-  document.getElementById('impPanelInput').classList.toggle('hidden',   step !== 1);
-  document.getElementById('impPanelPreview').classList.toggle('hidden', step !== 2);
-  [1,2].forEach(i => document.getElementById('impStep'+i).classList.toggle('active', i <= step));
-
+  document.getElementById('impPanelInput').classList.toggle('hidden',   step!==1);
+  document.getElementById('impPanelPreview').classList.toggle('hidden', step!==2);
+  [1,2].forEach(i=>document.getElementById('impStep'+i).classList.toggle('active',i<=step));
   const foot = document.getElementById('impFootActions');
-  if (step === 1) {
-    foot.innerHTML = `
-      <button class="btn btn-secondary" onclick="closeImportModal()" style="margin-left:auto">Cancelar</button>
-      <button class="btn btn-primary"   id="impAnalyzeBtn" onclick="runImport()">Analisar →</button>`;
+  if (step===1) {
+    foot.innerHTML=`<button class="btn btn-secondary" onclick="closeImportModal()" style="margin-left:auto">Cancelar</button>
+      <button class="btn btn-primary" id="impAnalyzeBtn" onclick="runImport()">Analisar →</button>`;
   } else {
-    foot.innerHTML = `
-      <button class="btn btn-secondary" onclick="setImportStep(1)" style="margin-right:auto">← Voltar</button>
+    foot.innerHTML=`<button class="btn btn-secondary" onclick="setImportStep(1)" style="margin-right:auto">← Voltar</button>
       <button class="btn btn-secondary" onclick="closeImportModal()">Cancelar</button>
       <button class="btn btn-primary"   onclick="confirmImport()">Importar selecionados</button>`;
   }
 }
 
 function loadImpFile(e) {
-  const file = e.target.files[0]; if (!file) return;
-  new FileReader().onload = (ev) => { document.getElementById('impText').value = ev.target.result; };
-  new FileReader().readAsText(file, 'UTF-8');
-  // redo properly:
-  const fr = new FileReader();
-  fr.onload = (ev) => { document.getElementById('impText').value = ev.target.result; };
-  fr.readAsText(file, 'UTF-8');
-  e.target.value = '';
+  const file=e.target.files[0]; if(!file) return;
+  const fr=new FileReader();
+  fr.onload=(ev)=>{ document.getElementById('impText').value=ev.target.result; };
+  fr.readAsText(file,'UTF-8');
+  e.target.value='';
 }
 
 async function runImport() {
   const text = document.getElementById('impText').value.trim();
   if (!text) { alert('Cole ou carregue algum texto primeiro.'); return; }
-
   const btn = document.getElementById('impAnalyzeBtn');
   const statusEl = document.getElementById('impStatus');
-  btn.disabled = true; btn.textContent = 'Analisando…';
-
-  if (_importMode === 'auto') {
-    statusEl.innerHTML = '<div class="spinner"></div> Detectando datas…';
-    await new Promise(r => setTimeout(r, 80));
-    _importData = smartParse(text);
-    statusEl.innerHTML = '';
+  btn.disabled=true; btn.textContent='Analisando…';
+  if (_importMode==='auto') {
+    statusEl.innerHTML='<div class="spinner"></div> Detectando datas…';
+    await new Promise(r=>setTimeout(r,80));
+    _importData=smartParse(text);
+    statusEl.innerHTML='';
   } else {
-    statusEl.innerHTML = '<div class="spinner"></div> Enviando para IA…';
-    try {
-      _importData = await aiParse(text);
-      statusEl.innerHTML = '';
-    } catch (e) {
-      statusEl.innerHTML = `❌ ${esc(e.message)}`;
-      btn.disabled = false; btn.textContent = 'Analisar →';
-      return;
-    }
+    statusEl.innerHTML='<div class="spinner"></div> Enviando para IA…';
+    try { _importData=await aiParse(text); statusEl.innerHTML=''; }
+    catch(e) { statusEl.innerHTML=`❌ ${esc(e.message)}`; btn.disabled=false; btn.textContent='Analisar →'; return; }
   }
-
   if (!_importData.length) {
-    statusEl.innerHTML = '⚠️ Nenhum prazo encontrado. Tente incluir datas no formato DD/MM ou DD/MM/AAAA.';
-    btn.disabled = false; btn.textContent = 'Analisar →';
-    return;
+    statusEl.innerHTML='⚠️ Nenhum prazo encontrado. Inclua datas no formato DD/MM ou DD/MM/AAAA.';
+    btn.disabled=false; btn.textContent='Analisar →'; return;
   }
-
-  renderImportPreview();
-  setImportStep(2);
-  btn.disabled = false; btn.textContent = 'Analisar →';
+  renderImportPreview(); setImportStep(2);
+  btn.disabled=false; btn.textContent='Analisar →';
 }
 
-// ── Smart built-in parser ─────────────────────────────────
 function smartParse(text) {
   const CY = new Date().getFullYear();
   const MONTHS = {
-    jan:1, fev:2, mar:3, abr:4, mai:5, jun:6, jul:7, ago:8, set:9, out:10, nov:11, dez:12,
-    janeiro:1, fevereiro:2, março:3, marco:3, abril:4, maio:5, junho:6, julho:7,
-    agosto:8, setembro:9, outubro:10, novembro:11, dezembro:12,
-    feb:2, apr:4, may:5, aug:8, sep:9, oct:10,
-    january:1, february:2, march:3, april:4, june:6, july:7,
-    august:8, september:9, october:10, november:11, december:12,
+    jan:1,fev:2,mar:3,abr:4,mai:5,jun:6,jul:7,ago:8,set:9,out:10,nov:11,dez:12,
+    janeiro:1,fevereiro:2,março:3,marco:3,abril:4,maio:5,junho:6,julho:7,
+    agosto:8,setembro:9,outubro:10,novembro:11,dezembro:12,
+    feb:2,apr:4,may:5,aug:8,sep:9,oct:10,
+    january:1,february:2,march:3,april:4,june:6,july:7,
+    august:8,september:9,october:10,november:11,december:12,
   };
-
-  function toISO(d, m, y) {
-    if (y < 100) y += 2000;
-    return `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-  }
-
+  function toISO(d,m,y) { if(y<100)y+=2000; return `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`; }
   function stripDates(s) {
-    return s
-      .replace(/\b(\d{1,2})\s*\/\s*(\d{1,2})(?:\s*\/\s*(\d{2,4}))?\b/g, '')
-      .replace(/\b(\d{1,2})º?\s+de\s+[a-záéíóúâêôãõçñ]+(?:\s+de\s+\d{4})?\b/gi, '')
-      .replace(/\([\d\/–\-\s]+\)/g, '')
-      .replace(/^\d+[\.\)]\s*/, '')
-      .replace(/[-–:,;|]+$/, '')
-      .replace(/\s+/g, ' ')
-      .trim();
+    return s.replace(/\b(\d{1,2})\s*\/\s*(\d{1,2})(?:\s*\/\s*(\d{2,4}))?\b/g,'')
+      .replace(/\b(\d{1,2})º?\s+de\s+[a-záéíóúâêôãõçñ]+(?:\s+de\s+\d{4})?\b/gi,'')
+      .replace(/\([\d\/–\-\s]+\)/g,'').replace(/^\d+[\.\)]\s*/,'')
+      .replace(/[-–:,;|]+$/,'').replace(/\s+/g,' ').trim();
   }
-
   function findDates(line) {
-    const dates = [];
-
-    // Week range: (DD/MM–DD/MM) — use end date
-    for (const m of line.matchAll(/\((\d{1,2})\/(\d{1,2})\s*[–\-]\s*(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?\)/g)) {
-      const [,d1,m1,d2,m2,yr] = m;
-      const y = yr ? parseInt(yr) : CY;
-      dates.push(toISO(parseInt(d2), parseInt(m2), y));
+    const dates=[];
+    for(const m of line.matchAll(/\((\d{1,2})\/(\d{1,2})\s*[–\-]\s*(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?\)/g)) {
+      dates.push(toISO(parseInt(m[3]),parseInt(m[4]),m[5]?parseInt(m[5]):CY));
     }
-
-    // DD/MM/YYYY or DD/MM
-    for (const m of line.matchAll(/\b(\d{1,2})\s*\/\s*(\d{1,2})(?:\s*\/\s*(\d{2,4}))?\b/g)) {
-      const d = parseInt(m[1]), mo = parseInt(m[2]), y = m[3] ? parseInt(m[3]) : CY;
-      if (d >= 1 && d <= 31 && mo >= 1 && mo <= 12) dates.push(toISO(d, mo, y));
+    for(const m of line.matchAll(/\b(\d{1,2})\s*\/\s*(\d{1,2})(?:\s*\/\s*(\d{2,4}))?\b/g)) {
+      const d=parseInt(m[1]),mo=parseInt(m[2]),y=m[3]?parseInt(m[3]):CY;
+      if(d>=1&&d<=31&&mo>=1&&mo<=12) dates.push(toISO(d,mo,y));
     }
-
-    // YYYY-MM-DD (ISO)
-    for (const m of line.matchAll(/\b(\d{4})-(\d{2})-(\d{2})\b/g)) {
-      dates.push(`${m[1]}-${m[2]}-${m[3]}`);
+    for(const m of line.matchAll(/\b(\d{4})-(\d{2})-(\d{2})\b/g)) dates.push(`${m[1]}-${m[2]}-${m[3]}`);
+    for(const m of line.matchAll(/\b(\d{1,2})º?\s+de\s+([a-záéíóúâêôãõç]+)(?:\s+de\s+(\d{4}))?\b/gi)) {
+      const d=parseInt(m[1]),mo=MONTHS[m[2].toLowerCase().slice(0,3)]||MONTHS[m[2].toLowerCase()],y=m[3]?parseInt(m[3]):CY;
+      if(mo&&d>=1&&d<=31) dates.push(toISO(d,mo,y));
     }
-
-    // DD de Mês (de YYYY)?
-    for (const m of line.matchAll(/\b(\d{1,2})º?\s+de\s+([a-záéíóúâêôãõç]+)(?:\s+de\s+(\d{4}))?\b/gi)) {
-      const d = parseInt(m[1]);
-      const mo = MONTHS[m[2].toLowerCase().slice(0,3)] || MONTHS[m[2].toLowerCase()];
-      const y  = m[3] ? parseInt(m[3]) : CY;
-      if (mo && d >= 1 && d <= 31) dates.push(toISO(d, mo, y));
-    }
-
     return [...new Set(dates)];
   }
-
-  const results = [];
-  const lines = text.split(/\n/);
-
-  for (const rawLine of lines) {
-    const line = rawLine.trim();
-    if (!line) continue;
-
-    const dates = findDates(line);
-    if (!dates.length) continue;
-
-    // Use the last date on the line (usually the deadline/end)
-    const date  = dates[dates.length - 1];
-    const title = stripDates(line);
-    if (title.length < 3) continue;
-
-    const project = guessProject(line);
-    results.push({ project: project || '', title, date });
+  const results=[];
+  for(const rawLine of text.split(/\n/)) {
+    const line=rawLine.trim(); if(!line) continue;
+    const dates=findDates(line); if(!dates.length) continue;
+    const title=stripDates(line); if(title.length<3) continue;
+    results.push({ project:guessProject(line)||'', title, date:dates[dates.length-1] });
   }
-
   return results;
 }
 
-// ── AI parser (Gemini or Anthropic) ──────────────────────
 async function aiParse(text) {
   const prov = document.getElementById('aiProvider').value;
   let key = document.getElementById('aiKeyInput').value.trim();
-  if (key === '••••••••') key = localStorage.getItem(`ai_key_${prov}`) || '';
+  if (key==='••••••••') key=localStorage.getItem(`ai_key_${prov}`)||'';
   if (!key) throw new Error('Informe a API key antes de analisar.');
-
-  // Save key
-  localStorage.setItem(`ai_key_${prov}`, key);
-
-  const projectNames = data.projects.map(p => p.name).join(', ');
-  const year = new Date().getFullYear();
-  const systemPrompt = `Extraia prazos/entregas de projetos do texto. Projetos existentes: ${projectNames}. Retorne APENAS um JSON array: [{"project":"nome","title":"descrição","date":"YYYY-MM-DD"}]. Ano padrão: ${year}. Sem markdown, sem explicação.`;
-
-  if (prov === 'gemini') {
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: systemPrompt + '\n\nTexto:\n' + text }] }],
-          generationConfig: { temperature: 0 }
-        })
-      }
-    );
-    if (!res.ok) { const e = await res.json().catch(()=>({})); throw new Error(e.error?.message || `HTTP ${res.status}`); }
-    const json = await res.json();
-    const raw  = json.candidates?.[0]?.content?.parts?.[0]?.text || '';
-    const m    = raw.match(/\[[\s\S]*\]/);
-    if (!m) throw new Error('Gemini não retornou JSON válido.');
+  localStorage.setItem(`ai_key_${prov}`,key);
+  const projectNames=data.projects.map(p=>p.name).join(', ');
+  const year=new Date().getFullYear();
+  const sysPrompt=`Extraia prazos do texto. Projetos existentes: ${projectNames}. Retorne APENAS JSON array: [{"project":"nome","title":"descrição","date":"YYYY-MM-DD"}]. Ano padrão: ${year}. Sem markdown.`;
+  if (prov==='gemini') {
+    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`,
+      { method:'POST', headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({contents:[{parts:[{text:sysPrompt+'\n\nTexto:\n'+text}]}],generationConfig:{temperature:0}}) });
+    if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.error?.message||`HTTP ${res.status}`);}
+    const json=await res.json(); const raw=json.candidates?.[0]?.content?.parts?.[0]?.text||'';
+    const m=raw.match(/\[[\s\S]*\]/); if(!m) throw new Error('Gemini não retornou JSON válido.');
     return JSON.parse(m[0]);
-
-  } else { // anthropic
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type':'application/json', 'x-api-key': key, 'anthropic-version':'2023-06-01', 'anthropic-dangerous-direct-browser-access':'true' },
-      body: JSON.stringify({ model:'claude-haiku-4-5-20251001', max_tokens:1024, system: systemPrompt, messages:[{role:'user',content:text}] })
-    });
-    if (!res.ok) { const e = await res.json().catch(()=>({})); throw new Error(e.error?.message || `HTTP ${res.status}`); }
-    const json = await res.json();
-    const raw  = json.content[0].text.trim();
-    const m    = raw.match(/\[[\s\S]*\]/);
-    if (!m) throw new Error('Claude não retornou JSON válido.');
+  } else {
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:1024,system:sysPrompt,messages:[{role:'user',content:text}]})});
+    if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.error?.message||`HTTP ${res.status}`);}
+    const json=await res.json(); const raw=json.content[0].text.trim();
+    const m=raw.match(/\[[\s\S]*\]/); if(!m) throw new Error('Claude não retornou JSON válido.');
     return JSON.parse(m[0]);
   }
 }
 
 function guessProject(text) {
-  const t = text.toLowerCase();
-  let best = null, bestLen = 0;
-  for (const p of data.projects) {
-    const n = p.name.toLowerCase();
-    if (t.includes(n) && n.length > bestLen) { best = p.name; bestLen = n.length; }
-  }
+  const t=text.toLowerCase(); let best=null,bestLen=0;
+  for(const p of data.projects) { const n=p.name.toLowerCase(); if(t.includes(n)&&n.length>bestLen){best=p.name;bestLen=n.length;} }
   return best;
 }
-
 function findProject(name) {
-  if (!name) return null;
-  const n = name.toLowerCase();
-  return data.projects.find(p => p.name.toLowerCase().includes(n) || n.includes(p.name.toLowerCase()));
+  if(!name) return null; const n=name.toLowerCase();
+  return data.projects.find(p=>p.name.toLowerCase().includes(n)||n.includes(p.name.toLowerCase()));
 }
 
 function renderImportPreview() {
-  document.getElementById('impPreviewList').innerHTML = _importData.map((item, i) => {
-    const matched = findProject(item.project);
-    const dot = `<div class="project-dot" style="background:${matched?.color || '#9CA3AF'}"></div>`;
-    const proj = matched && matched.name !== item.project
-      ? `${esc(item.project)} → <strong>${esc(matched.name)}</strong>`
-      : esc(item.project || '(sem projeto)');
+  document.getElementById('impPreviewList').innerHTML = _importData.map((item,i)=>{
+    const matched=findProject(item.project);
+    const dot=`<div class="project-dot" style="background:${matched?.color||'#9CA3AF'}"></div>`;
+    const proj=matched&&matched.name!==item.project
+      ?`${esc(item.project)} → <strong>${esc(matched.name)}</strong>`:esc(item.project||'(sem projeto)');
     return `<div class="preview-item">
-      <input type="checkbox" checked data-idx="${i}">
-      ${dot}
-      <div style="flex:1">
-        <div style="font-weight:500">${esc(item.title)}</div>
-        <div style="font-size:12px;color:var(--text-muted)">${proj}</div>
-      </div>
+      <input type="checkbox" checked data-idx="${i}">${dot}
+      <div style="flex:1"><div style="font-weight:500">${esc(item.title)}</div>
+        <div style="font-size:12px;color:var(--text-muted)">${proj}</div></div>
       <div style="font-weight:600;flex-shrink:0">${fmtDate(item.date)}</div>
     </div>`;
   }).join('');
 }
 
 function confirmImport() {
-  const cbs = document.querySelectorAll('#impPreviewList input[type=checkbox]');
-  let imported = 0;
-  cbs.forEach(cb => {
-    if (!cb.checked) return;
-    const item = _importData[parseInt(cb.dataset.idx)];
-    let p = findProject(item.project);
-    if (!p) {
-      p = { id: uid(), name: item.project || 'Projeto importado', type: 'freela', client: '', color: COLORS[data.projects.length % COLORS.length], notes: '', deadlines: [] };
-      data.projects.push(p);
-    }
-    p.deadlines.push({ id: uid(), title: item.title, date: item.date, notes: '', done: false });
+  let imported=0;
+  document.querySelectorAll('#impPreviewList input[type=checkbox]').forEach(cb=>{
+    if(!cb.checked) return;
+    const item=_importData[parseInt(cb.dataset.idx)];
+    let p=findProject(item.project);
+    if(!p) { p={id:uid(),name:item.project||'Projeto importado',type:'freela',client:'',color:COLORS[data.projects.length%COLORS.length],notes:'',deadlines:[]}; data.projects.push(p); }
+    p.deadlines.push({id:uid(),title:item.title,date:item.date,notes:'',done:false});
     imported++;
   });
   save(); render(); closeImportModal();
 }
 
 // ══════════════════════════════════════════════════════════
-// Project modal
-// ══════════════════════════════════════════════════════════
-function openProjectModal(projectId) {
-  document.getElementById('colorRow').innerHTML = COLORS.map(c =>
-    `<div class="swatch" style="background:${c}" data-color="${c}" onclick="pickColor('${c}')"></div>`
-  ).join('');
-
-  if (projectId) {
-    const p = data.projects.find(x => x.id === projectId);
-    document.getElementById('pmModalTitle').textContent = 'Editar Projeto';
-    document.getElementById('pmId').value     = p.id;
-    document.getElementById('pmName').value   = p.name;
-    document.getElementById('pmType').value   = p.type;
-    document.getElementById('pmClient').value = p.client || '';
-    document.getElementById('pmNotes').value  = p.notes  || '';
-    pickColor(p.color);
-    document.getElementById('pmDelete').classList.remove('hidden');
-  } else {
-    document.getElementById('pmModalTitle').textContent = 'Novo Projeto';
-    document.getElementById('pmId').value = document.getElementById('pmName').value = document.getElementById('pmClient').value = document.getElementById('pmNotes').value = '';
-    document.getElementById('pmType').value = 'freela';
-    pickColor(COLORS[Math.floor(Math.random() * COLORS.length)]);
-    document.getElementById('pmDelete').classList.add('hidden');
-  }
-
-  document.getElementById('projectModal').classList.remove('hidden');
-  setTimeout(() => document.getElementById('pmName').focus(), 50);
-}
-
-function pickColor(c) { document.querySelectorAll('.swatch').forEach(s => s.classList.toggle('sel', s.dataset.color === c)); }
-function getColor()   { return (document.querySelector('.swatch.sel') || {}).dataset?.color || COLORS[0]; }
-function closeProjectModal() { document.getElementById('projectModal').classList.add('hidden'); }
-
-function saveProject() {
-  const name = document.getElementById('pmName').value.trim();
-  if (!name) { alert('Informe o nome do projeto.'); return; }
-  const id = document.getElementById('pmId').value;
-  if (id) {
-    Object.assign(data.projects.find(x => x.id === id), {
-      name, type: document.getElementById('pmType').value,
-      client: document.getElementById('pmClient').value.trim(),
-      color: getColor(), notes: document.getElementById('pmNotes').value.trim()
-    });
-  } else {
-    data.projects.push({ id: uid(), name, type: document.getElementById('pmType').value,
-      client: document.getElementById('pmClient').value.trim(), color: getColor(),
-      notes: document.getElementById('pmNotes').value.trim(), deadlines: [] });
-  }
-  save(); render(); closeProjectModal();
-}
-
-function deleteProject() {
-  const id = document.getElementById('pmId').value;
-  if (!confirm('Excluir projeto e todos os seus prazos?')) return;
-  data.projects = data.projects.filter(p => p.id !== id);
-  save(); render(); closeProjectModal();
-}
-
-// ══════════════════════════════════════════════════════════
-// Deadline modal
-// ══════════════════════════════════════════════════════════
-function openDeadlineModal(projectId, deadlineId) {
-  const sel = document.getElementById('dmProject');
-  sel.innerHTML = data.projects.map(p =>
-    `<option value="${p.id}">${esc(p.name)}${p.client?' ('+esc(p.client)+')':''}</option>`).join('');
-  if (projectId) sel.value = projectId;
-
-  if (deadlineId) {
-    const p = data.projects.find(x => x.id === projectId);
-    const d = p.deadlines.find(x => x.id === deadlineId);
-    document.getElementById('dmModalTitle').textContent = 'Editar Prazo';
-    document.getElementById('dmId').value           = d.id;
-    document.getElementById('dmOldProjectId').value = projectId;
-    document.getElementById('dmTitleInput').value   = d.title;
-    document.getElementById('dmDate').value         = d.date;
-    document.getElementById('dmNotes').value        = d.notes || '';
-    document.getElementById('dmDelete').classList.remove('hidden');
-  } else {
-    document.getElementById('dmModalTitle').textContent = 'Novo Prazo';
-    document.getElementById('dmId').value = document.getElementById('dmOldProjectId').value =
-      document.getElementById('dmTitleInput').value = document.getElementById('dmDate').value =
-      document.getElementById('dmNotes').value = '';
-    document.getElementById('dmDelete').classList.add('hidden');
-  }
-
-  document.getElementById('deadlineModal').classList.remove('hidden');
-  setTimeout(() => document.getElementById('dmTitleInput').focus(), 50);
-}
-
-function closeDeadlineModal() { document.getElementById('deadlineModal').classList.add('hidden'); }
-
-function saveDeadline() {
-  const title = document.getElementById('dmTitleInput').value.trim();
-  const date  = document.getElementById('dmDate').value;
-  if (!title) { alert('Informe a descrição.'); return; }
-  if (!date)  { alert('Informe a data.'); return; }
-
-  const projectId = document.getElementById('dmProject').value;
-  const p = data.projects.find(x => x.id === projectId);
-  const id = document.getElementById('dmId').value;
-
-  if (id) {
-    const oldProjId = document.getElementById('dmOldProjectId').value;
-    const oldP = data.projects.find(x => x.id === oldProjId);
-    const d    = oldP.deadlines.find(x => x.id === id);
-    Object.assign(d, { title, date, notes: document.getElementById('dmNotes').value.trim() });
-    if (oldProjId !== projectId) { oldP.deadlines = oldP.deadlines.filter(x => x.id !== id); p.deadlines.push(d); }
-  } else {
-    p.deadlines.push({ id: uid(), title, date, notes: document.getElementById('dmNotes').value.trim(), done: false });
-  }
-  save(); render(); closeDeadlineModal();
-}
-
-function deleteDeadline() {
-  if (!confirm('Excluir este prazo?')) return;
-  const projId = document.getElementById('dmOldProjectId').value;
-  const id     = document.getElementById('dmId').value;
-  const p      = data.projects.find(x => x.id === projId);
-  p.deadlines  = p.deadlines.filter(x => x.id !== id);
-  save(); render(); closeDeadlineModal();
-}
-
-function toggleDone(projectId, deadlineId) {
-  const p = data.projects.find(x => x.id === projectId);
-  const d = p.deadlines.find(x => x.id === deadlineId);
-  d.done = !d.done;
-  save(); render();
-}
-
-// ══════════════════════════════════════════════════════════
 // ESC / overlay click
 // ══════════════════════════════════════════════════════════
-['importModal','gcalModal','projectModal','deadlineModal'].forEach(id => {
-  const el = document.getElementById(id);
-  el.addEventListener('click', e => {
-    if (e.target.id !== id) return;
-    if (id === 'importModal')  closeImportModal();
-    if (id === 'gcalModal')    closeGcalModal();
-    if (id === 'projectModal') closeProjectModal();
-    if (id === 'deadlineModal')closeDeadlineModal();
+['importModal','taskModal','projectModal','deadlineModal'].forEach(id=>{
+  document.getElementById(id).addEventListener('click', e=>{
+    if(e.target.id!==id) return;
+    if(id==='importModal')  closeImportModal();
+    if(id==='taskModal')    closeTaskModal();
+    if(id==='projectModal') closeProjectModal();
+    if(id==='deadlineModal')closeDeadlineModal();
   });
 });
-document.addEventListener('keydown', e => {
-  if (e.key !== 'Escape') return;
-  closeImportModal(); closeGcalModal(); closeProjectModal(); closeDeadlineModal();
+document.addEventListener('keydown', e=>{
+  if(e.key!=='Escape') return;
+  closeImportModal(); closeTaskModal(); closeProjectModal(); closeDeadlineModal();
 });
 
 // ══════════════════════════════════════════════════════════
 // Init
 // ══════════════════════════════════════════════════════════
-document.getElementById('headerDate').textContent = TODAY.toLocaleDateString('pt-BR', {
-  weekday: 'long', day: '2-digit', month: 'long', year: 'numeric'
-});
+document.getElementById('headerDate').textContent = TODAY.toLocaleDateString('pt-BR',
+  {weekday:'long',day:'2-digit',month:'long',year:'numeric'});
 
 render();
 </script>
