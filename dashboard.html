@@ -17,8 +17,8 @@
       --warning: #F59E0B;
       --success: #10B981;
       --radius: 12px;
-      --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.05);
-      --shadow-md: 0 4px 10px rgba(0,0,0,0.08);
+      --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.09);
     }
 
     body {
@@ -32,7 +32,7 @@
     header {
       background: var(--surface);
       border-bottom: 1px solid var(--border);
-      padding: 14px 24px;
+      padding: 13px 24px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -43,14 +43,13 @@
     }
 
     .header-left h1 { font-size: 17px; font-weight: 700; }
-    .header-left p  { font-size: 13px; color: var(--text-muted); margin-top: 1px; }
+    .header-left p  { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
+    .header-actions { display: flex; gap: 8px; align-items: center; }
 
-    .header-actions { display: flex; gap: 8px; }
-
-    /* ── Layout ──────────────────────────────────────── */
+    /* ── Layout ─────────────────────────────────────── */
     .container { max-width: 1100px; margin: 0 auto; padding: 24px 20px; }
 
-    /* ── Stats ───────────────────────────────────────── */
+    /* ── Stats ──────────────────────────────────────── */
     .stats-bar {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
@@ -74,20 +73,14 @@
       color: var(--text-muted);
     }
 
-    .stat-value {
-      font-size: 30px;
-      font-weight: 700;
-      margin-top: 4px;
-      line-height: 1;
-    }
+    .stat-value { font-size: 30px; font-weight: 700; margin-top: 4px; line-height: 1; }
+    .stat-sub   { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
 
-    .stat-sub { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
-
-    .stat-danger .stat-value  { color: var(--danger); }
+    .stat-danger  .stat-value { color: var(--danger); }
     .stat-warning .stat-value { color: var(--warning); }
-    .stat-ok .stat-value      { color: var(--success); }
+    .stat-ok      .stat-value { color: var(--success); }
 
-    /* ── Tabs ────────────────────────────────────────── */
+    /* ── Tabs ───────────────────────────────────────── */
     .tabs {
       display: flex;
       gap: 4px;
@@ -112,13 +105,9 @@
       transition: all 0.15s;
     }
 
-    .tab.active {
-      background: var(--text);
-      color: #fff;
-      box-shadow: var(--shadow);
-    }
+    .tab.active { background: var(--text); color: #fff; }
 
-    /* ── Section ─────────────────────────────────────── */
+    /* ── Section ────────────────────────────────────── */
     .section { margin-bottom: 32px; }
 
     .section-header {
@@ -130,7 +119,7 @@
 
     .section-title { font-size: 15px; font-weight: 600; }
 
-    /* ── Deadline list ───────────────────────────────── */
+    /* ── Deadline list ──────────────────────────────── */
     .deadline-list { display: flex; flex-direction: column; gap: 8px; }
 
     .deadline-card {
@@ -143,38 +132,28 @@
       gap: 10px;
       box-shadow: var(--shadow);
       transition: box-shadow 0.15s;
-      cursor: default;
     }
 
-    .deadline-card:hover { box-shadow: var(--shadow-md); }
-    .deadline-card.is-done { opacity: 0.55; }
+    .deadline-card:hover   { box-shadow: var(--shadow-md); }
+    .deadline-card.is-done { opacity: 0.52; }
 
-    .project-dot {
-      width: 10px; height: 10px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
+    .project-dot  { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .urgency-dot  { width:  9px; height:  9px; border-radius: 50%; flex-shrink: 0; }
 
-    .urgency-dot {
-      width: 9px; height: 9px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-
-    .dl-info { flex: 1; min-width: 0; }
+    .dl-info  { flex: 1; min-width: 0; }
     .dl-title { font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .dl-title.done { text-decoration: line-through; }
-    .dl-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+    .dl-sub   { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
     .dl-notes { font-size: 12px; color: var(--text-muted); margin-top: 2px; font-style: italic; }
 
-    .dl-date { text-align: right; flex-shrink: 0; }
+    .dl-date       { text-align: right; flex-shrink: 0; }
     .dl-date-value { font-size: 13px; font-weight: 600; }
-    .dl-days { font-size: 11px; margin-top: 2px; font-weight: 500; }
+    .dl-days       { font-size: 11px; margin-top: 2px; font-weight: 500; }
 
     .dl-actions { display: flex; gap: 5px; opacity: 0; transition: opacity 0.15s; }
     .deadline-card:hover .dl-actions { opacity: 1; }
 
-    /* ── Timeline ────────────────────────────────────── */
+    /* ── Timeline ───────────────────────────────────── */
     .timeline-wrap {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -186,12 +165,7 @@
 
     .tl-inner { min-width: 560px; }
 
-    .tl-header-row {
-      position: relative;
-      height: 22px;
-      margin-left: 130px;
-      margin-bottom: 10px;
-    }
+    .tl-header-row { position: relative; height: 22px; margin-left: 140px; margin-bottom: 10px; }
 
     .tl-label {
       position: absolute;
@@ -201,15 +175,10 @@
       white-space: nowrap;
     }
 
-    .tl-row {
-      display: flex;
-      align-items: center;
-      margin-bottom: 10px;
-      height: 32px;
-    }
+    .tl-row { display: flex; align-items: center; margin-bottom: 10px; height: 32px; }
 
     .tl-name {
-      width: 130px;
+      width: 140px;
       font-size: 12px;
       font-weight: 500;
       white-space: nowrap;
@@ -221,13 +190,7 @@
       gap: 6px;
     }
 
-    .tl-track {
-      flex: 1;
-      height: 3px;
-      background: #F0F0F0;
-      border-radius: 2px;
-      position: relative;
-    }
+    .tl-track { flex: 1; height: 3px; background: #F0F0F0; border-radius: 2px; position: relative; }
 
     .tl-today {
       position: absolute;
@@ -247,25 +210,17 @@
       border-radius: 50%;
       cursor: pointer;
       border: 2px solid var(--surface);
-      box-shadow: 0 0 0 1px rgba(0,0,0,0.1);
+      box-shadow: 0 0 0 1px rgba(0,0,0,0.12);
       transition: transform 0.15s;
     }
 
     .tl-dot:hover { transform: translate(-50%, -50%) scale(1.5); }
 
-    .tl-legend {
-      display: flex;
-      gap: 16px;
-      margin-top: 14px;
-      margin-left: 130px;
-      flex-wrap: wrap;
-    }
-
+    .tl-legend { display: flex; gap: 16px; margin-top: 14px; margin-left: 140px; flex-wrap: wrap; }
     .tl-legend-item { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--text-muted); }
-
     .legend-dot { width: 9px; height: 9px; border-radius: 50%; }
 
-    /* ── Projects grid ───────────────────────────────── */
+    /* ── Projects grid ──────────────────────────────── */
     .projects-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
@@ -280,29 +235,17 @@
       box-shadow: var(--shadow);
     }
 
-    .pc-header {
-      display: flex;
-      align-items: center;
-      gap: 9px;
-      margin-bottom: 10px;
-    }
+    .pc-header { display: flex; align-items: center; gap: 9px; margin-bottom: 10px; }
+    .pc-dot    { width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; }
+    .pc-name   { font-size: 15px; font-weight: 600; flex: 1; }
 
-    .pc-dot { width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; }
-    .pc-name { font-size: 15px; font-weight: 600; flex: 1; }
-
-    .badge {
-      font-size: 11px;
-      padding: 2px 9px;
-      border-radius: 99px;
-      font-weight: 600;
-    }
-
+    .badge         { font-size: 11px; padding: 2px 9px; border-radius: 99px; font-weight: 600; }
     .badge-emprego { background: #EEF2FF; color: #4338CA; }
     .badge-freela  { background: #FFF7ED; color: #C2410C; }
 
-    .pc-client { font-size: 12px; color: var(--text-muted); margin-bottom: 10px; }
-
+    .pc-client           { font-size: 12px; color: var(--text-muted); margin-bottom: 10px; }
     .pc-deadline-preview { font-size: 13px; margin-top: 4px; }
+    .pc-notes            { font-size: 12px; color: var(--text-muted); margin-top: 8px; font-style: italic; }
 
     .pc-footer {
       display: flex;
@@ -312,9 +255,23 @@
       border-top: 1px solid var(--border);
     }
 
-    .pc-notes { font-size: 12px; color: var(--text-muted); margin-top: 8px; font-style: italic; }
+    /* ── AI import banner ───────────────────────────── */
+    .ai-banner {
+      background: linear-gradient(135deg, #EEF2FF 0%, #F0FDF4 100%);
+      border: 1px solid #C7D2FE;
+      border-radius: var(--radius);
+      padding: 14px 18px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
 
-    /* ── Buttons ─────────────────────────────────────── */
+    .ai-banner-text { font-size: 13px; color: #3730A3; }
+    .ai-banner-text strong { font-weight: 600; }
+
+    /* ── Buttons ────────────────────────────────────── */
     .btn {
       display: inline-flex;
       align-items: center;
@@ -327,33 +284,29 @@
       cursor: pointer;
       transition: all 0.15s;
       font-family: inherit;
+      white-space: nowrap;
     }
 
-    .btn-primary { background: #111827; color: #fff; }
-    .btn-primary:hover { background: #374151; }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
-    .btn-secondary {
-      background: var(--bg);
-      color: var(--text);
-      border: 1px solid var(--border);
-    }
-    .btn-secondary:hover { background: #F3F4F6; }
+    .btn-primary      { background: #111827; color: #fff; }
+    .btn-primary:hover:not(:disabled) { background: #374151; }
 
-    .btn-ghost {
-      background: transparent;
-      color: var(--text-muted);
-      border: 1px solid var(--border);
-      padding: 5px 8px;
-      border-radius: 6px;
-    }
-    .btn-ghost:hover { background: var(--bg); color: var(--text); }
+    .btn-ai           { background: #4F46E5; color: #fff; }
+    .btn-ai:hover:not(:disabled) { background: #4338CA; }
 
-    .btn-danger-soft { background: #FEE2E2; color: var(--danger); }
-    .btn-danger-soft:hover { background: #FECACA; }
+    .btn-secondary    { background: var(--bg); color: var(--text); border: 1px solid var(--border); }
+    .btn-secondary:hover:not(:disabled) { background: #F3F4F6; }
+
+    .btn-ghost        { background: transparent; color: var(--text-muted); border: 1px solid var(--border); padding: 5px 8px; border-radius: 6px; }
+    .btn-ghost:hover:not(:disabled)  { background: var(--bg); color: var(--text); }
+
+    .btn-danger-soft  { background: #FEE2E2; color: var(--danger); }
+    .btn-danger-soft:hover:not(:disabled) { background: #FECACA; }
 
     .btn-sm { padding: 5px 11px; font-size: 12px; }
 
-    /* ── Modal ───────────────────────────────────────── */
+    /* ── Modal ──────────────────────────────────────── */
     .overlay {
       position: fixed;
       inset: 0;
@@ -370,11 +323,13 @@
       background: var(--surface);
       border-radius: 16px;
       width: 100%;
-      max-width: 460px;
+      max-width: 480px;
       box-shadow: 0 24px 60px rgba(0,0,0,0.18);
       max-height: 92vh;
       overflow-y: auto;
     }
+
+    .modal-wide { max-width: 560px; }
 
     .modal-head {
       padding: 18px 22px 14px;
@@ -385,8 +340,7 @@
     }
 
     .modal-title { font-size: 16px; font-weight: 600; }
-
-    .modal-body { padding: 18px 22px; }
+    .modal-body  { padding: 18px 22px; }
 
     .modal-foot {
       padding: 14px 22px;
@@ -397,8 +351,8 @@
       gap: 8px;
     }
 
-    /* ── Form ────────────────────────────────────────── */
-    .fg { margin-bottom: 15px; }
+    /* ── Form ───────────────────────────────────────── */
+    .fg       { margin-bottom: 15px; }
     .fg label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 5px; }
 
     .fi {
@@ -413,7 +367,8 @@
       transition: border-color 0.15s;
     }
 
-    .fi:focus { outline: none; border-color: #9CA3AF; }
+    .fi:focus    { outline: none; border-color: #9CA3AF; }
+    textarea.fi  { resize: vertical; min-height: 120px; }
 
     .color-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
 
@@ -426,11 +381,90 @@
     }
 
     .swatch:hover { transform: scale(1.15); }
-    .swatch.sel { border-color: var(--text); }
+    .swatch.sel   { border-color: var(--text); }
 
-    /* ── Misc ────────────────────────────────────────── */
-    .empty { text-align: center; padding: 36px; color: var(--text-muted); font-size: 14px; }
-    .hidden { display: none !important; }
+    /* ── AI step indicators ─────────────────────────── */
+    .ai-steps {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 18px;
+    }
+
+    .ai-step {
+      flex: 1;
+      height: 3px;
+      background: var(--border);
+      border-radius: 2px;
+      transition: background 0.3s;
+    }
+
+    .ai-step.active { background: #4F46E5; }
+
+    .ai-status {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 10px;
+      min-height: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .spinner {
+      width: 14px; height: 14px;
+      border: 2px solid var(--border);
+      border-top-color: #4F46E5;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      flex-shrink: 0;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .preview-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 6px;
+      font-size: 13px;
+      background: var(--bg);
+    }
+
+    .preview-item input[type=checkbox] { width: 16px; height: 16px; cursor: pointer; flex-shrink: 0; }
+
+    .info-box {
+      background: #F0F9FF;
+      border: 1px solid #BAE6FD;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 12px;
+      color: #0369A1;
+      margin-bottom: 14px;
+    }
+
+    /* ── Misc ───────────────────────────────────────── */
+    .empty   { text-align: center; padding: 36px; color: var(--text-muted); font-size: 14px; }
+    .hidden  { display: none !important; }
+
+    .file-upload-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 12px;
+      border: 1px dashed var(--border);
+      border-radius: 8px;
+      font-size: 13px;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s;
+      background: var(--bg);
+      margin-top: 6px;
+    }
+
+    .file-upload-btn:hover { border-color: #9CA3AF; color: var(--text); background: #F3F4F6; }
 
     ::-webkit-scrollbar { width: 5px; height: 5px; }
     ::-webkit-scrollbar-thumb { background: #D1D5DB; border-radius: 3px; }
@@ -446,6 +480,9 @@
     <p id="headerDate"></p>
   </div>
   <div class="header-actions">
+    <button class="btn btn-ai" onclick="openAiModal()" title="Importar prazos automaticamente com IA">
+      ✨ Importar com IA
+    </button>
     <button class="btn btn-secondary" onclick="openDeadlineModal()">+ Prazo</button>
     <button class="btn btn-primary"   onclick="openProjectModal()">+ Projeto</button>
   </div>
@@ -495,11 +532,75 @@
 
 </div>
 
+<!-- ─── Modal: Importar com IA ─────────────────────────── -->
+<div class="overlay hidden" id="aiModal">
+  <div class="modal modal-wide">
+    <div class="modal-head">
+      <div class="modal-title">✨ Importar com IA</div>
+      <button class="btn-ghost" onclick="closeAiModal()">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- Step indicator -->
+      <div class="ai-steps">
+        <div class="ai-step active" id="aiStep1"></div>
+        <div class="ai-step"       id="aiStep2"></div>
+        <div class="ai-step"       id="aiStep3"></div>
+      </div>
+
+      <!-- Step 1: API Key -->
+      <div id="aiPanelKey">
+        <div class="info-box">
+          Cole o texto de qualquer cronograma (e-mail, planilha, PDF) e o Claude extrai os prazos automaticamente.<br><br>
+          Para usar esse recurso, você precisa de uma <strong>API key da Anthropic</strong> (gratuita para testar em <strong>console.anthropic.com</strong>). Ela fica salva só no seu navegador.
+        </div>
+        <div class="fg">
+          <label>Chave da API Anthropic</label>
+          <input class="fi" id="aiKeyInput" type="password" placeholder="sk-ant-api03-...">
+        </div>
+        <button class="btn btn-ai" onclick="saveApiKey()">Salvar e continuar →</button>
+      </div>
+
+      <!-- Step 2: Text input -->
+      <div id="aiPanelInput" class="hidden">
+        <div class="info-box">
+          Cole aqui qualquer texto com datas e demandas: e-mail do cliente, cronograma copiado do PDF ou planilha, mensagem do WhatsApp, etc.
+        </div>
+        <div class="fg">
+          <label>Texto com cronograma ou datas</label>
+          <textarea class="fi" id="aiTextInput" rows="9"
+            placeholder="Exemplos:&#10;• &quot;Dr. Bingo – entrega da identidade visual 10/06, aprovação 20/06&quot;&#10;• Cole um e-mail inteiro ou trecho de planilha&#10;• Qualquer texto com projeto + data"></textarea>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <label class="file-upload-btn">
+            📎 Carregar arquivo (txt, csv)
+            <input type="file" accept=".txt,.csv,.md" style="display:none" onchange="loadFile(event)">
+          </label>
+          <span style="font-size:12px;color:var(--text-muted)">Para PDF: copie o texto e cole acima</span>
+        </div>
+        <div class="ai-status" id="aiStatus"></div>
+      </div>
+
+      <!-- Step 3: Preview -->
+      <div id="aiPanelPreview" class="hidden">
+        <p style="font-size:13px;margin-bottom:12px;font-weight:500">Prazos encontrados — desmarque os que não quiser importar:</p>
+        <div id="aiPreviewList"></div>
+      </div>
+
+    </div>
+    <div class="modal-foot">
+      <div id="aiFootActions" style="display:flex;width:100%;gap:8px;align-items:center">
+        <!-- populated by JS -->
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ─── Modal: Projeto ──────────────────────────────────── -->
 <div class="overlay hidden" id="projectModal">
   <div class="modal">
     <div class="modal-head">
-      <div class="modal-title" id="pmTitle">Novo Projeto</div>
+      <div class="modal-title" id="pmModalTitle">Novo Projeto</div>
       <button class="btn-ghost" onclick="closeProjectModal()">✕</button>
     </div>
     <div class="modal-body">
@@ -540,7 +641,7 @@
 <div class="overlay hidden" id="deadlineModal">
   <div class="modal">
     <div class="modal-head">
-      <div class="modal-title" id="dmTitle">Novo Prazo</div>
+      <div class="modal-title" id="dmModalTitle">Novo Prazo</div>
       <button class="btn-ghost" onclick="closeDeadlineModal()">✕</button>
     </div>
     <div class="modal-body">
@@ -552,7 +653,7 @@
       </div>
       <div class="fg">
         <label>Descrição *</label>
-        <input class="fi" id="dmTitle" placeholder="Ex: Entrega do layout, Reunião de aprovação…">
+        <input class="fi" id="dmTitleInput" placeholder="Ex: Entrega do layout, Reunião de aprovação…">
       </div>
       <div class="fg">
         <label>Data *</label>
@@ -573,7 +674,7 @@
 
 <script>
 // ══════════════════════════════════════════════════════════
-// Constants & palette
+// Config & palette
 // ══════════════════════════════════════════════════════════
 const COLORS = [
   '#4F46E5','#0EA5E9','#10B981','#F59E0B','#EF4444',
@@ -581,40 +682,60 @@ const COLORS = [
 ];
 
 // ══════════════════════════════════════════════════════════
-// Data layer
+// Default data (5 real projects, no deadlines yet)
 // ══════════════════════════════════════════════════════════
-const SAMPLE = {
+const DEFAULT_DATA = {
   projects: [
     {
-      id: 'p1', name: 'Emprego Fixo', type: 'emprego',
-      client: 'Sua empresa', color: '#4F46E5', notes: '',
+      id: 'p-inpress', name: 'Inpress', type: 'emprego', client: '', color: '#4F46E5', notes: '',
+      deadlines: []
+    },
+    {
+      id: 'p-bingo', name: 'Dr. Bingo', type: 'freela', client: 'Dr. Bingo / Gamesmart', color: '#10B981', notes: 'Brand Sprint (Semanas 1–7) + Reta Final: Character Build Up + Brandbook',
       deadlines: [
-        { id: 'd1', title: 'Relatório mensal', date: '2026-05-30', done: false, notes: '' },
-        { id: 'd2', title: 'Sprint review', date: '2026-06-10', done: false, notes: '' },
+        { id: 'b01', title: 'Architecture + Framework (Sprint Semana 2)',  date: '2026-05-26', done: false, notes: 'Estratégia' },
+        { id: 'b02', title: 'Apresentação v1 dos posicionamentos',          date: '2026-06-01', done: false, notes: 'Posicionamento Bet, SG e Club' },
+        { id: 'b03', title: 'Envio final dos posicionamentos',              date: '2026-06-05', done: false, notes: '' },
+        { id: 'b04', title: 'Briefing Character Build Up',                 date: '2026-06-08', done: false, notes: '' },
+        { id: 'b05', title: 'Apresentação propostas de frameworks (personagens)', date: '2026-06-24', done: false, notes: '' },
+        { id: 'b06', title: 'Apresentação v1 novos personagens',           date: '2026-07-03', done: false, notes: '' },
+        { id: 'b07', title: 'Envio final Character Build Up',              date: '2026-07-07', done: false, notes: '' },
+        { id: 'b08', title: 'Apresentação IDV + Verbal',                   date: '2026-07-23', done: false, notes: '' },
+        { id: 'b09', title: 'Envio final IDV + Verbal',                    date: '2026-07-28', done: false, notes: '' },
+        { id: 'b10', title: 'Envio Brandbook v1',                          date: '2026-08-04', done: false, notes: '' },
+        { id: 'b11', title: 'Envio final Brandbook',                       date: '2026-08-07', done: false, notes: '' },
       ]
     },
     {
-      id: 'p2', name: 'Freela 1', type: 'freela',
-      client: 'Cliente A', color: '#10B981', notes: '',
+      id: 'p-macro', name: 'Macro Arquitetos', type: 'freela', client: '', color: '#F59E0B', notes: 'Imersão & Diagnóstico concluída. Fase atual: Posicionamento.',
       deadlines: [
-        { id: 'd3', title: 'Entrega do MVP', date: '2026-05-28', done: false, notes: '' },
-        { id: 'd4', title: 'Aprovação final', date: '2026-06-18', done: false, notes: '' },
+        { id: 'm01', title: 'Apresentação do diagnóstico',   date: '2026-05-25', done: false, notes: '⚠️ Amanhã!' },
+        { id: 'm02', title: 'Entrega do posicionamento',     date: '2026-05-29', done: false, notes: '' },
+        { id: 'm03', title: 'Apresentação do posicionamento',date: '2026-06-01', done: false, notes: '' },
+        { id: 'm04', title: 'Entrega final posicionamento',  date: '2026-06-03', done: false, notes: '' },
       ]
     },
     {
-      id: 'p3', name: 'Freela 2', type: 'freela',
-      client: 'Cliente B', color: '#F59E0B', notes: '',
+      id: 'p-arete', name: 'Aretê Búzios', type: 'freela', client: '', color: '#EC4899', notes: '',
+      deadlines: []
+    },
+    {
+      id: 'p-banco', name: 'Banco Atlântico', type: 'freela', client: '', color: '#0EA5E9', notes: '5 entregas semanais de análise de concorrência (quartas-feiras)',
       deadlines: [
-        { id: 'd5', title: 'Entrega do layout', date: '2026-06-03', done: false, notes: '' },
+        { id: 'ba1', title: 'Análise de concorrência — Semana 1', date: '2026-05-27', done: false, notes: '' },
+        { id: 'ba2', title: 'Análise de concorrência — Semana 2', date: '2026-06-03', done: false, notes: '' },
+        { id: 'ba3', title: 'Análise de concorrência — Semana 3', date: '2026-06-10', done: false, notes: '' },
+        { id: 'ba4', title: 'Análise de concorrência — Semana 4', date: '2026-06-17', done: false, notes: '' },
+        { id: 'ba5', title: 'Análise de concorrência — Semana 5', date: '2026-06-24', done: false, notes: '' },
       ]
     },
   ]
 };
 
-let data = JSON.parse(localStorage.getItem('workdash_v1')) || SAMPLE;
+let data = JSON.parse(localStorage.getItem('workdash_v2')) || DEFAULT_DATA;
 
-const save  = () => localStorage.setItem('workdash_v1', JSON.stringify(data));
-const uid   = () => Date.now().toString(36) + Math.random().toString(36).slice(2);
+const save = () => localStorage.setItem('workdash_v2', JSON.stringify(data));
+const uid  = () => Date.now().toString(36) + Math.random().toString(36).slice(2);
 
 // ══════════════════════════════════════════════════════════
 // Date helpers
@@ -647,6 +768,12 @@ function fmtDate(str) {
 
 function addDays(d, n) { const r = new Date(d); r.setDate(r.getDate() + n); return r; }
 
+function esc(str) {
+  return String(str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
 // ══════════════════════════════════════════════════════════
 // Tabs
 // ══════════════════════════════════════════════════════════
@@ -673,11 +800,11 @@ function render() {
 
 // ── Stats ─────────────────────────────────────────────────
 function renderStats() {
-  const all = data.projects.flatMap(p => p.deadlines.map(d => ({ ...d, project: p })));
-  const overdue   = all.filter(d => !d.done && daysUntil(d.date) < 0).length;
-  const thisWeek  = all.filter(d => !d.done && daysUntil(d.date) >= 0 && daysUntil(d.date) <= 7).length;
-  const later     = all.filter(d => !d.done && daysUntil(d.date) > 7).length;
-  const projects  = data.projects.length;
+  const all      = data.projects.flatMap(p => p.deadlines.map(d => ({ ...d, project: p })));
+  const overdue  = all.filter(d => !d.done && daysUntil(d.date) < 0).length;
+  const thisWeek = all.filter(d => !d.done && daysUntil(d.date) >= 0 && daysUntil(d.date) <= 7).length;
+  const later    = all.filter(d => !d.done && daysUntil(d.date) > 7).length;
+  const projects = data.projects.length;
 
   document.getElementById('statsBar').innerHTML = `
     <div class="stat-card ${overdue  > 0 ? 'stat-danger'  : ''}">
@@ -692,7 +819,7 @@ function renderStats() {
     </div>
     <div class="stat-card">
       <div class="stat-label">Futuros</div>
-      <div class="stat-value stat-ok" style="color:var(--success)">${later}</div>
+      <div class="stat-value" style="color:var(--success)">${later}</div>
       <div class="stat-sub">prazo(s) após 7 dias</div>
     </div>
     <div class="stat-card">
@@ -715,8 +842,11 @@ function renderDeadlines() {
     });
 
   if (!list.length) {
-    document.getElementById('deadlineList').innerHTML =
-      `<div class="empty">Nenhum prazo${showDone ? '' : ' pendente'}. Clique em "+ Prazo" para adicionar.</div>`;
+    document.getElementById('deadlineList').innerHTML = `
+      <div class="empty">
+        Nenhum prazo${showDone ? '' : ' pendente'}.<br>
+        Use <strong>+ Prazo</strong> para adicionar manualmente ou <strong>✨ Importar com IA</strong> para extrair de um texto.
+      </div>`;
     return;
   }
 
@@ -737,7 +867,7 @@ function renderDeadlines() {
           <div class="dl-days" style="color:${color}">${d.done ? 'Concluído' : daysLabel(days)}</div>
         </div>
         <div class="dl-actions">
-          <button class="btn-ghost" title="${d.done ? 'Reabrir' : 'Marcar como concluído'}"
+          <button class="btn-ghost" title="${d.done ? 'Reabrir' : 'Concluir'}"
             onclick="toggleDone('${d.project.id}','${d.id}')">${d.done ? '↩' : '✓'}</button>
           <button class="btn-ghost" title="Editar"
             onclick="openDeadlineModal('${d.project.id}','${d.id}')">✎</button>
@@ -749,9 +879,7 @@ function renderDeadlines() {
 // ── Timeline ──────────────────────────────────────────────
 function renderTimeline() {
   const DAYS = 60;
-  const end  = addDays(TODAY, DAYS);
 
-  // Header labels every 10 days
   let labels = '';
   for (let i = 0; i <= DAYS; i += 10) {
     const d   = addDays(TODAY, i);
@@ -770,7 +898,7 @@ function renderTimeline() {
       const color = urgencyColor(d.date, d.done);
       dots += `
         <div class="tl-dot" style="left:${clamp}%;background:${color}"
-          title="${esc(d.title)} — ${fmtDate(d.date)}${d.done?' (concluído)':''}"
+          title="${esc(d.title)} — ${fmtDate(d.date)}${d.done ? ' (concluído)' : ''}"
           onclick="openDeadlineModal('${p.id}','${d.id}')"></div>`;
     }
 
@@ -824,7 +952,7 @@ function renderProjects() {
         <div class="pc-deadline-preview" style="color:${color}">
           ${next
             ? `⏱ ${esc(next.title)} — ${fmtDate(next.date)} (${daysLabel(daysUntil(next.date))})`
-            : `<span style="color:var(--text-muted)">Sem prazos pendentes</span>`}
+            : `<span style="color:var(--text-muted)">Sem prazos cadastrados</span>`}
         </div>
         ${p.notes ? `<div class="pc-notes">${esc(p.notes)}</div>` : ''}
         <div class="pc-footer">
@@ -836,34 +964,219 @@ function renderProjects() {
 }
 
 // ══════════════════════════════════════════════════════════
+// AI Import
+// ══════════════════════════════════════════════════════════
+let _aiStep = 1;
+let _aiImportData = [];
+
+function openAiModal() {
+  _aiImportData = [];
+  document.getElementById('aiTextInput').value = '';
+  setAiStep(localStorage.getItem('anthropic_key') ? 2 : 1);
+  document.getElementById('aiModal').classList.remove('hidden');
+}
+
+function closeAiModal() { document.getElementById('aiModal').classList.add('hidden'); }
+
+function setAiStep(step) {
+  _aiStep = step;
+  document.getElementById('aiPanelKey').classList.toggle('hidden',     step !== 1);
+  document.getElementById('aiPanelInput').classList.toggle('hidden',   step !== 2);
+  document.getElementById('aiPanelPreview').classList.toggle('hidden', step !== 3);
+  [1,2,3].forEach(i => document.getElementById('aiStep'+i).classList.toggle('active', i <= step));
+
+  const foot = document.getElementById('aiFootActions');
+  if (step === 1) {
+    foot.innerHTML = '';
+  } else if (step === 2) {
+    foot.innerHTML = `
+      <button class="btn btn-ghost btn-sm" onclick="resetApiKey()" style="margin-right:auto">Trocar chave</button>
+      <button class="btn btn-secondary" onclick="closeAiModal()">Cancelar</button>
+      <button class="btn btn-ai" id="aiAnalyzeBtn" onclick="runAiImport()">Analisar →</button>`;
+  } else {
+    foot.innerHTML = `
+      <button class="btn btn-secondary" onclick="setAiStep(2)" style="margin-right:auto">← Voltar</button>
+      <button class="btn btn-secondary" onclick="closeAiModal()">Cancelar</button>
+      <button class="btn btn-ai" onclick="confirmAiImport()">Importar selecionados</button>`;
+  }
+}
+
+function saveApiKey() {
+  const key = document.getElementById('aiKeyInput').value.trim();
+  if (!key.startsWith('sk-')) { alert('Chave inválida. Deve começar com sk-ant-...'); return; }
+  localStorage.setItem('anthropic_key', key);
+  setAiStep(2);
+}
+
+function resetApiKey() {
+  localStorage.removeItem('anthropic_key');
+  setAiStep(1);
+}
+
+function loadFile(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('aiTextInput').value = e.target.result;
+  };
+  reader.readAsText(file, 'UTF-8');
+  event.target.value = '';
+}
+
+async function runAiImport() {
+  const text = document.getElementById('aiTextInput').value.trim();
+  if (!text) { alert('Cole ou carregue algum texto primeiro.'); return; }
+
+  const key = localStorage.getItem('anthropic_key');
+  const btn = document.getElementById('aiAnalyzeBtn');
+  const statusEl = document.getElementById('aiStatus');
+
+  btn.disabled = true;
+  btn.textContent = 'Analisando…';
+  statusEl.innerHTML = `<div class="spinner"></div> Enviando para o Claude…`;
+
+  const projectNames = data.projects.map(p => p.name).join(', ');
+  const currentYear  = new Date().getFullYear();
+
+  const system = `Você é um assistente que extrai prazos de projetos a partir de textos em português.
+Os projetos existentes são: ${projectNames}.
+
+Extraia TODOS os prazos/entregas/datas encontrados no texto.
+Retorne APENAS um JSON array com este formato (sem markdown, sem explicação):
+[{"project":"nome do projeto","title":"descrição do prazo","date":"YYYY-MM-DD"}]
+
+Regras:
+- Se o ano não aparecer no texto, use ${currentYear}.
+- Use o nome de projeto mais próximo da lista acima. Se não corresponder a nenhum, use o nome como aparece.
+- Inclua TODOS os prazos, mesmo que pareçam repetidos.
+- Retorne [] se não encontrar nenhum prazo.`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': key,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true',
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 2048,
+        system,
+        messages: [{ role: 'user', content: text }],
+      }),
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error?.message || `Erro HTTP ${res.status}`);
+    }
+
+    const json = await res.json();
+    const raw  = json.content[0].text.trim();
+    const match = raw.match(/\[[\s\S]*\]/);
+    if (!match) throw new Error('Claude não retornou prazos no formato esperado. Tente reformular o texto.');
+
+    _aiImportData = JSON.parse(match[0]);
+
+    if (!_aiImportData.length) {
+      statusEl.innerHTML = '⚠️ Nenhum prazo encontrado. Tente incluir datas no texto.';
+      btn.disabled = false;
+      btn.textContent = 'Analisar →';
+      return;
+    }
+
+    renderAiPreview();
+    setAiStep(3);
+
+  } catch (e) {
+    statusEl.innerHTML = `❌ ${esc(e.message)}`;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Analisar →';
+  }
+}
+
+function findProject(name) {
+  const n = name.toLowerCase();
+  return data.projects.find(p =>
+    p.name.toLowerCase().includes(n) || n.includes(p.name.toLowerCase())
+  );
+}
+
+function renderAiPreview() {
+  document.getElementById('aiPreviewList').innerHTML = _aiImportData.length
+    ? _aiImportData.map((item, i) => {
+        const matched = findProject(item.project);
+        const dot = `<div class="project-dot" style="background:${matched?.color || '#9CA3AF'}"></div>`;
+        const proj = matched && matched.name !== item.project
+          ? `${esc(item.project)} → <strong>${esc(matched.name)}</strong>`
+          : esc(item.project);
+        return `
+          <div class="preview-item">
+            <input type="checkbox" checked data-idx="${i}">
+            ${dot}
+            <div style="flex:1">
+              <div style="font-weight:500">${esc(item.title)}</div>
+              <div style="font-size:12px;color:var(--text-muted)">${proj}</div>
+            </div>
+            <div style="font-weight:600;flex-shrink:0">${fmtDate(item.date)}</div>
+          </div>`;
+      }).join('')
+    : `<div class="empty">Nenhum prazo encontrado.</div>`;
+}
+
+function confirmAiImport() {
+  const checkboxes = document.querySelectorAll('#aiPreviewList input[type=checkbox]');
+  let imported = 0;
+
+  checkboxes.forEach(cb => {
+    if (!cb.checked) return;
+    const item = _aiImportData[parseInt(cb.dataset.idx)];
+
+    let p = findProject(item.project);
+    if (!p) {
+      p = {
+        id: uid(), name: item.project, type: 'freela', client: '',
+        color: COLORS[data.projects.length % COLORS.length], notes: '', deadlines: []
+      };
+      data.projects.push(p);
+    }
+
+    p.deadlines.push({ id: uid(), title: item.title, date: item.date, notes: '', done: false });
+    imported++;
+  });
+
+  save(); render(); closeAiModal();
+}
+
+// ══════════════════════════════════════════════════════════
 // Project modal
 // ══════════════════════════════════════════════════════════
-let _pmId = null;
-
 function openProjectModal(projectId) {
-  _pmId = projectId || null;
-
   document.getElementById('colorRow').innerHTML = COLORS.map(c =>
     `<div class="swatch" style="background:${c}" data-color="${c}" onclick="pickColor('${c}')"></div>`
   ).join('');
 
   if (projectId) {
     const p = data.projects.find(x => x.id === projectId);
-    document.getElementById('pmTitle').textContent  = 'Editar Projeto';
-    document.getElementById('pmId').value           = p.id;
-    document.getElementById('pmName').value         = p.name;
-    document.getElementById('pmType').value         = p.type;
-    document.getElementById('pmClient').value       = p.client || '';
-    document.getElementById('pmNotes').value        = p.notes  || '';
+    document.getElementById('pmModalTitle').textContent = 'Editar Projeto';
+    document.getElementById('pmId').value     = p.id;
+    document.getElementById('pmName').value   = p.name;
+    document.getElementById('pmType').value   = p.type;
+    document.getElementById('pmClient').value = p.client || '';
+    document.getElementById('pmNotes').value  = p.notes  || '';
     pickColor(p.color);
     document.getElementById('pmDelete').classList.remove('hidden');
   } else {
-    document.getElementById('pmTitle').textContent  = 'Novo Projeto';
-    document.getElementById('pmId').value           = '';
-    document.getElementById('pmName').value         = '';
-    document.getElementById('pmType').value         = 'freela';
-    document.getElementById('pmClient').value       = '';
-    document.getElementById('pmNotes').value        = '';
+    document.getElementById('pmModalTitle').textContent = 'Novo Projeto';
+    document.getElementById('pmId').value     = '';
+    document.getElementById('pmName').value   = '';
+    document.getElementById('pmType').value   = 'freela';
+    document.getElementById('pmClient').value = '';
+    document.getElementById('pmNotes').value  = '';
     pickColor(COLORS[Math.floor(Math.random() * COLORS.length)]);
     document.getElementById('pmDelete').classList.add('hidden');
   }
@@ -919,12 +1232,7 @@ function deleteProject() {
 // ══════════════════════════════════════════════════════════
 // Deadline modal
 // ══════════════════════════════════════════════════════════
-let _dmProjId = null, _dmId = null;
-
 function openDeadlineModal(projectId, deadlineId) {
-  _dmProjId = projectId || null;
-  _dmId     = deadlineId || null;
-
   const sel = document.getElementById('dmProject');
   sel.innerHTML = data.projects.map(p =>
     `<option value="${p.id}">${esc(p.name)}${p.client ? ' (' + esc(p.client) + ')' : ''}</option>`
@@ -934,32 +1242,31 @@ function openDeadlineModal(projectId, deadlineId) {
   if (deadlineId) {
     const p = data.projects.find(x => x.id === projectId);
     const d = p.deadlines.find(x => x.id === deadlineId);
-    document.getElementById('dmTitle').textContent = 'Editar Prazo';
-    document.getElementById('dmId').value           = d.id;
-    document.getElementById('dmOldProjectId').value = projectId;
-    document.getElementById('dmTitle').value        = d.title;
-    document.getElementById('dmDate').value         = d.date;
-    document.getElementById('dmNotes').value        = d.notes || '';
+    document.getElementById('dmModalTitle').textContent  = 'Editar Prazo';
+    document.getElementById('dmId').value                = d.id;
+    document.getElementById('dmOldProjectId').value      = projectId;
+    document.getElementById('dmTitleInput').value        = d.title;
+    document.getElementById('dmDate').value              = d.date;
+    document.getElementById('dmNotes').value             = d.notes || '';
     document.getElementById('dmDelete').classList.remove('hidden');
   } else {
-    document.getElementById('dmTitle').textContent = 'Novo Prazo';
-    document.getElementById('dmId').value           = '';
-    document.getElementById('dmOldProjectId').value = '';
-    document.getElementById('dmTitle').value        = '';
-    document.getElementById('dmDate').value         = '';
-    document.getElementById('dmNotes').value        = '';
+    document.getElementById('dmModalTitle').textContent  = 'Novo Prazo';
+    document.getElementById('dmId').value                = '';
+    document.getElementById('dmOldProjectId').value      = '';
+    document.getElementById('dmTitleInput').value        = '';
+    document.getElementById('dmDate').value              = '';
+    document.getElementById('dmNotes').value             = '';
     document.getElementById('dmDelete').classList.add('hidden');
   }
 
   document.getElementById('deadlineModal').classList.remove('hidden');
-  setTimeout(() => document.getElementById('dmTitle').focus(), 50);
+  setTimeout(() => document.getElementById('dmTitleInput').focus(), 50);
 }
 
 function closeDeadlineModal() { document.getElementById('deadlineModal').classList.add('hidden'); }
 
 function saveDeadline() {
-  const titleEl   = document.getElementById('dmTitle');
-  const title     = titleEl.value.trim();
+  const title     = document.getElementById('dmTitleInput').value.trim();
   const date      = document.getElementById('dmDate').value;
   const notes     = document.getElementById('dmNotes').value.trim();
   const projectId = document.getElementById('dmProject').value;
@@ -977,7 +1284,7 @@ function saveDeadline() {
     const d    = oldP.deadlines.find(x => x.id === id);
     if (oldProjId !== projectId) {
       oldP.deadlines = oldP.deadlines.filter(x => x.id !== id);
-      d.title = title; d.date = date; d.notes = notes;
+      Object.assign(d, { title, date, notes });
       p.deadlines.push(d);
     } else {
       Object.assign(d, { title, date, notes });
@@ -1006,25 +1313,22 @@ function toggleDone(projectId, deadlineId) {
 }
 
 // ══════════════════════════════════════════════════════════
-// Close on overlay click
+// Close on overlay click / ESC
 // ══════════════════════════════════════════════════════════
-['projectModal','deadlineModal'].forEach(id => {
+['aiModal','projectModal','deadlineModal'].forEach(id => {
   document.getElementById(id).addEventListener('click', e => {
     if (e.target.id === id) {
+      if (id === 'aiModal')       closeAiModal();
       if (id === 'projectModal')  closeProjectModal();
-      else                        closeDeadlineModal();
+      if (id === 'deadlineModal') closeDeadlineModal();
     }
   });
 });
 
-// ══════════════════════════════════════════════════════════
-// XSS safety
-// ══════════════════════════════════════════════════════════
-function esc(str) {
-  return String(str)
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-}
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  closeAiModal(); closeProjectModal(); closeDeadlineModal();
+});
 
 // ══════════════════════════════════════════════════════════
 // Init
