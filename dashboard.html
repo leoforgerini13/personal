@@ -426,11 +426,39 @@
             <li>Cole no campo "URL do proxy" abaixo e salve</li>
           </ol>
           <pre style="background:#1E1E1E;color:#D4D4D4;padding:10px 12px;border-radius:8px;font-size:11px;overflow-x:auto;margin-bottom:12px">function doGet(e) {
+  if (e.parameter.calId) return getByCalId(e.parameter.calId);
   var res = UrlFetchApp.fetch(e.parameter.url, {muteHttpExceptions:true});
   return ContentService.createTextOutput(res.getContentText());
+}
+function getByCalId(calId) {
+  var cal = CalendarApp.getCalendarById(calId);
+  if (!cal) return ContentService.createTextOutput('ERROR:not_found:' + calId);
+  var now = new Date(), end = new Date(now.getTime() + 180*24*60*60*1000);
+  var evs = cal.getEvents(now, end);
+  var lines = ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Script//EN'];
+  evs.forEach(function(ev) {
+    lines.push('BEGIN:VEVENT');
+    lines.push('SUMMARY:' + ev.getTitle().replace(/\n/g,'\\n'));
+    if (ev.isAllDayEvent()) {
+      lines.push('DTSTART;VALUE=DATE:' + fmt(ev.getStartTime(),true));
+      lines.push('DTEND;VALUE=DATE:' + fmt(ev.getEndTime(),true));
+    } else {
+      lines.push('DTSTART:' + fmt(ev.getStartTime(),false));
+      lines.push('DTEND:' + fmt(ev.getEndTime(),false));
+    }
+    lines.push('END:VEVENT');
+  });
+  lines.push('END:VCALENDAR');
+  return ContentService.createTextOutput(lines.join('\r\n'));
+}
+function fmt(d,allDay) {
+  return Utilities.formatDate(d,'UTC',allDay?"yyyyMMdd":"yyyyMMdd'T'HHmmss'Z'");
 }</pre>
+          <div class="warn-box" style="margin-top:4px;margin-bottom:12px">
+            ⚠️ Se você já tinha o script antigo, <strong>apague tudo e cole o código novo acima</strong>. Depois clique em <strong>Implantar → Gerenciar implantações → edite (✎) → "Nova versão" → Implantar</strong>.
+          </div>
           <div class="fg" style="margin-bottom:8px">
-            <label style="font-size:12px">URL do seu proxy Apps Script (opcional)</label>
+            <label style="font-size:12px">URL do seu proxy Apps Script</label>
             <input class="fi" id="gcalCustomProxy" placeholder="https://script.google.com/macros/s/…/exec">
           </div>
           <div style="display:flex;gap:8px">
@@ -445,16 +473,17 @@
 
       <div style="border-top:1px solid var(--border);margin-top:12px;padding-top:16px">
         <div style="font-size:13px;font-weight:600;margin-bottom:4px">Adicionar agenda</div>
-        <div style="font-size:12px;color:var(--text-muted);margin-bottom:10px">
-          Google Calendar → ⚙ Configurações → selecione a agenda → rolar até <strong>"Endereço secreto no formato iCal"</strong> → copiar link
+        <div class="info-box" style="margin-bottom:12px">
+          <strong>Com o Apps Script configurado:</strong> basta usar seu <strong>email do Google</strong> como ID da agenda (ex: <code>nome@gmail.com</code>).<br>
+          Para agendas secundárias ou de grupo, use o ID que aparece em Configurações da agenda (formato <code>…@group.calendar.google.com</code>).
         </div>
         <div class="fg">
           <label>Nome da agenda</label>
           <input class="fi" id="gcalNewName" placeholder="Ex: Pessoal, Trabalho, Freelas…">
         </div>
         <div class="fg">
-          <label>URL iCal</label>
-          <input class="fi" id="gcalNewUrl" placeholder="https://calendar.google.com/calendar/ical/…/basic.ics">
+          <label>Email / ID da agenda</label>
+          <input class="fi" id="gcalNewUrl" placeholder="nome@gmail.com  (ou URL iCal se não usar Apps Script)">
         </div>
         <div class="fg" style="margin-bottom:0">
           <label>Cor</label>
@@ -921,15 +950,28 @@ function renderDayDetail(dateStr, dlMap, evMap) {
 
 function getCustomProxy() { return localStorage.getItem('gcal_custom_proxy') || ''; }
 
-function buildProxyList(icalUrl) {
+function isCalId(ref) {
+  // email or xxx@group.calendar.google.com — not an http URL
+  return !ref.startsWith('http') && ref.includes('@');
+}
+
+function buildProxyList(calRef) {
   const custom = getCustomProxy();
-  const list = [];
-  if (custom) list.push({ name: 'Apps Script', url: `${custom}?url=${encodeURIComponent(icalUrl)}` });
-  list.push(
-    { name: 'corsproxy.io',  url: `https://corsproxy.io/?url=${encodeURIComponent(icalUrl)}` },
-    { name: 'codetabs',      url: `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(icalUrl)}` },
-    { name: 'thingproxy',    url: `https://thingproxy.freeboard.io/fetch/${icalUrl}` },
-  );
+  const list   = [];
+  if (custom) {
+    const param = isCalId(calRef)
+      ? `calId=${encodeURIComponent(calRef)}`
+      : `url=${encodeURIComponent(calRef)}`;
+    list.push({ name: 'Apps Script', url: `${custom}?${param}` });
+  }
+  if (!isCalId(calRef)) {
+    // Public proxies only make sense for actual URLs
+    list.push(
+      { name: 'corsproxy.io', url: `https://corsproxy.io/?url=${encodeURIComponent(calRef)}` },
+      { name: 'codetabs',     url: `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(calRef)}` },
+      { name: 'thingproxy',   url: `https://thingproxy.freeboard.io/fetch/${calRef}` },
+    );
+  }
   return list;
 }
 
@@ -967,14 +1009,21 @@ function loadCachedEvents() {
   if (cached) { gcalEvents = JSON.parse(cached); renderCalendar(); }
 }
 
-async function tryFetchICS(icalUrl) {
-  const proxies = buildProxyList(icalUrl);
+async function tryFetchICS(calRef) {
+  if (isCalId(calRef) && !getCustomProxy()) {
+    return { ok: false, errors: ['Para usar o email da agenda, configure o Apps Script primeiro (⚙ Configuração de proxy CORS acima).'] };
+  }
+  const proxies = buildProxyList(calRef);
   const errors  = [];
   for (const proxy of proxies) {
     try {
       const res  = await fetch(proxy.url, { signal: AbortSignal.timeout(14000) });
       const text = await res.text();
       if (text.includes('BEGIN:VCALENDAR')) return { ok: true, text, proxyName: proxy.name };
+      if (text.startsWith('ERROR:not_found:')) {
+        errors.push(`${proxy.name}: agenda não encontrada — verifique o email/ID`);
+        break; // no point trying other proxies
+      }
       errors.push(`${proxy.name}: respondeu mas não é iCal → "${text.slice(0,70).replace(/\n/g,' ')}"`);
     } catch (e) {
       errors.push(`${proxy.name}: ${e.message}`);
