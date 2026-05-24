@@ -433,11 +433,13 @@
           <label>Cor</label>
           <div class="color-row" id="gcalColorRow"></div>
         </div>
+        <div id="gcalTestResult" style="margin-top:10px;font-size:12px;display:none;background:#F8F9FA;border:1px solid var(--border);border-radius:8px;padding:10px;word-break:break-all;max-height:100px;overflow-y:auto;font-family:monospace"></div>
       </div>
     </div>
     <div class="modal-foot">
+      <button class="btn btn-secondary" onclick="testGcalUrl()" id="gcalTestBtn" style="margin-right:auto">🔍 Testar URL</button>
       <button class="btn btn-secondary" onclick="closeGcalModal()">Fechar</button>
-      <button class="btn btn-primary"   onclick="addGcalEntry()">+ Adicionar</button>
+      <button class="btn btn-primary"   onclick="addGcalEntry()" id="gcalAddBtn">+ Adicionar</button>
     </div>
   </div>
 </div>
@@ -889,7 +891,13 @@ function renderDayDetail(dateStr, dlMap, evMap) {
 // ══════════════════════════════════════════════════════════
 // Google Calendar — iCal fetch & parse
 // ══════════════════════════════════════════════════════════
-const PROXY = 'https://corsproxy.io/?url=';
+
+// Multiple proxies tried in order — if one fails, next is attempted
+const CORS_PROXIES = [
+  url => `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
+  url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+  url => `https://corsproxy.io/${encodeURIComponent(url)}`,
+];
 
 function getGcalEntries() {
   return JSON.parse(localStorage.getItem('gcal_entries') || '[]');
@@ -901,24 +909,36 @@ function loadCachedEvents() {
   if (cached) { gcalEvents = JSON.parse(cached); renderCalendar(); }
 }
 
+async function tryFetchICS(icalUrl) {
+  let lastError = '';
+  for (let i = 0; i < CORS_PROXIES.length; i++) {
+    const proxyUrl = CORS_PROXIES[i](icalUrl);
+    try {
+      const res = await fetch(proxyUrl, { signal: AbortSignal.timeout(12000) });
+      const text = await res.text();
+      if (text.includes('BEGIN:VCALENDAR')) return { ok: true, text, proxyIdx: i };
+      lastError = `Proxy ${i+1} respondeu mas não é um iCal válido (início: ${text.slice(0,80).replace(/\n/g,' ')})`;
+    } catch (e) {
+      lastError = `Proxy ${i+1}: ${e.message}`;
+    }
+  }
+  return { ok: false, error: lastError };
+}
+
 async function fetchSingleCalendar(entry) {
   const statusEl = document.getElementById('calFetchStatus');
-  if (statusEl) statusEl.innerHTML = `<div class="spinner" style="display:inline-block"></div> Buscando ${esc(entry.name)}…`;
-  try {
-    const proxyUrl = PROXY + encodeURIComponent(entry.url);
-    const res = await fetch(proxyUrl);
-    if (!res.ok) throw new Error(`HTTP ${res.status} — verifique se a URL está correta`);
-    const text = await res.text();
-    if (!text.includes('BEGIN:VCALENDAR')) throw new Error('A resposta não é um arquivo iCal válido. Confira a URL.');
-    const parsed = parseICS(text, entry.name, entry.color);
-    gcalEvents = gcalEvents.filter(e => e.calName !== entry.name);
-    gcalEvents.push(...parsed);
-    if (statusEl) statusEl.innerHTML = '';
-    return { ok: true, count: parsed.length };
-  } catch (e) {
-    if (statusEl) statusEl.innerHTML = `<span style="color:var(--danger)">❌ ${esc(entry.name)}: ${esc(e.message)}</span>`;
-    return { ok: false, error: e.message };
+  if (statusEl) statusEl.innerHTML = `<div class="spinner"></div> Buscando ${esc(entry.name)}…`;
+  const r = await tryFetchICS(entry.url);
+  if (!r.ok) {
+    const msg = r.error;
+    if (statusEl) statusEl.innerHTML = `<span style="color:var(--danger)">❌ ${esc(entry.name)}: ${esc(msg)}</span>`;
+    return { ok: false, error: msg };
   }
+  const parsed = parseICS(r.text, entry.name, entry.color);
+  gcalEvents = gcalEvents.filter(e => e.calName !== entry.name);
+  gcalEvents.push(...parsed);
+  if (statusEl) statusEl.innerHTML = '';
+  return { ok: true, count: parsed.length };
 }
 
 async function refreshCalendars() {
@@ -1045,6 +1065,33 @@ function renderGcalList() {
         <button class="btn-ghost btn-sm" onclick="removeGcalEntry(${i})">✕</button>
       </div>`).join('')
     : `<div style="font-size:13px;color:var(--text-muted);padding:8px 0">Nenhuma agenda adicionada ainda.</div>`;
+}
+
+async function testGcalUrl() {
+  const url = document.getElementById('gcalNewUrl').value.trim();
+  const out = document.getElementById('gcalTestResult');
+  const btn = document.getElementById('gcalTestBtn');
+  if (!url) { alert('Cole a URL iCal acima para testar.'); return; }
+
+  out.style.display = 'block';
+  out.style.color = 'var(--text-muted)';
+  out.textContent = 'Testando…';
+  btn.disabled = true;
+
+  const r = await tryFetchICS(url);
+  btn.disabled = false;
+  if (r.ok) {
+    const lines = r.text.split(/\r?\n/).slice(0, 6).join('\n');
+    out.style.color = '#065F46';
+    out.style.background = '#ECFDF5';
+    out.style.borderColor = '#A7F3D0';
+    out.textContent = `✓ iCal válido (proxy ${r.proxyIdx + 1})\n${lines}`;
+  } else {
+    out.style.color = '#991B1B';
+    out.style.background = '#FEF2F2';
+    out.style.borderColor = '#FECACA';
+    out.textContent = `❌ ${r.error}`;
+  }
 }
 
 async function addGcalEntry() {
