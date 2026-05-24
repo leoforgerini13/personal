@@ -298,6 +298,7 @@
       </div>
     </div>
     <div id="gcalLegend" class="gcal-legend"></div>
+    <div id="calFetchStatus" style="font-size:13px;margin-bottom:10px;min-height:20px;display:flex;align-items:center;gap:8px"></div>
     <div class="cal-grid-wrap">
       <div class="cal-dow-row">
         <div class="cal-dow">Dom</div><div class="cal-dow">Seg</div><div class="cal-dow">Ter</div>
@@ -406,10 +407,15 @@
     </div>
     <div class="modal-body">
       <div class="info-box" style="margin-bottom:16px">
-        <strong>Como obter a URL iCal:</strong><br>
-        Google Calendar → Configurações → selecione a agenda → "Endereço secreto no formato iCal" → copie o link.<br><br>
-        <strong>Privacidade:</strong> os eventos são buscados via <code>corsproxy.io</code> (proxy CORS gratuito). Apenas os títulos e horários dos eventos passam por ele.
+        <strong>Como obter a URL iCal do Google Calendar:</strong><br>
+        1. Abra o Google Calendar no computador (não no app)<br>
+        2. Clique em ⚙ → <strong>Configurações</strong><br>
+        3. No menu esquerdo, clique na agenda desejada<br>
+        4. Role até <strong>"Endereço secreto no formato iCal"</strong><br>
+        5. Copie o link que começa com <code>https://calendar.google.com/calendar/ical/…</code><br><br>
+        <strong>Privacidade:</strong> eventos buscados via <code>corsproxy.io</code> (proxy CORS público). Apenas títulos e horários passam por ele.
       </div>
+      <div id="gcalModalStatus" style="font-size:13px;min-height:20px;margin-bottom:8px;display:flex;align-items:center;gap:8px"></div>
 
       <div id="gcalList"></div>
 
@@ -895,6 +901,26 @@ function loadCachedEvents() {
   if (cached) { gcalEvents = JSON.parse(cached); renderCalendar(); }
 }
 
+async function fetchSingleCalendar(entry) {
+  const statusEl = document.getElementById('calFetchStatus');
+  if (statusEl) statusEl.innerHTML = `<div class="spinner" style="display:inline-block"></div> Buscando ${esc(entry.name)}…`;
+  try {
+    const proxyUrl = PROXY + encodeURIComponent(entry.url);
+    const res = await fetch(proxyUrl);
+    if (!res.ok) throw new Error(`HTTP ${res.status} — verifique se a URL está correta`);
+    const text = await res.text();
+    if (!text.includes('BEGIN:VCALENDAR')) throw new Error('A resposta não é um arquivo iCal válido. Confira a URL.');
+    const parsed = parseICS(text, entry.name, entry.color);
+    gcalEvents = gcalEvents.filter(e => e.calName !== entry.name);
+    gcalEvents.push(...parsed);
+    if (statusEl) statusEl.innerHTML = '';
+    return { ok: true, count: parsed.length };
+  } catch (e) {
+    if (statusEl) statusEl.innerHTML = `<span style="color:var(--danger)">❌ ${esc(entry.name)}: ${esc(e.message)}</span>`;
+    return { ok: false, error: e.message };
+  }
+}
+
 async function refreshCalendars() {
   const entries = getGcalEntries();
   if (!entries.length) { openGcalModal(); return; }
@@ -903,23 +929,27 @@ async function refreshCalendars() {
   btn.textContent = '…';
   btn.disabled = true;
 
+  const statusEl = document.getElementById('calFetchStatus');
+  if (statusEl) statusEl.innerHTML = '';
+
   gcalEvents = [];
+  const errors = [];
   for (const entry of entries) {
-    try {
-      const url = PROXY + encodeURIComponent(entry.url);
-      const res = await fetch(url);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const text = await res.text();
-      const parsed = parseICS(text, entry.name, entry.color);
-      gcalEvents.push(...parsed);
-    } catch (e) {
-      console.warn('Erro ao buscar', entry.name, e.message);
-    }
+    const r = await fetchSingleCalendar(entry);
+    if (!r.ok) errors.push(`${entry.name}: ${r.error}`);
   }
 
   localStorage.setItem('gcal_events_cache', JSON.stringify(gcalEvents));
   btn.textContent = '↺ Agendas';
   btn.disabled = false;
+
+  if (errors.length && statusEl) {
+    statusEl.innerHTML = `<span style="color:var(--danger)">❌ ${errors.map(esc).join(' | ')}</span>`;
+  } else if (statusEl) {
+    statusEl.innerHTML = `<span style="color:var(--success)">✓ ${gcalEvents.length} evento(s) carregado(s)</span>`;
+    setTimeout(() => { if (statusEl) statusEl.innerHTML = ''; }, 4000);
+  }
+
   renderCalendar();
 }
 
@@ -1017,18 +1047,33 @@ function renderGcalList() {
     : `<div style="font-size:13px;color:var(--text-muted);padding:8px 0">Nenhuma agenda adicionada ainda.</div>`;
 }
 
-function addGcalEntry() {
+async function addGcalEntry() {
   const name = document.getElementById('gcalNewName').value.trim();
   const url  = document.getElementById('gcalNewUrl').value.trim();
   if (!name) { alert('Informe o nome da agenda.'); return; }
-  if (!url || !url.includes('calendar.google.com')) { alert('URL iCal inválida. Deve ser do Google Calendar.'); return; }
+  if (!url)  { alert('Informe a URL iCal (.ics).'); return; }
 
   const entries = getGcalEntries();
-  entries.push({ name, url, color: gcalPickedColor });
+  const entry = { name, url, color: gcalPickedColor };
+  entries.push(entry);
   setGcalEntries(entries);
   document.getElementById('gcalNewName').value = '';
   document.getElementById('gcalNewUrl').value  = '';
   renderGcalList();
+
+  // Auto-fetch immediately and show status in modal
+  const modalStatus = document.getElementById('gcalModalStatus');
+  if (modalStatus) modalStatus.innerHTML = `<div class="spinner" style="display:inline-block;width:14px;height:14px;border:2px solid #BAE6FD;border-top-color:#0369A1;border-radius:50%;animation:spin 0.7s linear infinite"></div> Buscando eventos de <strong>${esc(name)}</strong>…`;
+  const r = await fetchSingleCalendar(entry);
+  if (modalStatus) {
+    if (r.ok) {
+      modalStatus.innerHTML = `<span style="color:var(--success)">✓ ${r.count} evento(s) carregado(s) de <strong>${esc(name)}</strong></span>`;
+      setTimeout(() => { if (modalStatus) modalStatus.innerHTML = ''; }, 5000);
+    } else {
+      modalStatus.innerHTML = `<span style="color:var(--danger)">❌ Erro: ${esc(r.error)}</span>`;
+    }
+  }
+  localStorage.setItem('gcal_events_cache', JSON.stringify(gcalEvents));
   renderCalendar();
 }
 
