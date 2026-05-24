@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Work Dashboard</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #F8F9FA;
+      --surface: #FFFFFF;
+      --border: #E5E7EB;
+      --text: #111827;
+      --text-muted: #6B7280;
+      --danger: #EF4444;
+      --warning: #F59E0B;
+      --success: #10B981;
+      --radius: 12px;
+      --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.05);
+      --shadow-md: 0 4px 10px rgba(0,0,0,0.08);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── Header ─────────────────────────────────────── */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: var(--shadow);
+    }
+
+    .header-left h1 { font-size: 17px; font-weight: 700; }
+    .header-left p  { font-size: 13px; color: var(--text-muted); margin-top: 1px; }
+
+    .header-actions { display: flex; gap: 8px; }
+
+    /* ── Layout ──────────────────────────────────────── */
+    .container { max-width: 1100px; margin: 0 auto; padding: 24px 20px; }
+
+    /* ── Stats ───────────────────────────────────────── */
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .stat-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+    }
+
+    .stat-value {
+      font-size: 30px;
+      font-weight: 700;
+      margin-top: 4px;
+      line-height: 1;
+    }
+
+    .stat-sub { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+
+    .stat-danger .stat-value  { color: var(--danger); }
+    .stat-warning .stat-value { color: var(--warning); }
+    .stat-ok .stat-value      { color: var(--success); }
+
+    /* ── Tabs ────────────────────────────────────────── */
+    .tabs {
+      display: flex;
+      gap: 4px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 4px;
+      width: fit-content;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow);
+    }
+
+    .tab {
+      padding: 7px 18px;
+      border-radius: 7px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      transition: all 0.15s;
+    }
+
+    .tab.active {
+      background: var(--text);
+      color: #fff;
+      box-shadow: var(--shadow);
+    }
+
+    /* ── Section ─────────────────────────────────────── */
+    .section { margin-bottom: 32px; }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .section-title { font-size: 15px; font-weight: 600; }
+
+    /* ── Deadline list ───────────────────────────────── */
+    .deadline-list { display: flex; flex-direction: column; gap: 8px; }
+
+    .deadline-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 13px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: var(--shadow);
+      transition: box-shadow 0.15s;
+      cursor: default;
+    }
+
+    .deadline-card:hover { box-shadow: var(--shadow-md); }
+    .deadline-card.is-done { opacity: 0.55; }
+
+    .project-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .urgency-dot {
+      width: 9px; height: 9px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .dl-info { flex: 1; min-width: 0; }
+    .dl-title { font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .dl-title.done { text-decoration: line-through; }
+    .dl-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+    .dl-notes { font-size: 12px; color: var(--text-muted); margin-top: 2px; font-style: italic; }
+
+    .dl-date { text-align: right; flex-shrink: 0; }
+    .dl-date-value { font-size: 13px; font-weight: 600; }
+    .dl-days { font-size: 11px; margin-top: 2px; font-weight: 500; }
+
+    .dl-actions { display: flex; gap: 5px; opacity: 0; transition: opacity 0.15s; }
+    .deadline-card:hover .dl-actions { opacity: 1; }
+
+    /* ── Timeline ────────────────────────────────────── */
+    .timeline-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 20px 16px;
+      overflow-x: auto;
+      box-shadow: var(--shadow);
+    }
+
+    .tl-inner { min-width: 560px; }
+
+    .tl-header-row {
+      position: relative;
+      height: 22px;
+      margin-left: 130px;
+      margin-bottom: 10px;
+    }
+
+    .tl-label {
+      position: absolute;
+      transform: translateX(-50%);
+      font-size: 11px;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    .tl-row {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+      height: 32px;
+    }
+
+    .tl-name {
+      width: 130px;
+      font-size: 12px;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      padding-right: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .tl-track {
+      flex: 1;
+      height: 3px;
+      background: #F0F0F0;
+      border-radius: 2px;
+      position: relative;
+    }
+
+    .tl-today {
+      position: absolute;
+      left: 0;
+      top: -14px; bottom: -14px;
+      width: 2px;
+      background: var(--danger);
+      opacity: 0.35;
+      border-radius: 1px;
+    }
+
+    .tl-dot {
+      position: absolute;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 13px; height: 13px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid var(--surface);
+      box-shadow: 0 0 0 1px rgba(0,0,0,0.1);
+      transition: transform 0.15s;
+    }
+
+    .tl-dot:hover { transform: translate(-50%, -50%) scale(1.5); }
+
+    .tl-legend {
+      display: flex;
+      gap: 16px;
+      margin-top: 14px;
+      margin-left: 130px;
+      flex-wrap: wrap;
+    }
+
+    .tl-legend-item { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--text-muted); }
+
+    .legend-dot { width: 9px; height: 9px; border-radius: 50%; }
+
+    /* ── Projects grid ───────────────────────────────── */
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+      gap: 14px;
+    }
+
+    .project-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: var(--shadow);
+    }
+
+    .pc-header {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin-bottom: 10px;
+    }
+
+    .pc-dot { width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; }
+    .pc-name { font-size: 15px; font-weight: 600; flex: 1; }
+
+    .badge {
+      font-size: 11px;
+      padding: 2px 9px;
+      border-radius: 99px;
+      font-weight: 600;
+    }
+
+    .badge-emprego { background: #EEF2FF; color: #4338CA; }
+    .badge-freela  { background: #FFF7ED; color: #C2410C; }
+
+    .pc-client { font-size: 12px; color: var(--text-muted); margin-bottom: 10px; }
+
+    .pc-deadline-preview { font-size: 13px; margin-top: 4px; }
+
+    .pc-footer {
+      display: flex;
+      gap: 6px;
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+    }
+
+    .pc-notes { font-size: 12px; color: var(--text-muted); margin-top: 8px; font-style: italic; }
+
+    /* ── Buttons ─────────────────────────────────────── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      border: none;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+
+    .btn-primary { background: #111827; color: #fff; }
+    .btn-primary:hover { background: #374151; }
+
+    .btn-secondary {
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover { background: #F3F4F6; }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      padding: 5px 8px;
+      border-radius: 6px;
+    }
+    .btn-ghost:hover { background: var(--bg); color: var(--text); }
+
+    .btn-danger-soft { background: #FEE2E2; color: var(--danger); }
+    .btn-danger-soft:hover { background: #FECACA; }
+
+    .btn-sm { padding: 5px 11px; font-size: 12px; }
+
+    /* ── Modal ───────────────────────────────────────── */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 24px;
+      backdrop-filter: blur(2px);
+    }
+
+    .modal {
+      background: var(--surface);
+      border-radius: 16px;
+      width: 100%;
+      max-width: 460px;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.18);
+      max-height: 92vh;
+      overflow-y: auto;
+    }
+
+    .modal-head {
+      padding: 18px 22px 14px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-title { font-size: 16px; font-weight: 600; }
+
+    .modal-body { padding: 18px 22px; }
+
+    .modal-foot {
+      padding: 14px 22px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    /* ── Form ────────────────────────────────────────── */
+    .fg { margin-bottom: 15px; }
+    .fg label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 5px; }
+
+    .fi {
+      width: 100%;
+      padding: 9px 11px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 14px;
+      color: var(--text);
+      background: var(--surface);
+      font-family: inherit;
+      transition: border-color 0.15s;
+    }
+
+    .fi:focus { outline: none; border-color: #9CA3AF; }
+
+    .color-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+
+    .swatch {
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 3px solid transparent;
+      transition: border-color 0.15s, transform 0.15s;
+    }
+
+    .swatch:hover { transform: scale(1.15); }
+    .swatch.sel { border-color: var(--text); }
+
+    /* ── Misc ────────────────────────────────────────── */
+    .empty { text-align: center; padding: 36px; color: var(--text-muted); font-size: 14px; }
+    .hidden { display: none !important; }
+
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-thumb { background: #D1D5DB; border-radius: 3px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+  </style>
+</head>
+<body>
+
+<!-- ─── Header ─────────────────────────────────────────── -->
+<header>
+  <div class="header-left">
+    <h1>Work Dashboard</h1>
+    <p id="headerDate"></p>
+  </div>
+  <div class="header-actions">
+    <button class="btn btn-secondary" onclick="openDeadlineModal()">+ Prazo</button>
+    <button class="btn btn-primary"   onclick="openProjectModal()">+ Projeto</button>
+  </div>
+</header>
+
+<!-- ─── Main ────────────────────────────────────────────── -->
+<div class="container">
+
+  <!-- Stats -->
+  <div class="stats-bar" id="statsBar"></div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" onclick="setTab('deadlines')">Prazos</button>
+    <button class="tab"        onclick="setTab('timeline')">Timeline</button>
+    <button class="tab"        onclick="setTab('projects')">Projetos</button>
+  </div>
+
+  <!-- View: Prazos -->
+  <div id="view-deadlines" class="section">
+    <div class="section-header">
+      <div class="section-title">Próximos prazos</div>
+      <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-muted);cursor:pointer">
+        <input type="checkbox" id="showDone" onchange="render()"> Mostrar concluídos
+      </label>
+    </div>
+    <div class="deadline-list" id="deadlineList"></div>
+  </div>
+
+  <!-- View: Timeline -->
+  <div id="view-timeline" class="section hidden">
+    <div class="section-header">
+      <div class="section-title">Timeline — próximos 60 dias</div>
+    </div>
+    <div class="timeline-wrap">
+      <div class="tl-inner" id="timelineGrid"></div>
+    </div>
+  </div>
+
+  <!-- View: Projetos -->
+  <div id="view-projects" class="section hidden">
+    <div class="section-header">
+      <div class="section-title">Projetos</div>
+    </div>
+    <div class="projects-grid" id="projectsGrid"></div>
+  </div>
+
+</div>
+
+<!-- ─── Modal: Projeto ──────────────────────────────────── -->
+<div class="overlay hidden" id="projectModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="pmTitle">Novo Projeto</div>
+      <button class="btn-ghost" onclick="closeProjectModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="pmId">
+      <div class="fg">
+        <label>Nome do projeto *</label>
+        <input class="fi" id="pmName" placeholder="Ex: Freela – Site para cliente X">
+      </div>
+      <div class="fg">
+        <label>Tipo</label>
+        <select class="fi" id="pmType">
+          <option value="freela">Freela</option>
+          <option value="emprego">Emprego Fixo</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label>Cliente / Empresa</label>
+        <input class="fi" id="pmClient" placeholder="Nome do cliente ou empresa">
+      </div>
+      <div class="fg">
+        <label>Cor</label>
+        <div class="color-row" id="colorRow"></div>
+      </div>
+      <div class="fg">
+        <label>Notas</label>
+        <input class="fi" id="pmNotes" placeholder="Observações opcionais">
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-danger-soft btn-sm hidden" id="pmDelete" onclick="deleteProject()" style="margin-right:auto">Excluir projeto</button>
+      <button class="btn btn-secondary" onclick="closeProjectModal()">Cancelar</button>
+      <button class="btn btn-primary"   onclick="saveProject()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Modal: Prazo ────────────────────────────────────── -->
+<div class="overlay hidden" id="deadlineModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="dmTitle">Novo Prazo</div>
+      <button class="btn-ghost" onclick="closeDeadlineModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="dmId">
+      <input type="hidden" id="dmOldProjectId">
+      <div class="fg">
+        <label>Projeto *</label>
+        <select class="fi" id="dmProject"></select>
+      </div>
+      <div class="fg">
+        <label>Descrição *</label>
+        <input class="fi" id="dmTitle" placeholder="Ex: Entrega do layout, Reunião de aprovação…">
+      </div>
+      <div class="fg">
+        <label>Data *</label>
+        <input class="fi" type="date" id="dmDate">
+      </div>
+      <div class="fg">
+        <label>Notas</label>
+        <input class="fi" id="dmNotes" placeholder="Observações opcionais">
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-danger-soft btn-sm hidden" id="dmDelete" onclick="deleteDeadline()" style="margin-right:auto">Excluir prazo</button>
+      <button class="btn btn-secondary" onclick="closeDeadlineModal()">Cancelar</button>
+      <button class="btn btn-primary"   onclick="saveDeadline()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════
+// Constants & palette
+// ══════════════════════════════════════════════════════════
+const COLORS = [
+  '#4F46E5','#0EA5E9','#10B981','#F59E0B','#EF4444',
+  '#EC4899','#8B5CF6','#14B8A6','#F97316','#64748B'
+];
+
+// ══════════════════════════════════════════════════════════
+// Data layer
+// ══════════════════════════════════════════════════════════
+const SAMPLE = {
+  projects: [
+    {
+      id: 'p1', name: 'Emprego Fixo', type: 'emprego',
+      client: 'Sua empresa', color: '#4F46E5', notes: '',
+      deadlines: [
+        { id: 'd1', title: 'Relatório mensal', date: '2026-05-30', done: false, notes: '' },
+        { id: 'd2', title: 'Sprint review', date: '2026-06-10', done: false, notes: '' },
+      ]
+    },
+    {
+      id: 'p2', name: 'Freela 1', type: 'freela',
+      client: 'Cliente A', color: '#10B981', notes: '',
+      deadlines: [
+        { id: 'd3', title: 'Entrega do MVP', date: '2026-05-28', done: false, notes: '' },
+        { id: 'd4', title: 'Aprovação final', date: '2026-06-18', done: false, notes: '' },
+      ]
+    },
+    {
+      id: 'p3', name: 'Freela 2', type: 'freela',
+      client: 'Cliente B', color: '#F59E0B', notes: '',
+      deadlines: [
+        { id: 'd5', title: 'Entrega do layout', date: '2026-06-03', done: false, notes: '' },
+      ]
+    },
+  ]
+};
+
+let data = JSON.parse(localStorage.getItem('workdash_v1')) || SAMPLE;
+
+const save  = () => localStorage.setItem('workdash_v1', JSON.stringify(data));
+const uid   = () => Date.now().toString(36) + Math.random().toString(36).slice(2);
+
+// ══════════════════════════════════════════════════════════
+// Date helpers
+// ══════════════════════════════════════════════════════════
+const TODAY = (() => { const d = new Date(); d.setHours(0,0,0,0); return d; })();
+
+function daysUntil(dateStr) {
+  return Math.round((new Date(dateStr + 'T00:00:00') - TODAY) / 86400000);
+}
+
+function urgencyColor(dateStr, done) {
+  if (done) return '#9CA3AF';
+  const d = daysUntil(dateStr);
+  if (d < 0)  return 'var(--danger)';
+  if (d <= 3) return 'var(--danger)';
+  if (d <= 7) return 'var(--warning)';
+  return 'var(--success)';
+}
+
+function daysLabel(n) {
+  if (n < 0)  return `${Math.abs(n)}d atrasado`;
+  if (n === 0) return 'Hoje!';
+  if (n === 1) return 'Amanhã';
+  return `em ${n}d`;
+}
+
+function fmtDate(str) {
+  return new Date(str + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
+}
+
+function addDays(d, n) { const r = new Date(d); r.setDate(r.getDate() + n); return r; }
+
+// ══════════════════════════════════════════════════════════
+// Tabs
+// ══════════════════════════════════════════════════════════
+let currentTab = 'deadlines';
+
+function setTab(tab) {
+  currentTab = tab;
+  const tabs = ['deadlines','timeline','projects'];
+  document.querySelectorAll('.tab').forEach((el, i) => el.classList.toggle('active', tabs[i] === tab));
+  tabs.forEach(t => document.getElementById('view-' + t).classList.toggle('hidden', t !== tab));
+  if (tab === 'timeline') renderTimeline();
+  if (tab === 'projects') renderProjects();
+}
+
+// ══════════════════════════════════════════════════════════
+// Render
+// ══════════════════════════════════════════════════════════
+function render() {
+  renderStats();
+  renderDeadlines();
+  if (currentTab === 'timeline') renderTimeline();
+  if (currentTab === 'projects') renderProjects();
+}
+
+// ── Stats ─────────────────────────────────────────────────
+function renderStats() {
+  const all = data.projects.flatMap(p => p.deadlines.map(d => ({ ...d, project: p })));
+  const overdue   = all.filter(d => !d.done && daysUntil(d.date) < 0).length;
+  const thisWeek  = all.filter(d => !d.done && daysUntil(d.date) >= 0 && daysUntil(d.date) <= 7).length;
+  const later     = all.filter(d => !d.done && daysUntil(d.date) > 7).length;
+  const projects  = data.projects.length;
+
+  document.getElementById('statsBar').innerHTML = `
+    <div class="stat-card ${overdue  > 0 ? 'stat-danger'  : ''}">
+      <div class="stat-label">Atrasados</div>
+      <div class="stat-value">${overdue}</div>
+      <div class="stat-sub">prazo(s) vencido(s)</div>
+    </div>
+    <div class="stat-card ${thisWeek > 0 ? 'stat-warning' : ''}">
+      <div class="stat-label">Esta semana</div>
+      <div class="stat-value">${thisWeek}</div>
+      <div class="stat-sub">prazo(s) nos próx. 7d</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Futuros</div>
+      <div class="stat-value stat-ok" style="color:var(--success)">${later}</div>
+      <div class="stat-sub">prazo(s) após 7 dias</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Projetos</div>
+      <div class="stat-value">${projects}</div>
+      <div class="stat-sub">ativo(s)</div>
+    </div>
+  `;
+}
+
+// ── Deadlines ─────────────────────────────────────────────
+function renderDeadlines() {
+  const showDone = document.getElementById('showDone').checked;
+  const list = data.projects
+    .flatMap(p => p.deadlines.map(d => ({ ...d, project: p })))
+    .filter(d => showDone || !d.done)
+    .sort((a, b) => {
+      if (a.done !== b.done) return a.done ? 1 : -1;
+      return a.date.localeCompare(b.date);
+    });
+
+  if (!list.length) {
+    document.getElementById('deadlineList').innerHTML =
+      `<div class="empty">Nenhum prazo${showDone ? '' : ' pendente'}. Clique em "+ Prazo" para adicionar.</div>`;
+    return;
+  }
+
+  document.getElementById('deadlineList').innerHTML = list.map(d => {
+    const days  = daysUntil(d.date);
+    const color = urgencyColor(d.date, d.done);
+    return `
+      <div class="deadline-card ${d.done ? 'is-done' : ''}">
+        <div class="project-dot" style="background:${d.project.color}"></div>
+        <div class="urgency-dot" style="background:${color}"></div>
+        <div class="dl-info">
+          <div class="dl-title${d.done ? ' done' : ''}">${esc(d.title)}</div>
+          <div class="dl-sub">${esc(d.project.name)}${d.project.client ? ' · ' + esc(d.project.client) : ''}</div>
+          ${d.notes ? `<div class="dl-notes">${esc(d.notes)}</div>` : ''}
+        </div>
+        <div class="dl-date">
+          <div class="dl-date-value">${fmtDate(d.date)}</div>
+          <div class="dl-days" style="color:${color}">${d.done ? 'Concluído' : daysLabel(days)}</div>
+        </div>
+        <div class="dl-actions">
+          <button class="btn-ghost" title="${d.done ? 'Reabrir' : 'Marcar como concluído'}"
+            onclick="toggleDone('${d.project.id}','${d.id}')">${d.done ? '↩' : '✓'}</button>
+          <button class="btn-ghost" title="Editar"
+            onclick="openDeadlineModal('${d.project.id}','${d.id}')">✎</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// ── Timeline ──────────────────────────────────────────────
+function renderTimeline() {
+  const DAYS = 60;
+  const end  = addDays(TODAY, DAYS);
+
+  // Header labels every 10 days
+  let labels = '';
+  for (let i = 0; i <= DAYS; i += 10) {
+    const d   = addDays(TODAY, i);
+    const pct = (i / DAYS * 100).toFixed(1);
+    labels += `<div class="tl-label" style="left:${pct}%">${d.toLocaleDateString('pt-BR',{day:'2-digit',month:'short'})}</div>`;
+  }
+
+  let rows = '';
+  for (const p of data.projects) {
+    let dots = `<div class="tl-today"></div>`;
+    for (const d of p.deadlines) {
+      const dDate = new Date(d.date + 'T00:00:00');
+      const pct   = ((dDate - TODAY) / (DAYS * 86400000) * 100);
+      if (pct < -5 || pct > 105) continue;
+      const clamp = Math.max(0, Math.min(100, pct)).toFixed(2);
+      const color = urgencyColor(d.date, d.done);
+      dots += `
+        <div class="tl-dot" style="left:${clamp}%;background:${color}"
+          title="${esc(d.title)} — ${fmtDate(d.date)}${d.done?' (concluído)':''}"
+          onclick="openDeadlineModal('${p.id}','${d.id}')"></div>`;
+    }
+
+    rows += `
+      <div class="tl-row">
+        <div class="tl-name">
+          <span style="width:8px;height:8px;border-radius:50%;background:${p.color};flex-shrink:0;display:inline-block"></span>
+          ${esc(p.name)}
+        </div>
+        <div class="tl-track">${dots}</div>
+      </div>`;
+  }
+
+  const legend = `
+    <div class="tl-legend">
+      <div class="tl-legend-item"><div class="legend-dot" style="background:var(--danger)"></div>Urgente (≤3d / atrasado)</div>
+      <div class="tl-legend-item"><div class="legend-dot" style="background:var(--warning)"></div>Em breve (≤7d)</div>
+      <div class="tl-legend-item"><div class="legend-dot" style="background:var(--success)"></div>OK (&gt;7d)</div>
+      <div class="tl-legend-item"><div class="legend-dot" style="background:#9CA3AF"></div>Concluído</div>
+      <div class="tl-legend-item"><div style="width:9px;height:9px;border-radius:1px;background:var(--danger);opacity:0.4"></div>Hoje</div>
+    </div>`;
+
+  document.getElementById('timelineGrid').innerHTML = !data.projects.length
+    ? `<div class="empty">Nenhum projeto cadastrado.</div>`
+    : `<div class="tl-header-row">${labels}</div>${rows}${legend}`;
+}
+
+// ── Projects ──────────────────────────────────────────────
+function renderProjects() {
+  if (!data.projects.length) {
+    document.getElementById('projectsGrid').innerHTML =
+      `<div class="empty">Nenhum projeto. Clique em "+ Projeto" para começar.</div>`;
+    return;
+  }
+
+  document.getElementById('projectsGrid').innerHTML = data.projects.map(p => {
+    const pending = p.deadlines.filter(d => !d.done).sort((a,b) => a.date.localeCompare(b.date));
+    const next    = pending[0];
+    const color   = next ? urgencyColor(next.date, false) : 'var(--text-muted)';
+    return `
+      <div class="project-card">
+        <div class="pc-header">
+          <div class="pc-dot" style="background:${p.color}"></div>
+          <div class="pc-name">${esc(p.name)}</div>
+          <span class="badge ${p.type === 'emprego' ? 'badge-emprego' : 'badge-freela'}">
+            ${p.type === 'emprego' ? 'Emprego' : 'Freela'}
+          </span>
+        </div>
+        ${p.client ? `<div class="pc-client">👤 ${esc(p.client)}</div>` : ''}
+        <div style="font-size:12px;color:var(--text-muted)">${pending.length} prazo(s) pendente(s)</div>
+        <div class="pc-deadline-preview" style="color:${color}">
+          ${next
+            ? `⏱ ${esc(next.title)} — ${fmtDate(next.date)} (${daysLabel(daysUntil(next.date))})`
+            : `<span style="color:var(--text-muted)">Sem prazos pendentes</span>`}
+        </div>
+        ${p.notes ? `<div class="pc-notes">${esc(p.notes)}</div>` : ''}
+        <div class="pc-footer">
+          <button class="btn btn-secondary btn-sm" onclick="openProjectModal('${p.id}')">✎ Editar</button>
+          <button class="btn btn-secondary btn-sm" onclick="openDeadlineModal('${p.id}')">+ Prazo</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════════════════════
+// Project modal
+// ══════════════════════════════════════════════════════════
+let _pmId = null;
+
+function openProjectModal(projectId) {
+  _pmId = projectId || null;
+
+  document.getElementById('colorRow').innerHTML = COLORS.map(c =>
+    `<div class="swatch" style="background:${c}" data-color="${c}" onclick="pickColor('${c}')"></div>`
+  ).join('');
+
+  if (projectId) {
+    const p = data.projects.find(x => x.id === projectId);
+    document.getElementById('pmTitle').textContent  = 'Editar Projeto';
+    document.getElementById('pmId').value           = p.id;
+    document.getElementById('pmName').value         = p.name;
+    document.getElementById('pmType').value         = p.type;
+    document.getElementById('pmClient').value       = p.client || '';
+    document.getElementById('pmNotes').value        = p.notes  || '';
+    pickColor(p.color);
+    document.getElementById('pmDelete').classList.remove('hidden');
+  } else {
+    document.getElementById('pmTitle').textContent  = 'Novo Projeto';
+    document.getElementById('pmId').value           = '';
+    document.getElementById('pmName').value         = '';
+    document.getElementById('pmType').value         = 'freela';
+    document.getElementById('pmClient').value       = '';
+    document.getElementById('pmNotes').value        = '';
+    pickColor(COLORS[Math.floor(Math.random() * COLORS.length)]);
+    document.getElementById('pmDelete').classList.add('hidden');
+  }
+
+  document.getElementById('projectModal').classList.remove('hidden');
+  setTimeout(() => document.getElementById('pmName').focus(), 50);
+}
+
+function pickColor(c) {
+  document.querySelectorAll('.swatch').forEach(s => s.classList.toggle('sel', s.dataset.color === c));
+}
+
+function getColor() {
+  return (document.querySelector('.swatch.sel') || {}).dataset?.color || COLORS[0];
+}
+
+function closeProjectModal() { document.getElementById('projectModal').classList.add('hidden'); }
+
+function saveProject() {
+  const name = document.getElementById('pmName').value.trim();
+  if (!name) { alert('Informe o nome do projeto.'); return; }
+
+  const id = document.getElementById('pmId').value;
+  if (id) {
+    const p = data.projects.find(x => x.id === id);
+    Object.assign(p, {
+      name,
+      type:   document.getElementById('pmType').value,
+      client: document.getElementById('pmClient').value.trim(),
+      color:  getColor(),
+      notes:  document.getElementById('pmNotes').value.trim(),
+    });
+  } else {
+    data.projects.push({
+      id: uid(), name,
+      type:   document.getElementById('pmType').value,
+      client: document.getElementById('pmClient').value.trim(),
+      color:  getColor(),
+      notes:  document.getElementById('pmNotes').value.trim(),
+      deadlines: [],
+    });
+  }
+  save(); render(); closeProjectModal();
+}
+
+function deleteProject() {
+  const id = document.getElementById('pmId').value;
+  if (!confirm('Excluir projeto e todos os seus prazos?')) return;
+  data.projects = data.projects.filter(p => p.id !== id);
+  save(); render(); closeProjectModal();
+}
+
+// ══════════════════════════════════════════════════════════
+// Deadline modal
+// ══════════════════════════════════════════════════════════
+let _dmProjId = null, _dmId = null;
+
+function openDeadlineModal(projectId, deadlineId) {
+  _dmProjId = projectId || null;
+  _dmId     = deadlineId || null;
+
+  const sel = document.getElementById('dmProject');
+  sel.innerHTML = data.projects.map(p =>
+    `<option value="${p.id}">${esc(p.name)}${p.client ? ' (' + esc(p.client) + ')' : ''}</option>`
+  ).join('');
+  if (projectId) sel.value = projectId;
+
+  if (deadlineId) {
+    const p = data.projects.find(x => x.id === projectId);
+    const d = p.deadlines.find(x => x.id === deadlineId);
+    document.getElementById('dmTitle').textContent = 'Editar Prazo';
+    document.getElementById('dmId').value           = d.id;
+    document.getElementById('dmOldProjectId').value = projectId;
+    document.getElementById('dmTitle').value        = d.title;
+    document.getElementById('dmDate').value         = d.date;
+    document.getElementById('dmNotes').value        = d.notes || '';
+    document.getElementById('dmDelete').classList.remove('hidden');
+  } else {
+    document.getElementById('dmTitle').textContent = 'Novo Prazo';
+    document.getElementById('dmId').value           = '';
+    document.getElementById('dmOldProjectId').value = '';
+    document.getElementById('dmTitle').value        = '';
+    document.getElementById('dmDate').value         = '';
+    document.getElementById('dmNotes').value        = '';
+    document.getElementById('dmDelete').classList.add('hidden');
+  }
+
+  document.getElementById('deadlineModal').classList.remove('hidden');
+  setTimeout(() => document.getElementById('dmTitle').focus(), 50);
+}
+
+function closeDeadlineModal() { document.getElementById('deadlineModal').classList.add('hidden'); }
+
+function saveDeadline() {
+  const titleEl   = document.getElementById('dmTitle');
+  const title     = titleEl.value.trim();
+  const date      = document.getElementById('dmDate').value;
+  const notes     = document.getElementById('dmNotes').value.trim();
+  const projectId = document.getElementById('dmProject').value;
+
+  if (!title) { alert('Informe a descrição do prazo.'); return; }
+  if (!date)  { alert('Informe a data.'); return; }
+
+  const p = data.projects.find(x => x.id === projectId);
+  if (!p) { alert('Selecione um projeto válido.'); return; }
+
+  const id = document.getElementById('dmId').value;
+  if (id) {
+    const oldProjId = document.getElementById('dmOldProjectId').value;
+    const oldP = data.projects.find(x => x.id === oldProjId);
+    const d    = oldP.deadlines.find(x => x.id === id);
+    if (oldProjId !== projectId) {
+      oldP.deadlines = oldP.deadlines.filter(x => x.id !== id);
+      d.title = title; d.date = date; d.notes = notes;
+      p.deadlines.push(d);
+    } else {
+      Object.assign(d, { title, date, notes });
+    }
+  } else {
+    p.deadlines.push({ id: uid(), title, date, notes, done: false });
+  }
+
+  save(); render(); closeDeadlineModal();
+}
+
+function deleteDeadline() {
+  if (!confirm('Excluir este prazo?')) return;
+  const projId = document.getElementById('dmOldProjectId').value;
+  const id     = document.getElementById('dmId').value;
+  const p      = data.projects.find(x => x.id === projId);
+  p.deadlines  = p.deadlines.filter(x => x.id !== id);
+  save(); render(); closeDeadlineModal();
+}
+
+function toggleDone(projectId, deadlineId) {
+  const p = data.projects.find(x => x.id === projectId);
+  const d = p.deadlines.find(x => x.id === deadlineId);
+  d.done = !d.done;
+  save(); render();
+}
+
+// ══════════════════════════════════════════════════════════
+// Close on overlay click
+// ══════════════════════════════════════════════════════════
+['projectModal','deadlineModal'].forEach(id => {
+  document.getElementById(id).addEventListener('click', e => {
+    if (e.target.id === id) {
+      if (id === 'projectModal')  closeProjectModal();
+      else                        closeDeadlineModal();
+    }
+  });
+});
+
+// ══════════════════════════════════════════════════════════
+// XSS safety
+// ══════════════════════════════════════════════════════════
+function esc(str) {
+  return String(str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+// ══════════════════════════════════════════════════════════
+// Init
+// ══════════════════════════════════════════════════════════
+document.getElementById('headerDate').textContent = TODAY.toLocaleDateString('pt-BR', {
+  weekday: 'long', day: '2-digit', month: 'long', year: 'numeric'
+});
+
+render();
+</script>
+</body>
+</html>
