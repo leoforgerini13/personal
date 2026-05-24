@@ -21,483 +21,246 @@
       --shadow-md: 0 4px 12px rgba(0,0,0,0.09);
     }
 
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-    }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
 
-    /* ── Header ─────────────────────────────────────── */
-    header {
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      padding: 13px 24px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      box-shadow: var(--shadow);
-    }
-
+    /* ── Header ─── */
+    header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 13px 24px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow); }
     .header-left h1 { font-size: 17px; font-weight: 700; }
     .header-left p  { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
     .header-actions { display: flex; gap: 8px; align-items: center; }
 
-    /* ── Layout ─────────────────────────────────────── */
+    /* ── Layout ─── */
     .container { max-width: 1100px; margin: 0 auto; padding: 24px 20px; }
 
-    /* ── Stats ──────────────────────────────────────── */
-    .stats-bar {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-      gap: 12px;
-      margin-bottom: 28px;
-    }
-
-    .stat-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 16px 18px;
-      box-shadow: var(--shadow);
-    }
-
-    .stat-label {
-      font-size: 11px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--text-muted);
-    }
-
+    /* ── Stats ─── */
+    .stats-bar { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-bottom: 28px; }
+    .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; box-shadow: var(--shadow); }
+    .stat-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); }
     .stat-value { font-size: 30px; font-weight: 700; margin-top: 4px; line-height: 1; }
     .stat-sub   { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
-
     .stat-danger  .stat-value { color: var(--danger); }
     .stat-warning .stat-value { color: var(--warning); }
     .stat-ok      .stat-value { color: var(--success); }
 
-    /* ── Tabs ───────────────────────────────────────── */
-    .tabs {
-      display: flex;
-      gap: 4px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 4px;
-      width: fit-content;
-      margin-bottom: 24px;
-      box-shadow: var(--shadow);
-    }
-
-    .tab {
-      padding: 7px 18px;
-      border-radius: 7px;
-      font-size: 13px;
-      font-weight: 500;
-      cursor: pointer;
-      border: none;
-      background: transparent;
-      color: var(--text-muted);
-      transition: all 0.15s;
-    }
-
+    /* ── Tabs ─── */
+    .tabs { display: flex; gap: 4px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 4px; width: fit-content; margin-bottom: 24px; box-shadow: var(--shadow); }
+    .tab { padding: 7px 18px; border-radius: 7px; font-size: 13px; font-weight: 500; cursor: pointer; border: none; background: transparent; color: var(--text-muted); transition: all 0.15s; }
     .tab.active { background: var(--text); color: #fff; }
 
-    /* ── Section ────────────────────────────────────── */
+    /* ── Section ─── */
     .section { margin-bottom: 32px; }
-
-    .section-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 14px;
-    }
-
+    .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
     .section-title { font-size: 15px; font-weight: 600; }
 
-    /* ── Deadline list ──────────────────────────────── */
+    /* ── Deadline list ─── */
     .deadline-list { display: flex; flex-direction: column; gap: 8px; }
-
-    .deadline-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 13px 16px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      box-shadow: var(--shadow);
-      transition: box-shadow 0.15s;
-    }
-
-    .deadline-card:hover   { box-shadow: var(--shadow-md); }
+    .deadline-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 13px 16px; display: flex; align-items: center; gap: 10px; box-shadow: var(--shadow); transition: box-shadow 0.15s; }
+    .deadline-card:hover { box-shadow: var(--shadow-md); }
     .deadline-card.is-done { opacity: 0.52; }
-
-    .project-dot  { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-    .urgency-dot  { width:  9px; height:  9px; border-radius: 50%; flex-shrink: 0; }
-
+    .project-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .urgency-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
     .dl-info  { flex: 1; min-width: 0; }
     .dl-title { font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .dl-title.done { text-decoration: line-through; }
     .dl-sub   { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
     .dl-notes { font-size: 12px; color: var(--text-muted); margin-top: 2px; font-style: italic; }
-
     .dl-date       { text-align: right; flex-shrink: 0; }
     .dl-date-value { font-size: 13px; font-weight: 600; }
     .dl-days       { font-size: 11px; margin-top: 2px; font-weight: 500; }
-
     .dl-actions { display: flex; gap: 5px; opacity: 0; transition: opacity 0.15s; }
     .deadline-card:hover .dl-actions { opacity: 1; }
 
-    /* ── Timeline ───────────────────────────────────── */
-    .timeline-wrap {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 20px 20px 16px;
-      overflow-x: auto;
-      box-shadow: var(--shadow);
-    }
-
+    /* ── Timeline ─── */
+    .timeline-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 20px 16px; overflow-x: auto; box-shadow: var(--shadow); }
     .tl-inner { min-width: 560px; }
-
     .tl-header-row { position: relative; height: 22px; margin-left: 140px; margin-bottom: 10px; }
-
-    .tl-label {
-      position: absolute;
-      transform: translateX(-50%);
-      font-size: 11px;
-      color: var(--text-muted);
-      white-space: nowrap;
-    }
-
+    .tl-label { position: absolute; transform: translateX(-50%); font-size: 11px; color: var(--text-muted); white-space: nowrap; }
     .tl-row { display: flex; align-items: center; margin-bottom: 10px; height: 32px; }
-
-    .tl-name {
-      width: 140px;
-      font-size: 12px;
-      font-weight: 500;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      padding-right: 12px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
+    .tl-name { width: 140px; font-size: 12px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 12px; display: flex; align-items: center; gap: 6px; }
     .tl-track { flex: 1; height: 3px; background: #F0F0F0; border-radius: 2px; position: relative; }
-
-    .tl-today {
-      position: absolute;
-      left: 0;
-      top: -14px; bottom: -14px;
-      width: 2px;
-      background: var(--danger);
-      opacity: 0.35;
-      border-radius: 1px;
-    }
-
-    .tl-dot {
-      position: absolute;
-      top: 50%;
-      transform: translate(-50%, -50%);
-      width: 13px; height: 13px;
-      border-radius: 50%;
-      cursor: pointer;
-      border: 2px solid var(--surface);
-      box-shadow: 0 0 0 1px rgba(0,0,0,0.12);
-      transition: transform 0.15s;
-    }
-
+    .tl-today { position: absolute; left: 0; top: -14px; bottom: -14px; width: 2px; background: var(--danger); opacity: 0.35; border-radius: 1px; }
+    .tl-dot { position: absolute; top: 50%; transform: translate(-50%, -50%); width: 13px; height: 13px; border-radius: 50%; cursor: pointer; border: 2px solid var(--surface); box-shadow: 0 0 0 1px rgba(0,0,0,0.12); transition: transform 0.15s; }
     .tl-dot:hover { transform: translate(-50%, -50%) scale(1.5); }
-
     .tl-legend { display: flex; gap: 16px; margin-top: 14px; margin-left: 140px; flex-wrap: wrap; }
     .tl-legend-item { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--text-muted); }
     .legend-dot { width: 9px; height: 9px; border-radius: 50%; }
 
-    /* ── Projects grid ──────────────────────────────── */
-    .projects-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
-      gap: 14px;
-    }
-
-    .project-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 16px;
-      box-shadow: var(--shadow);
-    }
-
+    /* ── Projects grid ─── */
+    .projects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 14px; }
+    .project-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow); }
     .pc-header { display: flex; align-items: center; gap: 9px; margin-bottom: 10px; }
     .pc-dot    { width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; }
     .pc-name   { font-size: 15px; font-weight: 600; flex: 1; }
-
     .badge         { font-size: 11px; padding: 2px 9px; border-radius: 99px; font-weight: 600; }
     .badge-emprego { background: #EEF2FF; color: #4338CA; }
     .badge-freela  { background: #FFF7ED; color: #C2410C; }
-
-    .pc-client           { font-size: 12px; color: var(--text-muted); margin-bottom: 10px; }
+    .pc-client { font-size: 12px; color: var(--text-muted); margin-bottom: 10px; }
     .pc-deadline-preview { font-size: 13px; margin-top: 4px; }
-    .pc-notes            { font-size: 12px; color: var(--text-muted); margin-top: 8px; font-style: italic; }
+    .pc-notes  { font-size: 12px; color: var(--text-muted); margin-top: 8px; font-style: italic; }
+    .pc-footer { display: flex; gap: 6px; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); }
 
-    .pc-footer {
-      display: flex;
-      gap: 6px;
-      margin-top: 14px;
-      padding-top: 12px;
-      border-top: 1px solid var(--border);
-    }
+    /* ── Calendar ─── */
+    .cal-nav { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+    .cal-month-label { font-size: 18px; font-weight: 700; min-width: 180px; }
+    .cal-actions { margin-left: auto; display: flex; gap: 8px; }
 
-    /* ── AI import banner ───────────────────────────── */
-    .ai-banner {
-      background: linear-gradient(135deg, #EEF2FF 0%, #F0FDF4 100%);
-      border: 1px solid #C7D2FE;
-      border-radius: var(--radius);
-      padding: 14px 18px;
-      margin-bottom: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-    }
+    .cal-grid-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
+    .cal-dow-row { display: grid; grid-template-columns: repeat(7,1fr); border-bottom: 1px solid var(--border); }
+    .cal-dow { padding: 8px 0; text-align: center; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); }
+    .cal-weeks { display: grid; }
+    .cal-week  { display: grid; grid-template-columns: repeat(7,1fr); border-bottom: 1px solid var(--border); }
+    .cal-week:last-child { border-bottom: none; }
 
-    .ai-banner-text { font-size: 13px; color: #3730A3; }
-    .ai-banner-text strong { font-weight: 600; }
-
-    /* ── Buttons ────────────────────────────────────── */
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      padding: 8px 14px;
-      border-radius: 8px;
-      font-size: 13px;
-      font-weight: 500;
-      border: none;
+    .cal-day {
+      min-height: 88px;
+      padding: 6px 7px;
+      border-right: 1px solid var(--border);
       cursor: pointer;
-      transition: all 0.15s;
-      font-family: inherit;
-      white-space: nowrap;
+      transition: background 0.1s;
+      overflow: hidden;
     }
+    .cal-day:last-child { border-right: none; }
+    .cal-day:hover { background: var(--bg); }
+    .cal-day.other-month { opacity: 0.45; }
+    .cal-day.is-today { background: #FFFBEB; }
+    .cal-day.selected { background: #EEF2FF; }
 
+    .cal-day-num { font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 4px; }
+    .cal-day.is-today .cal-day-num { background: var(--text); color: #fff; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; }
+
+    .cal-chip {
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-bottom: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      line-height: 1.4;
+    }
+    .cal-chip-deadline { font-weight: 600; }
+    .cal-chip-event    { opacity: 0.85; }
+    .cal-chip-more     { font-size: 10px; color: var(--text-muted); padding: 0 6px; }
+
+    .cal-detail {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      margin-top: 14px;
+      box-shadow: var(--shadow);
+    }
+    .cal-detail-title { font-size: 15px; font-weight: 600; margin-bottom: 14px; }
+    .cal-detail-empty { color: var(--text-muted); font-size: 13px; }
+    .cal-detail-item { display: flex; align-items: flex-start; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--border); }
+    .cal-detail-item:last-child { border-bottom: none; }
+    .cal-detail-dot  { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+    .cal-detail-info { flex: 1; }
+    .cal-detail-name { font-size: 14px; font-weight: 500; }
+    .cal-detail-sub  { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+    .cal-detail-time { font-size: 12px; font-weight: 600; flex-shrink: 0; }
+
+    /* ── Gcal legend ─── */
+    .gcal-legend { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
+    .gcal-legend-item { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--text-muted); }
+
+    /* ── Buttons ─── */
+    .btn { display: inline-flex; align-items: center; gap: 5px; padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 500; border: none; cursor: pointer; transition: all 0.15s; font-family: inherit; white-space: nowrap; }
     .btn:disabled { opacity: 0.6; cursor: not-allowed; }
-
-    .btn-primary      { background: #111827; color: #fff; }
+    .btn-primary    { background: #111827; color: #fff; }
     .btn-primary:hover:not(:disabled) { background: #374151; }
-
-    .btn-ai           { background: #4F46E5; color: #fff; }
+    .btn-ai         { background: #4F46E5; color: #fff; }
     .btn-ai:hover:not(:disabled) { background: #4338CA; }
-
-    .btn-secondary    { background: var(--bg); color: var(--text); border: 1px solid var(--border); }
+    .btn-green      { background: #059669; color: #fff; }
+    .btn-green:hover:not(:disabled) { background: #047857; }
+    .btn-secondary  { background: var(--bg); color: var(--text); border: 1px solid var(--border); }
     .btn-secondary:hover:not(:disabled) { background: #F3F4F6; }
-
-    .btn-ghost        { background: transparent; color: var(--text-muted); border: 1px solid var(--border); padding: 5px 8px; border-radius: 6px; }
-    .btn-ghost:hover:not(:disabled)  { background: var(--bg); color: var(--text); }
-
-    .btn-danger-soft  { background: #FEE2E2; color: var(--danger); }
+    .btn-ghost      { background: transparent; color: var(--text-muted); border: 1px solid var(--border); padding: 5px 8px; border-radius: 6px; }
+    .btn-ghost:hover:not(:disabled) { background: var(--bg); color: var(--text); }
+    .btn-danger-soft { background: #FEE2E2; color: var(--danger); }
     .btn-danger-soft:hover:not(:disabled) { background: #FECACA; }
-
     .btn-sm { padding: 5px 11px; font-size: 12px; }
 
-    /* ── Modal ──────────────────────────────────────── */
-    .overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.35);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-      padding: 24px;
-      backdrop-filter: blur(2px);
-    }
-
-    .modal {
-      background: var(--surface);
-      border-radius: 16px;
-      width: 100%;
-      max-width: 480px;
-      box-shadow: 0 24px 60px rgba(0,0,0,0.18);
-      max-height: 92vh;
-      overflow-y: auto;
-    }
-
+    /* ── Modal ─── */
+    .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 24px; backdrop-filter: blur(2px); }
+    .modal { background: var(--surface); border-radius: 16px; width: 100%; max-width: 480px; box-shadow: 0 24px 60px rgba(0,0,0,0.18); max-height: 92vh; overflow-y: auto; }
     .modal-wide { max-width: 560px; }
-
-    .modal-head {
-      padding: 18px 22px 14px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
+    .modal-head { padding: 18px 22px 14px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
     .modal-title { font-size: 16px; font-weight: 600; }
     .modal-body  { padding: 18px 22px; }
+    .modal-foot  { padding: 14px 22px; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
 
-    .modal-foot {
-      padding: 14px 22px;
-      border-top: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      gap: 8px;
-    }
-
-    /* ── Form ───────────────────────────────────────── */
+    /* ── Form ─── */
     .fg       { margin-bottom: 15px; }
     .fg label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 5px; }
-
-    .fi {
-      width: 100%;
-      padding: 9px 11px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      font-size: 14px;
-      color: var(--text);
-      background: var(--surface);
-      font-family: inherit;
-      transition: border-color 0.15s;
-    }
-
-    .fi:focus    { outline: none; border-color: #9CA3AF; }
-    textarea.fi  { resize: vertical; min-height: 120px; }
+    .fi { width: 100%; padding: 9px 11px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; color: var(--text); background: var(--surface); font-family: inherit; transition: border-color 0.15s; }
+    .fi:focus { outline: none; border-color: #9CA3AF; }
+    textarea.fi { resize: vertical; min-height: 100px; }
 
     .color-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
-
-    .swatch {
-      width: 26px; height: 26px;
-      border-radius: 50%;
-      cursor: pointer;
-      border: 3px solid transparent;
-      transition: border-color 0.15s, transform 0.15s;
-    }
-
+    .swatch { width: 26px; height: 26px; border-radius: 50%; cursor: pointer; border: 3px solid transparent; transition: border-color 0.15s, transform 0.15s; }
     .swatch:hover { transform: scale(1.15); }
     .swatch.sel   { border-color: var(--text); }
 
-    /* ── AI step indicators ─────────────────────────── */
-    .ai-steps {
-      display: flex;
-      gap: 6px;
-      margin-bottom: 18px;
-    }
+    /* ── Import modal ─── */
+    .import-mode-tabs { display: flex; gap: 4px; background: var(--bg); border-radius: 8px; padding: 3px; margin-bottom: 16px; }
+    .import-mode-tab  { flex: 1; padding: 6px; text-align: center; font-size: 13px; font-weight: 500; border-radius: 6px; cursor: pointer; color: var(--text-muted); transition: all 0.15s; }
+    .import-mode-tab.active { background: var(--surface); color: var(--text); box-shadow: var(--shadow); }
 
-    .ai-step {
-      flex: 1;
-      height: 3px;
-      background: var(--border);
-      border-radius: 2px;
-      transition: background 0.3s;
-    }
-
+    .ai-steps { display: flex; gap: 6px; margin-bottom: 18px; }
+    .ai-step  { flex: 1; height: 3px; background: var(--border); border-radius: 2px; transition: background 0.3s; }
     .ai-step.active { background: #4F46E5; }
 
-    .ai-status {
-      font-size: 13px;
-      color: var(--text-muted);
-      margin-top: 10px;
-      min-height: 20px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .spinner {
-      width: 14px; height: 14px;
-      border: 2px solid var(--border);
-      border-top-color: #4F46E5;
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
-      flex-shrink: 0;
-    }
-
+    .ai-status { font-size: 13px; color: var(--text-muted); margin-top: 10px; min-height: 20px; display: flex; align-items: center; gap: 8px; }
+    .spinner   { width: 14px; height: 14px; border: 2px solid var(--border); border-top-color: #4F46E5; border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    .preview-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 12px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      margin-bottom: 6px;
-      font-size: 13px;
-      background: var(--bg);
-    }
-
+    .preview-item { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 6px; font-size: 13px; background: var(--bg); }
     .preview-item input[type=checkbox] { width: 16px; height: 16px; cursor: pointer; flex-shrink: 0; }
 
-    .info-box {
-      background: #F0F9FF;
-      border: 1px solid #BAE6FD;
-      border-radius: 8px;
-      padding: 10px 12px;
-      font-size: 12px;
-      color: #0369A1;
-      margin-bottom: 14px;
-    }
+    .info-box { background: #F0F9FF; border: 1px solid #BAE6FD; border-radius: 8px; padding: 10px 12px; font-size: 12px; color: #0369A1; margin-bottom: 14px; }
+    .warn-box { background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 8px; padding: 10px 12px; font-size: 12px; color: #92400E; margin-bottom: 14px; }
 
-    /* ── Misc ───────────────────────────────────────── */
-    .empty   { text-align: center; padding: 36px; color: var(--text-muted); font-size: 14px; }
-    .hidden  { display: none !important; }
-
-    .file-upload-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 7px 12px;
-      border: 1px dashed var(--border);
-      border-radius: 8px;
-      font-size: 13px;
-      color: var(--text-muted);
-      cursor: pointer;
-      transition: all 0.15s;
-      background: var(--bg);
-      margin-top: 6px;
-    }
-
+    .file-upload-btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; border: 1px dashed var(--border); border-radius: 8px; font-size: 13px; color: var(--text-muted); cursor: pointer; transition: all 0.15s; background: var(--bg); margin-top: 6px; }
     .file-upload-btn:hover { border-color: #9CA3AF; color: var(--text); background: #F3F4F6; }
 
+    /* ── Gcal entry row ─── */
+    .gcal-row { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+    .gcal-row:last-child { border-bottom: none; }
+    .gcal-row-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; cursor: pointer; }
+    .gcal-row-name { flex: 1; font-size: 13px; font-weight: 500; }
+    .gcal-row-url  { font-size: 11px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
+
+    /* ── Misc ─── */
+    .empty  { text-align: center; padding: 36px; color: var(--text-muted); font-size: 14px; }
+    .hidden { display: none !important; }
     ::-webkit-scrollbar { width: 5px; height: 5px; }
     ::-webkit-scrollbar-thumb { background: #D1D5DB; border-radius: 3px; }
-    ::-webkit-scrollbar-track { background: transparent; }
   </style>
 </head>
 <body>
 
-<!-- ─── Header ─────────────────────────────────────────── -->
+<!-- Header -->
 <header>
   <div class="header-left">
     <h1>Work Dashboard</h1>
     <p id="headerDate"></p>
   </div>
   <div class="header-actions">
-    <button class="btn btn-ai" onclick="openAiModal()" title="Importar prazos automaticamente com IA">
-      ✨ Importar com IA
-    </button>
+    <button class="btn btn-secondary" onclick="openImportModal()">↑ Importar prazos</button>
     <button class="btn btn-secondary" onclick="openDeadlineModal()">+ Prazo</button>
     <button class="btn btn-primary"   onclick="openProjectModal()">+ Projeto</button>
   </div>
 </header>
 
-<!-- ─── Main ────────────────────────────────────────────── -->
 <div class="container">
-
-  <!-- Stats -->
   <div class="stats-bar" id="statsBar"></div>
 
   <!-- Tabs -->
   <div class="tabs">
     <button class="tab active" onclick="setTab('deadlines')">Prazos</button>
     <button class="tab"        onclick="setTab('timeline')">Timeline</button>
+    <button class="tab"        onclick="setTab('calendar')">📅 Calendário</button>
     <button class="tab"        onclick="setTab('projects')">Projetos</button>
   </div>
 
@@ -522,6 +285,33 @@
     </div>
   </div>
 
+  <!-- View: Calendário -->
+  <div id="view-calendar" class="section hidden">
+    <div class="cal-nav">
+      <button class="btn btn-secondary btn-sm" onclick="prevMonth()">←</button>
+      <div class="cal-month-label" id="calMonthLabel"></div>
+      <button class="btn btn-secondary btn-sm" onclick="nextMonth()">→</button>
+      <div class="cal-actions">
+        <button class="btn btn-secondary btn-sm" onclick="goToday()">Hoje</button>
+        <button class="btn btn-green btn-sm" id="calRefreshBtn" onclick="refreshCalendars()">↺ Agendas</button>
+        <button class="btn btn-secondary btn-sm" onclick="openGcalModal()">⚙ Agendas Google</button>
+      </div>
+    </div>
+    <div id="gcalLegend" class="gcal-legend"></div>
+    <div class="cal-grid-wrap">
+      <div class="cal-dow-row">
+        <div class="cal-dow">Dom</div><div class="cal-dow">Seg</div><div class="cal-dow">Ter</div>
+        <div class="cal-dow">Qua</div><div class="cal-dow">Qui</div><div class="cal-dow">Sex</div>
+        <div class="cal-dow">Sáb</div>
+      </div>
+      <div class="cal-weeks" id="calWeeks"></div>
+    </div>
+    <div class="cal-detail hidden" id="calDetail">
+      <div class="cal-detail-title" id="calDetailTitle"></div>
+      <div id="calDetailBody"></div>
+    </div>
+  </div>
+
   <!-- View: Projetos -->
   <div id="view-projects" class="section hidden">
     <div class="section-header">
@@ -529,74 +319,126 @@
     </div>
     <div class="projects-grid" id="projectsGrid"></div>
   </div>
-
 </div>
 
-<!-- ─── Modal: Importar com IA ─────────────────────────── -->
-<div class="overlay hidden" id="aiModal">
+<!-- ═══════════════════════════════════════════════════════
+     Modal: Importar Prazos
+════════════════════════════════════════════════════════ -->
+<div class="overlay hidden" id="importModal">
   <div class="modal modal-wide">
     <div class="modal-head">
-      <div class="modal-title">✨ Importar com IA</div>
-      <button class="btn-ghost" onclick="closeAiModal()">✕</button>
+      <div class="modal-title" id="importModalTitle">Importar Prazos</div>
+      <button class="btn-ghost" onclick="closeImportModal()">✕</button>
     </div>
     <div class="modal-body">
 
+      <!-- Mode tabs -->
+      <div class="import-mode-tabs">
+        <div class="import-mode-tab active" id="modeTabAuto" onclick="setImportMode('auto')">🧠 Automático (grátis)</div>
+        <div class="import-mode-tab"        id="modeTabAI"   onclick="setImportMode('ai')">✨ Com IA (API key)</div>
+      </div>
+
       <!-- Step indicator -->
       <div class="ai-steps">
-        <div class="ai-step active" id="aiStep1"></div>
-        <div class="ai-step"       id="aiStep2"></div>
-        <div class="ai-step"       id="aiStep3"></div>
+        <div class="ai-step active" id="impStep1"></div>
+        <div class="ai-step"        id="impStep2"></div>
       </div>
 
-      <!-- Step 1: API Key -->
-      <div id="aiPanelKey">
-        <div class="info-box">
-          Cole o texto de qualquer cronograma (e-mail, planilha, PDF) e o Claude extrai os prazos automaticamente.<br><br>
-          Para usar esse recurso, você precisa de uma <strong>API key da Anthropic</strong> (gratuita para testar em <strong>console.anthropic.com</strong>). Ela fica salva só no seu navegador.
+      <!-- Panel: Input (both modes) -->
+      <div id="impPanelInput">
+        <div class="info-box" id="impModeHint">
+          Cole qualquer texto com datas — cronograma, e-mail, planilha. O parser detecta automaticamente formatos como <strong>DD/MM</strong>, <strong>DD/MM/YYYY</strong>, <strong>DD de Mês</strong>, intervalos de semana, etc.
         </div>
         <div class="fg">
-          <label>Chave da API Anthropic</label>
-          <input class="fi" id="aiKeyInput" type="password" placeholder="sk-ant-api03-...">
-        </div>
-        <button class="btn btn-ai" onclick="saveApiKey()">Salvar e continuar →</button>
-      </div>
-
-      <!-- Step 2: Text input -->
-      <div id="aiPanelInput" class="hidden">
-        <div class="info-box">
-          Cole aqui qualquer texto com datas e demandas: e-mail do cliente, cronograma copiado do PDF ou planilha, mensagem do WhatsApp, etc.
-        </div>
-        <div class="fg">
-          <label>Texto com cronograma ou datas</label>
-          <textarea class="fi" id="aiTextInput" rows="9"
-            placeholder="Exemplos:&#10;• &quot;Dr. Bingo – entrega da identidade visual 10/06, aprovação 20/06&quot;&#10;• Cole um e-mail inteiro ou trecho de planilha&#10;• Qualquer texto com projeto + data"></textarea>
+          <label>Texto com datas e tarefas</label>
+          <textarea class="fi" id="impText" rows="9"
+            placeholder="Exemplos:&#10;• 25/05 – Apresentação diagnóstico Macro&#10;• Dr. Bingo: entrega final dos posicionamentos 05/06&#10;• Semana 3 (27/05–02/06): Positioning v1&#10;(Cole e-mail, planilha ou qualquer texto)"></textarea>
         </div>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
           <label class="file-upload-btn">
             📎 Carregar arquivo (txt, csv)
-            <input type="file" accept=".txt,.csv,.md" style="display:none" onchange="loadFile(event)">
+            <input type="file" accept=".txt,.csv,.md" style="display:none" onchange="loadImpFile(event)">
           </label>
-          <span style="font-size:12px;color:var(--text-muted)">Para PDF: copie o texto e cole acima</span>
+          <span style="font-size:12px;color:var(--text-muted)">PDF: copie o texto e cole acima</span>
         </div>
-        <div class="ai-status" id="aiStatus"></div>
+
+        <!-- AI-only: key setup -->
+        <div id="aiKeyPanel" class="hidden" style="margin-top:14px">
+          <div class="warn-box">A chave fica salva só no seu navegador e nunca sai do dispositivo, exceto na chamada à API do provedor escolhido.</div>
+          <div class="fg" style="margin-bottom:8px">
+            <label>Provedor</label>
+            <select class="fi" id="aiProvider" onchange="updateAiProviderHint()">
+              <option value="gemini">Google Gemini (grátis — aistudio.google.com)</option>
+              <option value="anthropic">Anthropic Claude (pago)</option>
+            </select>
+          </div>
+          <div class="fg" style="margin-bottom:0">
+            <label id="aiKeyLabel">API Key</label>
+            <input class="fi" id="aiKeyInput" type="password" placeholder="AIza...">
+          </div>
+          <button class="btn btn-secondary btn-sm" style="margin-top:8px" onclick="clearAiKey()">Limpar chave salva</button>
+        </div>
+
+        <div class="ai-status" id="impStatus"></div>
       </div>
 
-      <!-- Step 3: Preview -->
-      <div id="aiPanelPreview" class="hidden">
+      <!-- Panel: Preview -->
+      <div id="impPanelPreview" class="hidden">
         <p style="font-size:13px;margin-bottom:12px;font-weight:500">Prazos encontrados — desmarque os que não quiser importar:</p>
-        <div id="aiPreviewList"></div>
+        <div id="impPreviewList"></div>
       </div>
 
     </div>
     <div class="modal-foot">
-      <div id="aiFootActions" style="display:flex;width:100%;gap:8px;align-items:center">
-        <!-- populated by JS -->
-      </div>
+      <div id="impFootActions" style="display:flex;width:100%;gap:8px;align-items:center"></div>
     </div>
   </div>
 </div>
 
-<!-- ─── Modal: Projeto ──────────────────────────────────── -->
+<!-- ═══════════════════════════════════════════════════════
+     Modal: Google Calendar
+════════════════════════════════════════════════════════ -->
+<div class="overlay hidden" id="gcalModal">
+  <div class="modal modal-wide">
+    <div class="modal-head">
+      <div class="modal-title">Agendas do Google Calendar</div>
+      <button class="btn-ghost" onclick="closeGcalModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="info-box" style="margin-bottom:16px">
+        <strong>Como obter a URL iCal:</strong><br>
+        Google Calendar → Configurações → selecione a agenda → "Endereço secreto no formato iCal" → copie o link.<br><br>
+        <strong>Privacidade:</strong> os eventos são buscados via <code>corsproxy.io</code> (proxy CORS gratuito). Apenas os títulos e horários dos eventos passam por ele.
+      </div>
+
+      <div id="gcalList"></div>
+
+      <div style="border-top:1px solid var(--border);margin-top:12px;padding-top:16px">
+        <div style="font-size:13px;font-weight:600;margin-bottom:10px">Adicionar agenda</div>
+        <div class="fg">
+          <label>Nome da agenda</label>
+          <input class="fi" id="gcalNewName" placeholder="Ex: Pessoal, Trabalho, Freelas…">
+        </div>
+        <div class="fg">
+          <label>URL iCal (formato .ics)</label>
+          <input class="fi" id="gcalNewUrl" placeholder="https://calendar.google.com/calendar/ical/…/basic.ics">
+        </div>
+        <div class="fg" style="margin-bottom:0">
+          <label>Cor</label>
+          <div class="color-row" id="gcalColorRow"></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" onclick="closeGcalModal()">Fechar</button>
+      <button class="btn btn-primary"   onclick="addGcalEntry()">+ Adicionar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     Modal: Projeto
+════════════════════════════════════════════════════════ -->
 <div class="overlay hidden" id="projectModal">
   <div class="modal">
     <div class="modal-head">
@@ -605,29 +447,11 @@
     </div>
     <div class="modal-body">
       <input type="hidden" id="pmId">
-      <div class="fg">
-        <label>Nome do projeto *</label>
-        <input class="fi" id="pmName" placeholder="Ex: Freela – Site para cliente X">
-      </div>
-      <div class="fg">
-        <label>Tipo</label>
-        <select class="fi" id="pmType">
-          <option value="freela">Freela</option>
-          <option value="emprego">Emprego Fixo</option>
-        </select>
-      </div>
-      <div class="fg">
-        <label>Cliente / Empresa</label>
-        <input class="fi" id="pmClient" placeholder="Nome do cliente ou empresa">
-      </div>
-      <div class="fg">
-        <label>Cor</label>
-        <div class="color-row" id="colorRow"></div>
-      </div>
-      <div class="fg">
-        <label>Notas</label>
-        <input class="fi" id="pmNotes" placeholder="Observações opcionais">
-      </div>
+      <div class="fg"><label>Nome *</label><input class="fi" id="pmName" placeholder="Ex: Freela – Site para cliente X"></div>
+      <div class="fg"><label>Tipo</label><select class="fi" id="pmType"><option value="freela">Freela</option><option value="emprego">Emprego Fixo</option></select></div>
+      <div class="fg"><label>Cliente / Empresa</label><input class="fi" id="pmClient" placeholder="Nome do cliente ou empresa"></div>
+      <div class="fg"><label>Cor</label><div class="color-row" id="colorRow"></div></div>
+      <div class="fg"><label>Notas</label><input class="fi" id="pmNotes" placeholder="Observações opcionais"></div>
     </div>
     <div class="modal-foot">
       <button class="btn btn-danger-soft btn-sm hidden" id="pmDelete" onclick="deleteProject()" style="margin-right:auto">Excluir projeto</button>
@@ -637,7 +461,9 @@
   </div>
 </div>
 
-<!-- ─── Modal: Prazo ────────────────────────────────────── -->
+<!-- ═══════════════════════════════════════════════════════
+     Modal: Prazo
+════════════════════════════════════════════════════════ -->
 <div class="overlay hidden" id="deadlineModal">
   <div class="modal">
     <div class="modal-head">
@@ -647,22 +473,10 @@
     <div class="modal-body">
       <input type="hidden" id="dmId">
       <input type="hidden" id="dmOldProjectId">
-      <div class="fg">
-        <label>Projeto *</label>
-        <select class="fi" id="dmProject"></select>
-      </div>
-      <div class="fg">
-        <label>Descrição *</label>
-        <input class="fi" id="dmTitleInput" placeholder="Ex: Entrega do layout, Reunião de aprovação…">
-      </div>
-      <div class="fg">
-        <label>Data *</label>
-        <input class="fi" type="date" id="dmDate">
-      </div>
-      <div class="fg">
-        <label>Notas</label>
-        <input class="fi" id="dmNotes" placeholder="Observações opcionais">
-      </div>
+      <div class="fg"><label>Projeto *</label><select class="fi" id="dmProject"></select></div>
+      <div class="fg"><label>Descrição *</label><input class="fi" id="dmTitleInput" placeholder="Ex: Entrega do layout, Reunião de aprovação…"></div>
+      <div class="fg"><label>Data *</label><input class="fi" type="date" id="dmDate"></div>
+      <div class="fg"><label>Notas</label><input class="fi" id="dmNotes" placeholder="Observações opcionais"></div>
     </div>
     <div class="modal-foot">
       <button class="btn btn-danger-soft btn-sm hidden" id="dmDelete" onclick="deleteDeadline()" style="margin-right:auto">Excluir prazo</button>
@@ -674,15 +488,13 @@
 
 <script>
 // ══════════════════════════════════════════════════════════
-// Config & palette
+// Config
 // ══════════════════════════════════════════════════════════
-const COLORS = [
-  '#4F46E5','#0EA5E9','#10B981','#F59E0B','#EF4444',
-  '#EC4899','#8B5CF6','#14B8A6','#F97316','#64748B'
-];
+const COLORS = ['#4F46E5','#0EA5E9','#10B981','#F59E0B','#EF4444','#EC4899','#8B5CF6','#14B8A6','#F97316','#64748B'];
+const GCAL_COLORS = ['#4285F4','#34A853','#EA4335','#FBBC05','#9C27B0','#00BCD4','#FF5722','#795548'];
 
 // ══════════════════════════════════════════════════════════
-// Default data (5 real projects, no deadlines yet)
+// Default data
 // ══════════════════════════════════════════════════════════
 const DEFAULT_DATA = {
   projects: [
@@ -691,28 +503,30 @@ const DEFAULT_DATA = {
       deadlines: []
     },
     {
-      id: 'p-bingo', name: 'Dr. Bingo', type: 'freela', client: 'Dr. Bingo / Gamesmart', color: '#10B981', notes: 'Brand Sprint (Semanas 1–7) + Reta Final: Character Build Up + Brandbook',
+      id: 'p-bingo', name: 'Dr. Bingo', type: 'freela', client: 'Dr. Bingo / Gamesmart', color: '#10B981',
+      notes: 'Brand Sprint (Semanas 1–7) + Reta Final: Character Build Up + Brandbook',
       deadlines: [
-        { id: 'b01', title: 'Architecture + Framework (Sprint Semana 2)',  date: '2026-05-26', done: false, notes: 'Estratégia' },
-        { id: 'b02', title: 'Apresentação v1 dos posicionamentos',          date: '2026-06-01', done: false, notes: 'Posicionamento Bet, SG e Club' },
-        { id: 'b03', title: 'Envio final dos posicionamentos',              date: '2026-06-05', done: false, notes: '' },
-        { id: 'b04', title: 'Briefing Character Build Up',                 date: '2026-06-08', done: false, notes: '' },
-        { id: 'b05', title: 'Apresentação propostas de frameworks (personagens)', date: '2026-06-24', done: false, notes: '' },
-        { id: 'b06', title: 'Apresentação v1 novos personagens',           date: '2026-07-03', done: false, notes: '' },
-        { id: 'b07', title: 'Envio final Character Build Up',              date: '2026-07-07', done: false, notes: '' },
-        { id: 'b08', title: 'Apresentação IDV + Verbal',                   date: '2026-07-23', done: false, notes: '' },
-        { id: 'b09', title: 'Envio final IDV + Verbal',                    date: '2026-07-28', done: false, notes: '' },
-        { id: 'b10', title: 'Envio Brandbook v1',                          date: '2026-08-04', done: false, notes: '' },
-        { id: 'b11', title: 'Envio final Brandbook',                       date: '2026-08-07', done: false, notes: '' },
+        { id: 'b01', title: 'Architecture + Framework (Sprint Semana 2)',       date: '2026-05-26', done: false, notes: 'Estratégia' },
+        { id: 'b02', title: 'Apresentação v1 dos posicionamentos',               date: '2026-06-01', done: false, notes: 'Bet, SG e Club' },
+        { id: 'b03', title: 'Envio final dos posicionamentos',                   date: '2026-06-05', done: false, notes: '' },
+        { id: 'b04', title: 'Briefing Character Build Up',                      date: '2026-06-08', done: false, notes: '' },
+        { id: 'b05', title: 'Apresentação propostas de frameworks (personagens)',date: '2026-06-24', done: false, notes: '' },
+        { id: 'b06', title: 'Apresentação v1 novos personagens',                date: '2026-07-03', done: false, notes: '' },
+        { id: 'b07', title: 'Envio final Character Build Up',                   date: '2026-07-07', done: false, notes: '' },
+        { id: 'b08', title: 'Apresentação IDV + Verbal',                        date: '2026-07-23', done: false, notes: '' },
+        { id: 'b09', title: 'Envio final IDV + Verbal',                         date: '2026-07-28', done: false, notes: '' },
+        { id: 'b10', title: 'Envio Brandbook v1',                               date: '2026-08-04', done: false, notes: '' },
+        { id: 'b11', title: 'Envio final Brandbook',                            date: '2026-08-07', done: false, notes: '' },
       ]
     },
     {
-      id: 'p-macro', name: 'Macro Arquitetos', type: 'freela', client: '', color: '#F59E0B', notes: 'Imersão & Diagnóstico concluída. Fase atual: Posicionamento.',
+      id: 'p-macro', name: 'Macro Arquitetos', type: 'freela', client: '', color: '#F59E0B',
+      notes: 'Imersão & Diagnóstico concluída. Fase atual: Posicionamento.',
       deadlines: [
-        { id: 'm01', title: 'Apresentação do diagnóstico',   date: '2026-05-25', done: false, notes: '⚠️ Amanhã!' },
-        { id: 'm02', title: 'Entrega do posicionamento',     date: '2026-05-29', done: false, notes: '' },
-        { id: 'm03', title: 'Apresentação do posicionamento',date: '2026-06-01', done: false, notes: '' },
-        { id: 'm04', title: 'Entrega final posicionamento',  date: '2026-06-03', done: false, notes: '' },
+        { id: 'm01', title: 'Apresentação do diagnóstico',    date: '2026-05-25', done: false, notes: '⚠️ Urgente' },
+        { id: 'm02', title: 'Entrega do posicionamento',      date: '2026-05-29', done: false, notes: '' },
+        { id: 'm03', title: 'Apresentação do posicionamento', date: '2026-06-01', done: false, notes: '' },
+        { id: 'm04', title: 'Entrega final posicionamento',   date: '2026-06-03', done: false, notes: '' },
       ]
     },
     {
@@ -720,7 +534,8 @@ const DEFAULT_DATA = {
       deadlines: []
     },
     {
-      id: 'p-banco', name: 'Banco Atlântico', type: 'freela', client: '', color: '#0EA5E9', notes: '5 entregas semanais de análise de concorrência (quartas-feiras)',
+      id: 'p-banco', name: 'Banco Atlântico', type: 'freela', client: '', color: '#0EA5E9',
+      notes: '5 entregas semanais de análise de concorrência (quartas-feiras)',
       deadlines: [
         { id: 'ba1', title: 'Análise de concorrência — Semana 1', date: '2026-05-27', done: false, notes: '' },
         { id: 'ba2', title: 'Análise de concorrência — Semana 2', date: '2026-06-03', done: false, notes: '' },
@@ -733,7 +548,6 @@ const DEFAULT_DATA = {
 };
 
 let data = JSON.parse(localStorage.getItem('workdash_v2')) || DEFAULT_DATA;
-
 const save = () => localStorage.setItem('workdash_v2', JSON.stringify(data));
 const uid  = () => Date.now().toString(36) + Math.random().toString(36).slice(2);
 
@@ -756,7 +570,7 @@ function urgencyColor(dateStr, done) {
 }
 
 function daysLabel(n) {
-  if (n < 0)  return `${Math.abs(n)}d atrasado`;
+  if (n < 0)   return `${Math.abs(n)}d atrasado`;
   if (n === 0) return 'Hoje!';
   if (n === 1) return 'Amanhã';
   return `em ${n}d`;
@@ -766,11 +580,12 @@ function fmtDate(str) {
   return new Date(str + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
 }
 
-function addDays(d, n) { const r = new Date(d); r.setDate(r.getDate() + n); return r; }
+function toISODate(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
 
 function esc(str) {
-  return String(str)
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
     .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
@@ -781,11 +596,12 @@ let currentTab = 'deadlines';
 
 function setTab(tab) {
   currentTab = tab;
-  const tabs = ['deadlines','timeline','projects'];
+  const tabs = ['deadlines','timeline','calendar','projects'];
   document.querySelectorAll('.tab').forEach((el, i) => el.classList.toggle('active', tabs[i] === tab));
   tabs.forEach(t => document.getElementById('view-' + t).classList.toggle('hidden', t !== tab));
   if (tab === 'timeline') renderTimeline();
   if (tab === 'projects') renderProjects();
+  if (tab === 'calendar') { renderCalendar(); loadCachedEvents(); }
 }
 
 // ══════════════════════════════════════════════════════════
@@ -796,15 +612,14 @@ function render() {
   renderDeadlines();
   if (currentTab === 'timeline') renderTimeline();
   if (currentTab === 'projects') renderProjects();
+  if (currentTab === 'calendar') renderCalendar();
 }
 
-// ── Stats ─────────────────────────────────────────────────
 function renderStats() {
   const all      = data.projects.flatMap(p => p.deadlines.map(d => ({ ...d, project: p })));
   const overdue  = all.filter(d => !d.done && daysUntil(d.date) < 0).length;
   const thisWeek = all.filter(d => !d.done && daysUntil(d.date) >= 0 && daysUntil(d.date) <= 7).length;
   const later    = all.filter(d => !d.done && daysUntil(d.date) > 7).length;
-  const projects = data.projects.length;
 
   document.getElementById('statsBar').innerHTML = `
     <div class="stat-card ${overdue  > 0 ? 'stat-danger'  : ''}">
@@ -824,67 +639,52 @@ function renderStats() {
     </div>
     <div class="stat-card">
       <div class="stat-label">Projetos</div>
-      <div class="stat-value">${projects}</div>
+      <div class="stat-value">${data.projects.length}</div>
       <div class="stat-sub">ativo(s)</div>
-    </div>
-  `;
+    </div>`;
 }
 
-// ── Deadlines ─────────────────────────────────────────────
 function renderDeadlines() {
   const showDone = document.getElementById('showDone').checked;
   const list = data.projects
     .flatMap(p => p.deadlines.map(d => ({ ...d, project: p })))
     .filter(d => showDone || !d.done)
-    .sort((a, b) => {
-      if (a.done !== b.done) return a.done ? 1 : -1;
-      return a.date.localeCompare(b.date);
-    });
+    .sort((a,b) => { if (a.done !== b.done) return a.done ? 1 : -1; return a.date.localeCompare(b.date); });
 
   if (!list.length) {
-    document.getElementById('deadlineList').innerHTML = `
-      <div class="empty">
-        Nenhum prazo${showDone ? '' : ' pendente'}.<br>
-        Use <strong>+ Prazo</strong> para adicionar manualmente ou <strong>✨ Importar com IA</strong> para extrair de um texto.
-      </div>`;
+    document.getElementById('deadlineList').innerHTML = `<div class="empty">Nenhum prazo${showDone ? '' : ' pendente'}.<br>Use <strong>+ Prazo</strong> ou <strong>↑ Importar</strong> para adicionar.</div>`;
     return;
   }
 
   document.getElementById('deadlineList').innerHTML = list.map(d => {
     const days  = daysUntil(d.date);
     const color = urgencyColor(d.date, d.done);
-    return `
-      <div class="deadline-card ${d.done ? 'is-done' : ''}">
-        <div class="project-dot" style="background:${d.project.color}"></div>
-        <div class="urgency-dot" style="background:${color}"></div>
-        <div class="dl-info">
-          <div class="dl-title${d.done ? ' done' : ''}">${esc(d.title)}</div>
-          <div class="dl-sub">${esc(d.project.name)}${d.project.client ? ' · ' + esc(d.project.client) : ''}</div>
-          ${d.notes ? `<div class="dl-notes">${esc(d.notes)}</div>` : ''}
-        </div>
-        <div class="dl-date">
-          <div class="dl-date-value">${fmtDate(d.date)}</div>
-          <div class="dl-days" style="color:${color}">${d.done ? 'Concluído' : daysLabel(days)}</div>
-        </div>
-        <div class="dl-actions">
-          <button class="btn-ghost" title="${d.done ? 'Reabrir' : 'Concluir'}"
-            onclick="toggleDone('${d.project.id}','${d.id}')">${d.done ? '↩' : '✓'}</button>
-          <button class="btn-ghost" title="Editar"
-            onclick="openDeadlineModal('${d.project.id}','${d.id}')">✎</button>
-        </div>
-      </div>`;
+    return `<div class="deadline-card ${d.done ? 'is-done' : ''}">
+      <div class="project-dot" style="background:${d.project.color}"></div>
+      <div class="urgency-dot" style="background:${color}"></div>
+      <div class="dl-info">
+        <div class="dl-title${d.done ? ' done' : ''}">${esc(d.title)}</div>
+        <div class="dl-sub">${esc(d.project.name)}${d.project.client ? ' · '+esc(d.project.client) : ''}</div>
+        ${d.notes ? `<div class="dl-notes">${esc(d.notes)}</div>` : ''}
+      </div>
+      <div class="dl-date">
+        <div class="dl-date-value">${fmtDate(d.date)}</div>
+        <div class="dl-days" style="color:${color}">${d.done ? 'Concluído' : daysLabel(days)}</div>
+      </div>
+      <div class="dl-actions">
+        <button class="btn-ghost" title="${d.done ? 'Reabrir' : 'Concluir'}" onclick="toggleDone('${d.project.id}','${d.id}')">${d.done ? '↩' : '✓'}</button>
+        <button class="btn-ghost" title="Editar" onclick="openDeadlineModal('${d.project.id}','${d.id}')">✎</button>
+      </div>
+    </div>`;
   }).join('');
 }
 
-// ── Timeline ──────────────────────────────────────────────
 function renderTimeline() {
   const DAYS = 60;
-
   let labels = '';
   for (let i = 0; i <= DAYS; i += 10) {
-    const d   = addDays(TODAY, i);
-    const pct = (i / DAYS * 100).toFixed(1);
-    labels += `<div class="tl-label" style="left:${pct}%">${d.toLocaleDateString('pt-BR',{day:'2-digit',month:'short'})}</div>`;
+    const d = new Date(TODAY); d.setDate(d.getDate() + i);
+    labels += `<div class="tl-label" style="left:${(i/DAYS*100).toFixed(1)}%">${d.toLocaleDateString('pt-BR',{day:'2-digit',month:'short'})}</div>`;
   }
 
   let rows = '';
@@ -892,264 +692,652 @@ function renderTimeline() {
     let dots = `<div class="tl-today"></div>`;
     for (const d of p.deadlines) {
       const dDate = new Date(d.date + 'T00:00:00');
-      const pct   = ((dDate - TODAY) / (DAYS * 86400000) * 100);
+      const pct   = (dDate - TODAY) / (DAYS * 86400000) * 100;
       if (pct < -5 || pct > 105) continue;
       const clamp = Math.max(0, Math.min(100, pct)).toFixed(2);
-      const color = urgencyColor(d.date, d.done);
-      dots += `
-        <div class="tl-dot" style="left:${clamp}%;background:${color}"
-          title="${esc(d.title)} — ${fmtDate(d.date)}${d.done ? ' (concluído)' : ''}"
-          onclick="openDeadlineModal('${p.id}','${d.id}')"></div>`;
+      dots += `<div class="tl-dot" style="left:${clamp}%;background:${urgencyColor(d.date, d.done)}"
+        title="${esc(d.title)} — ${fmtDate(d.date)}${d.done ? ' (concluído)' : ''}"
+        onclick="openDeadlineModal('${p.id}','${d.id}')"></div>`;
     }
-
-    rows += `
-      <div class="tl-row">
-        <div class="tl-name">
-          <span style="width:8px;height:8px;border-radius:50%;background:${p.color};flex-shrink:0;display:inline-block"></span>
-          ${esc(p.name)}
-        </div>
-        <div class="tl-track">${dots}</div>
-      </div>`;
+    rows += `<div class="tl-row">
+      <div class="tl-name"><span style="width:8px;height:8px;border-radius:50%;background:${p.color};flex-shrink:0;display:inline-block"></span>${esc(p.name)}</div>
+      <div class="tl-track">${dots}</div>
+    </div>`;
   }
 
-  const legend = `
-    <div class="tl-legend">
-      <div class="tl-legend-item"><div class="legend-dot" style="background:var(--danger)"></div>Urgente (≤3d / atrasado)</div>
-      <div class="tl-legend-item"><div class="legend-dot" style="background:var(--warning)"></div>Em breve (≤7d)</div>
-      <div class="tl-legend-item"><div class="legend-dot" style="background:var(--success)"></div>OK (&gt;7d)</div>
-      <div class="tl-legend-item"><div class="legend-dot" style="background:#9CA3AF"></div>Concluído</div>
-      <div class="tl-legend-item"><div style="width:9px;height:9px;border-radius:1px;background:var(--danger);opacity:0.4"></div>Hoje</div>
-    </div>`;
+  const legend = `<div class="tl-legend">
+    <div class="tl-legend-item"><div class="legend-dot" style="background:var(--danger)"></div>Urgente (≤3d)</div>
+    <div class="tl-legend-item"><div class="legend-dot" style="background:var(--warning)"></div>Em breve (≤7d)</div>
+    <div class="tl-legend-item"><div class="legend-dot" style="background:var(--success)"></div>OK</div>
+    <div class="tl-legend-item"><div class="legend-dot" style="background:#9CA3AF"></div>Concluído</div>
+  </div>`;
 
   document.getElementById('timelineGrid').innerHTML = !data.projects.length
     ? `<div class="empty">Nenhum projeto cadastrado.</div>`
     : `<div class="tl-header-row">${labels}</div>${rows}${legend}`;
 }
 
-// ── Projects ──────────────────────────────────────────────
 function renderProjects() {
   if (!data.projects.length) {
-    document.getElementById('projectsGrid').innerHTML =
-      `<div class="empty">Nenhum projeto. Clique em "+ Projeto" para começar.</div>`;
+    document.getElementById('projectsGrid').innerHTML = `<div class="empty">Nenhum projeto. Clique em "+ Projeto".</div>`;
     return;
   }
-
   document.getElementById('projectsGrid').innerHTML = data.projects.map(p => {
     const pending = p.deadlines.filter(d => !d.done).sort((a,b) => a.date.localeCompare(b.date));
     const next    = pending[0];
     const color   = next ? urgencyColor(next.date, false) : 'var(--text-muted)';
-    return `
-      <div class="project-card">
-        <div class="pc-header">
-          <div class="pc-dot" style="background:${p.color}"></div>
-          <div class="pc-name">${esc(p.name)}</div>
-          <span class="badge ${p.type === 'emprego' ? 'badge-emprego' : 'badge-freela'}">
-            ${p.type === 'emprego' ? 'Emprego' : 'Freela'}
-          </span>
-        </div>
-        ${p.client ? `<div class="pc-client">👤 ${esc(p.client)}</div>` : ''}
-        <div style="font-size:12px;color:var(--text-muted)">${pending.length} prazo(s) pendente(s)</div>
-        <div class="pc-deadline-preview" style="color:${color}">
-          ${next
-            ? `⏱ ${esc(next.title)} — ${fmtDate(next.date)} (${daysLabel(daysUntil(next.date))})`
-            : `<span style="color:var(--text-muted)">Sem prazos cadastrados</span>`}
-        </div>
-        ${p.notes ? `<div class="pc-notes">${esc(p.notes)}</div>` : ''}
-        <div class="pc-footer">
-          <button class="btn btn-secondary btn-sm" onclick="openProjectModal('${p.id}')">✎ Editar</button>
-          <button class="btn btn-secondary btn-sm" onclick="openDeadlineModal('${p.id}')">+ Prazo</button>
-        </div>
-      </div>`;
+    return `<div class="project-card">
+      <div class="pc-header">
+        <div class="pc-dot" style="background:${p.color}"></div>
+        <div class="pc-name">${esc(p.name)}</div>
+        <span class="badge ${p.type==='emprego'?'badge-emprego':'badge-freela'}">${p.type==='emprego'?'Emprego':'Freela'}</span>
+      </div>
+      ${p.client ? `<div class="pc-client">👤 ${esc(p.client)}</div>` : ''}
+      <div style="font-size:12px;color:var(--text-muted)">${pending.length} prazo(s) pendente(s)</div>
+      <div class="pc-deadline-preview" style="color:${color}">
+        ${next ? `⏱ ${esc(next.title)} — ${fmtDate(next.date)} (${daysLabel(daysUntil(next.date))})` : `<span style="color:var(--text-muted)">Sem prazos</span>`}
+      </div>
+      ${p.notes ? `<div class="pc-notes">${esc(p.notes)}</div>` : ''}
+      <div class="pc-footer">
+        <button class="btn btn-secondary btn-sm" onclick="openProjectModal('${p.id}')">✎ Editar</button>
+        <button class="btn btn-secondary btn-sm" onclick="openDeadlineModal('${p.id}')">+ Prazo</button>
+      </div>
+    </div>`;
   }).join('');
 }
 
 // ══════════════════════════════════════════════════════════
-// AI Import
+// Calendar state & rendering
 // ══════════════════════════════════════════════════════════
-let _aiStep = 1;
-let _aiImportData = [];
+let calYear  = TODAY.getFullYear();
+let calMonth = TODAY.getMonth();
+let calSelectedDate = null;
+let gcalEvents = [];   // { date: 'YYYY-MM-DD', title, time, calName, color, allDay }
 
-function openAiModal() {
-  _aiImportData = [];
-  document.getElementById('aiTextInput').value = '';
-  setAiStep(localStorage.getItem('anthropic_key') ? 2 : 1);
-  document.getElementById('aiModal').classList.remove('hidden');
+const MONTH_NAMES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+
+function prevMonth() { calMonth--; if (calMonth < 0) { calMonth = 11; calYear--; } renderCalendar(); }
+function nextMonth() { calMonth++; if (calMonth > 11) { calMonth = 0; calYear++; } renderCalendar(); }
+function goToday()   { calYear = TODAY.getFullYear(); calMonth = TODAY.getMonth(); renderCalendar(); }
+
+function renderCalendar() {
+  document.getElementById('calMonthLabel').textContent = `${MONTH_NAMES[calMonth]} ${calYear}`;
+
+  // Build deadline map: date → [{title, color, done}]
+  const dlMap = {};
+  for (const p of data.projects) {
+    for (const d of p.deadlines) {
+      if (!dlMap[d.date]) dlMap[d.date] = [];
+      dlMap[d.date].push({ title: d.title, color: p.color, done: d.done, type: 'deadline', projectName: p.name, id: d.id, pid: p.id });
+    }
+  }
+
+  // Build event map
+  const evMap = {};
+  for (const ev of gcalEvents) {
+    if (!evMap[ev.date]) evMap[ev.date] = [];
+    evMap[ev.date].push(ev);
+  }
+
+  // First day of month
+  const first = new Date(calYear, calMonth, 1);
+  const startDow = first.getDay(); // 0=Sun
+  const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+  const totalCells = Math.ceil((startDow + daysInMonth) / 7) * 7;
+
+  const todayStr = toISODate(TODAY);
+
+  let html = '';
+  for (let week = 0; week < totalCells / 7; week++) {
+    html += `<div class="cal-week">`;
+    for (let dow = 0; dow < 7; dow++) {
+      const cellIdx = week * 7 + dow;
+      const dayNum  = cellIdx - startDow + 1;
+      const isCurrentMonth = dayNum >= 1 && dayNum <= daysInMonth;
+      const cellDate = new Date(calYear, calMonth, dayNum);
+      const dateStr  = toISODate(cellDate);
+      const isToday  = dateStr === todayStr;
+      const isSelected = dateStr === calSelectedDate;
+
+      const dls = (dlMap[dateStr] || []).filter(d => !d.done);
+      const evs = evMap[dateStr] || [];
+
+      let inner = `<div class="cal-day-num">${isCurrentMonth ? dayNum : ''}</div>`;
+
+      const MAX_CHIPS = 3;
+      let shown = 0;
+      for (const dl of dls) {
+        if (shown >= MAX_CHIPS) break;
+        inner += `<div class="cal-chip cal-chip-deadline" style="background:${dl.color}22;color:${dl.color}">${esc(dl.title)}</div>`;
+        shown++;
+      }
+      for (const ev of evs) {
+        if (shown >= MAX_CHIPS) break;
+        const timeStr = ev.allDay ? '' : ev.time + ' ';
+        inner += `<div class="cal-chip cal-chip-event" style="background:${ev.color}22;color:${ev.color}">${esc(timeStr + ev.title)}</div>`;
+        shown++;
+      }
+      const remaining = (dls.length + evs.length) - shown;
+      if (remaining > 0) inner += `<div class="cal-chip-more">+${remaining} mais</div>`;
+
+      const classes = ['cal-day', !isCurrentMonth ? 'other-month' : '', isToday ? 'is-today' : '', isSelected ? 'selected' : ''].filter(Boolean).join(' ');
+      html += `<div class="${classes}" onclick="selectCalDay('${dateStr}')">${inner}</div>`;
+    }
+    html += `</div>`;
+  }
+  document.getElementById('calWeeks').innerHTML = html;
+
+  // Legend
+  const gcalEntries = getGcalEntries();
+  document.getElementById('gcalLegend').innerHTML = gcalEntries.map(e =>
+    `<div class="gcal-legend-item"><div class="legend-dot" style="background:${e.color}"></div>${esc(e.name)}</div>`
+  ).join('') + (gcalEntries.length ? '' : `<span style="font-size:12px;color:var(--text-muted)">Clique em ⚙ Agendas Google para conectar seu Google Calendar</span>`);
+
+  if (calSelectedDate) renderDayDetail(calSelectedDate, dlMap, evMap);
 }
 
-function closeAiModal() { document.getElementById('aiModal').classList.add('hidden'); }
+function selectCalDay(dateStr) {
+  calSelectedDate = calSelectedDate === dateStr ? null : dateStr;
+  renderCalendar();
+}
 
-function setAiStep(step) {
-  _aiStep = step;
-  document.getElementById('aiPanelKey').classList.toggle('hidden',     step !== 1);
-  document.getElementById('aiPanelInput').classList.toggle('hidden',   step !== 2);
-  document.getElementById('aiPanelPreview').classList.toggle('hidden', step !== 3);
-  [1,2,3].forEach(i => document.getElementById('aiStep'+i).classList.toggle('active', i <= step));
+function renderDayDetail(dateStr, dlMap, evMap) {
+  const d = new Date(dateStr + 'T00:00:00');
+  const label = d.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' });
+  document.getElementById('calDetailTitle').textContent = label.charAt(0).toUpperCase() + label.slice(1);
 
-  const foot = document.getElementById('aiFootActions');
+  const dls = dlMap[dateStr] || [];
+  const evs = (evMap[dateStr] || []).sort((a,b) => (a.allDay ? '00:00' : a.time).localeCompare(b.allDay ? '00:00' : b.time));
+
+  if (!dls.length && !evs.length) {
+    document.getElementById('calDetailBody').innerHTML = `<div class="cal-detail-empty">Nenhum prazo ou evento neste dia.</div>`;
+  } else {
+    let html = '';
+    for (const ev of evs) {
+      html += `<div class="cal-detail-item">
+        <div class="cal-detail-dot" style="background:${ev.color}"></div>
+        <div class="cal-detail-info">
+          <div class="cal-detail-name">${esc(ev.title)}</div>
+          <div class="cal-detail-sub">${esc(ev.calName)}</div>
+        </div>
+        <div class="cal-detail-time">${ev.allDay ? 'Dia todo' : ev.time}</div>
+      </div>`;
+    }
+    for (const dl of dls) {
+      const urgColor = urgencyColor(dateStr, dl.done);
+      html += `<div class="cal-detail-item" onclick="openDeadlineModal('${dl.pid}','${dl.id}')" style="cursor:pointer">
+        <div class="cal-detail-dot" style="background:${dl.color}"></div>
+        <div class="cal-detail-info">
+          <div class="cal-detail-name">${esc(dl.title)}${dl.done ? ' ✓' : ''}</div>
+          <div class="cal-detail-sub">${esc(dl.projectName)} · prazo</div>
+        </div>
+        <div class="cal-detail-time" style="color:${urgColor}">${dl.done ? 'Concluído' : daysLabel(daysUntil(dateStr))}</div>
+      </div>`;
+    }
+    document.getElementById('calDetailBody').innerHTML = html;
+  }
+
+  document.getElementById('calDetail').classList.remove('hidden');
+}
+
+// ══════════════════════════════════════════════════════════
+// Google Calendar — iCal fetch & parse
+// ══════════════════════════════════════════════════════════
+const PROXY = 'https://corsproxy.io/?url=';
+
+function getGcalEntries() {
+  return JSON.parse(localStorage.getItem('gcal_entries') || '[]');
+}
+function setGcalEntries(arr) { localStorage.setItem('gcal_entries', JSON.stringify(arr)); }
+
+function loadCachedEvents() {
+  const cached = localStorage.getItem('gcal_events_cache');
+  if (cached) { gcalEvents = JSON.parse(cached); renderCalendar(); }
+}
+
+async function refreshCalendars() {
+  const entries = getGcalEntries();
+  if (!entries.length) { openGcalModal(); return; }
+
+  const btn = document.getElementById('calRefreshBtn');
+  btn.textContent = '…';
+  btn.disabled = true;
+
+  gcalEvents = [];
+  for (const entry of entries) {
+    try {
+      const url = PROXY + encodeURIComponent(entry.url);
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const text = await res.text();
+      const parsed = parseICS(text, entry.name, entry.color);
+      gcalEvents.push(...parsed);
+    } catch (e) {
+      console.warn('Erro ao buscar', entry.name, e.message);
+    }
+  }
+
+  localStorage.setItem('gcal_events_cache', JSON.stringify(gcalEvents));
+  btn.textContent = '↺ Agendas';
+  btn.disabled = false;
+  renderCalendar();
+}
+
+function parseICS(text, calName, color) {
+  const events = [];
+
+  // Unfold lines (continuation lines start with space/tab)
+  const raw = text.replace(/\r?\n[ \t]/g, '');
+  const lines = raw.split(/\r?\n/);
+
+  let cur = null;
+  for (const line of lines) {
+    if (line === 'BEGIN:VEVENT')         { cur = {}; continue; }
+    if (line === 'END:VEVENT' && cur)    { events.push(cur); cur = null; continue; }
+    if (!cur) continue;
+
+    const semi  = line.indexOf(';');
+    const colon = line.indexOf(':');
+    if (colon === -1) continue;
+    const rawKey = line.slice(0, colon);
+    const key    = (semi !== -1 && semi < colon) ? line.slice(0, semi) : rawKey;
+    const val    = line.slice(colon + 1);
+
+    // Store params for DTSTART/DTEND
+    if (key === 'DTSTART' || key === 'DTEND') {
+      cur[key + '_RAW'] = line;
+      cur[key] = val;
+    } else {
+      cur[key] = val;
+    }
+  }
+
+  const result = [];
+  for (const ev of events) {
+    const summary = (ev.SUMMARY || '').replace(/\\n/g,' ').replace(/\\,/g,',').trim();
+    if (!summary) continue;
+
+    const rawStart = ev['DTSTART_RAW'] || '';
+    const allDay   = rawStart.includes('VALUE=DATE') || (ev.DTSTART && ev.DTSTART.length === 8);
+    const startStr = ev.DTSTART || '';
+
+    let date, time;
+    if (allDay) {
+      const s = startStr.replace(/[^0-9]/g,'').slice(0,8);
+      date = `${s.slice(0,4)}-${s.slice(4,6)}-${s.slice(6,8)}`;
+      time = null;
+    } else {
+      // Could be UTC (Z) or local or with TZID
+      const s = startStr.replace('Z','').replace(/[^0-9]/g,'').slice(0,12);
+      date = `${s.slice(0,4)}-${s.slice(4,6)}-${s.slice(6,8)}`;
+      const h = s.slice(8,10), m = s.slice(10,12);
+      time = `${h}:${m}`;
+    }
+
+    if (!date || date === '----') continue;
+
+    result.push({ date, time, title: summary, calName, color, allDay });
+  }
+  return result;
+}
+
+// ══════════════════════════════════════════════════════════
+// Google Calendar settings modal
+// ══════════════════════════════════════════════════════════
+let gcalPickedColor = GCAL_COLORS[0];
+
+function openGcalModal() {
+  // Color swatches
+  document.getElementById('gcalColorRow').innerHTML = GCAL_COLORS.map(c =>
+    `<div class="swatch ${c===gcalPickedColor?'sel':''}" style="background:${c}" data-c="${c}" onclick="pickGcalColor('${c}')"></div>`
+  ).join('');
+  renderGcalList();
+  document.getElementById('gcalModal').classList.remove('hidden');
+}
+
+function closeGcalModal() { document.getElementById('gcalModal').classList.add('hidden'); }
+
+function pickGcalColor(c) {
+  gcalPickedColor = c;
+  document.querySelectorAll('#gcalColorRow .swatch').forEach(s => s.classList.toggle('sel', s.dataset.c === c));
+}
+
+function renderGcalList() {
+  const entries = getGcalEntries();
+  document.getElementById('gcalList').innerHTML = entries.length
+    ? entries.map((e,i) => `
+      <div class="gcal-row">
+        <div class="gcal-row-dot" style="background:${e.color}" onclick="removeGcalEntry(${i})" title="Clique para remover"></div>
+        <div>
+          <div class="gcal-row-name">${esc(e.name)}</div>
+          <div class="gcal-row-url">${esc(e.url)}</div>
+        </div>
+        <button class="btn-ghost btn-sm" onclick="removeGcalEntry(${i})">✕</button>
+      </div>`).join('')
+    : `<div style="font-size:13px;color:var(--text-muted);padding:8px 0">Nenhuma agenda adicionada ainda.</div>`;
+}
+
+function addGcalEntry() {
+  const name = document.getElementById('gcalNewName').value.trim();
+  const url  = document.getElementById('gcalNewUrl').value.trim();
+  if (!name) { alert('Informe o nome da agenda.'); return; }
+  if (!url || !url.includes('calendar.google.com')) { alert('URL iCal inválida. Deve ser do Google Calendar.'); return; }
+
+  const entries = getGcalEntries();
+  entries.push({ name, url, color: gcalPickedColor });
+  setGcalEntries(entries);
+  document.getElementById('gcalNewName').value = '';
+  document.getElementById('gcalNewUrl').value  = '';
+  renderGcalList();
+  renderCalendar();
+}
+
+function removeGcalEntry(i) {
+  const entries = getGcalEntries();
+  entries.splice(i, 1);
+  setGcalEntries(entries);
+  localStorage.removeItem('gcal_events_cache');
+  gcalEvents = [];
+  renderGcalList();
+  renderCalendar();
+}
+
+// ══════════════════════════════════════════════════════════
+// Import Prazos (parser + AI)
+// ══════════════════════════════════════════════════════════
+let _importMode = 'auto';
+let _importData = [];
+
+function openImportModal() {
+  _importData = [];
+  setImportStep(1);
+  setImportMode('auto');
+  document.getElementById('impText').value = '';
+  document.getElementById('impStatus').innerHTML = '';
+  document.getElementById('importModal').classList.remove('hidden');
+}
+function closeImportModal() { document.getElementById('importModal').classList.add('hidden'); }
+
+function setImportMode(mode) {
+  _importMode = mode;
+  document.getElementById('modeTabAuto').classList.toggle('active', mode === 'auto');
+  document.getElementById('modeTabAI').classList.toggle('active',   mode === 'ai');
+
+  const aiPanel = document.getElementById('aiKeyPanel');
+  if (mode === 'ai') {
+    aiPanel.classList.remove('hidden');
+    const hasKey = localStorage.getItem('ai_key_gemini') || localStorage.getItem('ai_key_anthropic');
+    if (hasKey) updateAiProviderHint();
+  } else {
+    aiPanel.classList.add('hidden');
+  }
+
+  document.getElementById('impModeHint').innerHTML = mode === 'auto'
+    ? 'Cole qualquer texto com datas — cronograma, e-mail, planilha. O parser detecta automaticamente formatos como <strong>DD/MM</strong>, <strong>DD/MM/YYYY</strong>, <strong>DD de Mês</strong>, intervalos de semana, etc.'
+    : 'O texto será enviado à API de IA escolhida para extração mais inteligente de prazos. Use quando o parser automático não reconhecer o formato.';
+}
+
+function updateAiProviderHint() {
+  const prov = document.getElementById('aiProvider').value;
+  document.getElementById('aiKeyLabel').textContent = prov === 'gemini'
+    ? 'API Key Gemini (aistudio.google.com → Get API Key)'
+    : 'API Key Anthropic (console.anthropic.com)';
+  const saved = localStorage.getItem(`ai_key_${prov}`);
+  document.getElementById('aiKeyInput').value = saved ? '••••••••' : '';
+  document.getElementById('aiKeyInput').placeholder = prov === 'gemini' ? 'AIza...' : 'sk-ant-...';
+}
+
+function clearAiKey() {
+  const prov = document.getElementById('aiProvider').value;
+  localStorage.removeItem(`ai_key_${prov}`);
+  document.getElementById('aiKeyInput').value = '';
+}
+
+function setImportStep(step) {
+  document.getElementById('impPanelInput').classList.toggle('hidden',   step !== 1);
+  document.getElementById('impPanelPreview').classList.toggle('hidden', step !== 2);
+  [1,2].forEach(i => document.getElementById('impStep'+i).classList.toggle('active', i <= step));
+
+  const foot = document.getElementById('impFootActions');
   if (step === 1) {
-    foot.innerHTML = '';
-  } else if (step === 2) {
     foot.innerHTML = `
-      <button class="btn btn-ghost btn-sm" onclick="resetApiKey()" style="margin-right:auto">Trocar chave</button>
-      <button class="btn btn-secondary" onclick="closeAiModal()">Cancelar</button>
-      <button class="btn btn-ai" id="aiAnalyzeBtn" onclick="runAiImport()">Analisar →</button>`;
+      <button class="btn btn-secondary" onclick="closeImportModal()" style="margin-left:auto">Cancelar</button>
+      <button class="btn btn-primary"   id="impAnalyzeBtn" onclick="runImport()">Analisar →</button>`;
   } else {
     foot.innerHTML = `
-      <button class="btn btn-secondary" onclick="setAiStep(2)" style="margin-right:auto">← Voltar</button>
-      <button class="btn btn-secondary" onclick="closeAiModal()">Cancelar</button>
-      <button class="btn btn-ai" onclick="confirmAiImport()">Importar selecionados</button>`;
+      <button class="btn btn-secondary" onclick="setImportStep(1)" style="margin-right:auto">← Voltar</button>
+      <button class="btn btn-secondary" onclick="closeImportModal()">Cancelar</button>
+      <button class="btn btn-primary"   onclick="confirmImport()">Importar selecionados</button>`;
   }
 }
 
-function saveApiKey() {
-  const key = document.getElementById('aiKeyInput').value.trim();
-  if (!key.startsWith('sk-')) { alert('Chave inválida. Deve começar com sk-ant-...'); return; }
-  localStorage.setItem('anthropic_key', key);
-  setAiStep(2);
+function loadImpFile(e) {
+  const file = e.target.files[0]; if (!file) return;
+  new FileReader().onload = (ev) => { document.getElementById('impText').value = ev.target.result; };
+  new FileReader().readAsText(file, 'UTF-8');
+  // redo properly:
+  const fr = new FileReader();
+  fr.onload = (ev) => { document.getElementById('impText').value = ev.target.result; };
+  fr.readAsText(file, 'UTF-8');
+  e.target.value = '';
 }
 
-function resetApiKey() {
-  localStorage.removeItem('anthropic_key');
-  setAiStep(1);
-}
-
-function loadFile(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    document.getElementById('aiTextInput').value = e.target.result;
-  };
-  reader.readAsText(file, 'UTF-8');
-  event.target.value = '';
-}
-
-async function runAiImport() {
-  const text = document.getElementById('aiTextInput').value.trim();
+async function runImport() {
+  const text = document.getElementById('impText').value.trim();
   if (!text) { alert('Cole ou carregue algum texto primeiro.'); return; }
 
-  const key = localStorage.getItem('anthropic_key');
-  const btn = document.getElementById('aiAnalyzeBtn');
-  const statusEl = document.getElementById('aiStatus');
+  const btn = document.getElementById('impAnalyzeBtn');
+  const statusEl = document.getElementById('impStatus');
+  btn.disabled = true; btn.textContent = 'Analisando…';
 
-  btn.disabled = true;
-  btn.textContent = 'Analisando…';
-  statusEl.innerHTML = `<div class="spinner"></div> Enviando para o Claude…`;
-
-  const projectNames = data.projects.map(p => p.name).join(', ');
-  const currentYear  = new Date().getFullYear();
-
-  const system = `Você é um assistente que extrai prazos de projetos a partir de textos em português.
-Os projetos existentes são: ${projectNames}.
-
-Extraia TODOS os prazos/entregas/datas encontrados no texto.
-Retorne APENAS um JSON array com este formato (sem markdown, sem explicação):
-[{"project":"nome do projeto","title":"descrição do prazo","date":"YYYY-MM-DD"}]
-
-Regras:
-- Se o ano não aparecer no texto, use ${currentYear}.
-- Use o nome de projeto mais próximo da lista acima. Se não corresponder a nenhum, use o nome como aparece.
-- Inclua TODOS os prazos, mesmo que pareçam repetidos.
-- Retorne [] se não encontrar nenhum prazo.`;
-
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': key,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true',
-      },
-      body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 2048,
-        system,
-        messages: [{ role: 'user', content: text }],
-      }),
-    });
-
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.error?.message || `Erro HTTP ${res.status}`);
-    }
-
-    const json = await res.json();
-    const raw  = json.content[0].text.trim();
-    const match = raw.match(/\[[\s\S]*\]/);
-    if (!match) throw new Error('Claude não retornou prazos no formato esperado. Tente reformular o texto.');
-
-    _aiImportData = JSON.parse(match[0]);
-
-    if (!_aiImportData.length) {
-      statusEl.innerHTML = '⚠️ Nenhum prazo encontrado. Tente incluir datas no texto.';
-      btn.disabled = false;
-      btn.textContent = 'Analisar →';
+  if (_importMode === 'auto') {
+    statusEl.innerHTML = '<div class="spinner"></div> Detectando datas…';
+    await new Promise(r => setTimeout(r, 80));
+    _importData = smartParse(text);
+    statusEl.innerHTML = '';
+  } else {
+    statusEl.innerHTML = '<div class="spinner"></div> Enviando para IA…';
+    try {
+      _importData = await aiParse(text);
+      statusEl.innerHTML = '';
+    } catch (e) {
+      statusEl.innerHTML = `❌ ${esc(e.message)}`;
+      btn.disabled = false; btn.textContent = 'Analisar →';
       return;
     }
-
-    renderAiPreview();
-    setAiStep(3);
-
-  } catch (e) {
-    statusEl.innerHTML = `❌ ${esc(e.message)}`;
-  } finally {
-    btn.disabled = false;
-    btn.textContent = 'Analisar →';
   }
+
+  if (!_importData.length) {
+    statusEl.innerHTML = '⚠️ Nenhum prazo encontrado. Tente incluir datas no formato DD/MM ou DD/MM/AAAA.';
+    btn.disabled = false; btn.textContent = 'Analisar →';
+    return;
+  }
+
+  renderImportPreview();
+  setImportStep(2);
+  btn.disabled = false; btn.textContent = 'Analisar →';
+}
+
+// ── Smart built-in parser ─────────────────────────────────
+function smartParse(text) {
+  const CY = new Date().getFullYear();
+  const MONTHS = {
+    jan:1, fev:2, mar:3, abr:4, mai:5, jun:6, jul:7, ago:8, set:9, out:10, nov:11, dez:12,
+    janeiro:1, fevereiro:2, março:3, marco:3, abril:4, maio:5, junho:6, julho:7,
+    agosto:8, setembro:9, outubro:10, novembro:11, dezembro:12,
+    feb:2, apr:4, may:5, aug:8, sep:9, oct:10,
+    january:1, february:2, march:3, april:4, june:6, july:7,
+    august:8, september:9, october:10, november:11, december:12,
+  };
+
+  function toISO(d, m, y) {
+    if (y < 100) y += 2000;
+    return `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+  }
+
+  function stripDates(s) {
+    return s
+      .replace(/\b(\d{1,2})\s*\/\s*(\d{1,2})(?:\s*\/\s*(\d{2,4}))?\b/g, '')
+      .replace(/\b(\d{1,2})º?\s+de\s+[a-záéíóúâêôãõçñ]+(?:\s+de\s+\d{4})?\b/gi, '')
+      .replace(/\([\d\/–\-\s]+\)/g, '')
+      .replace(/^\d+[\.\)]\s*/, '')
+      .replace(/[-–:,;|]+$/, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  function findDates(line) {
+    const dates = [];
+
+    // Week range: (DD/MM–DD/MM) — use end date
+    for (const m of line.matchAll(/\((\d{1,2})\/(\d{1,2})\s*[–\-]\s*(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?\)/g)) {
+      const [,d1,m1,d2,m2,yr] = m;
+      const y = yr ? parseInt(yr) : CY;
+      dates.push(toISO(parseInt(d2), parseInt(m2), y));
+    }
+
+    // DD/MM/YYYY or DD/MM
+    for (const m of line.matchAll(/\b(\d{1,2})\s*\/\s*(\d{1,2})(?:\s*\/\s*(\d{2,4}))?\b/g)) {
+      const d = parseInt(m[1]), mo = parseInt(m[2]), y = m[3] ? parseInt(m[3]) : CY;
+      if (d >= 1 && d <= 31 && mo >= 1 && mo <= 12) dates.push(toISO(d, mo, y));
+    }
+
+    // YYYY-MM-DD (ISO)
+    for (const m of line.matchAll(/\b(\d{4})-(\d{2})-(\d{2})\b/g)) {
+      dates.push(`${m[1]}-${m[2]}-${m[3]}`);
+    }
+
+    // DD de Mês (de YYYY)?
+    for (const m of line.matchAll(/\b(\d{1,2})º?\s+de\s+([a-záéíóúâêôãõç]+)(?:\s+de\s+(\d{4}))?\b/gi)) {
+      const d = parseInt(m[1]);
+      const mo = MONTHS[m[2].toLowerCase().slice(0,3)] || MONTHS[m[2].toLowerCase()];
+      const y  = m[3] ? parseInt(m[3]) : CY;
+      if (mo && d >= 1 && d <= 31) dates.push(toISO(d, mo, y));
+    }
+
+    return [...new Set(dates)];
+  }
+
+  const results = [];
+  const lines = text.split(/\n/);
+
+  for (const rawLine of lines) {
+    const line = rawLine.trim();
+    if (!line) continue;
+
+    const dates = findDates(line);
+    if (!dates.length) continue;
+
+    // Use the last date on the line (usually the deadline/end)
+    const date  = dates[dates.length - 1];
+    const title = stripDates(line);
+    if (title.length < 3) continue;
+
+    const project = guessProject(line);
+    results.push({ project: project || '', title, date });
+  }
+
+  return results;
+}
+
+// ── AI parser (Gemini or Anthropic) ──────────────────────
+async function aiParse(text) {
+  const prov = document.getElementById('aiProvider').value;
+  let key = document.getElementById('aiKeyInput').value.trim();
+  if (key === '••••••••') key = localStorage.getItem(`ai_key_${prov}`) || '';
+  if (!key) throw new Error('Informe a API key antes de analisar.');
+
+  // Save key
+  localStorage.setItem(`ai_key_${prov}`, key);
+
+  const projectNames = data.projects.map(p => p.name).join(', ');
+  const year = new Date().getFullYear();
+  const systemPrompt = `Extraia prazos/entregas de projetos do texto. Projetos existentes: ${projectNames}. Retorne APENAS um JSON array: [{"project":"nome","title":"descrição","date":"YYYY-MM-DD"}]. Ano padrão: ${year}. Sem markdown, sem explicação.`;
+
+  if (prov === 'gemini') {
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: systemPrompt + '\n\nTexto:\n' + text }] }],
+          generationConfig: { temperature: 0 }
+        })
+      }
+    );
+    if (!res.ok) { const e = await res.json().catch(()=>({})); throw new Error(e.error?.message || `HTTP ${res.status}`); }
+    const json = await res.json();
+    const raw  = json.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    const m    = raw.match(/\[[\s\S]*\]/);
+    if (!m) throw new Error('Gemini não retornou JSON válido.');
+    return JSON.parse(m[0]);
+
+  } else { // anthropic
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json', 'x-api-key': key, 'anthropic-version':'2023-06-01', 'anthropic-dangerous-direct-browser-access':'true' },
+      body: JSON.stringify({ model:'claude-haiku-4-5-20251001', max_tokens:1024, system: systemPrompt, messages:[{role:'user',content:text}] })
+    });
+    if (!res.ok) { const e = await res.json().catch(()=>({})); throw new Error(e.error?.message || `HTTP ${res.status}`); }
+    const json = await res.json();
+    const raw  = json.content[0].text.trim();
+    const m    = raw.match(/\[[\s\S]*\]/);
+    if (!m) throw new Error('Claude não retornou JSON válido.');
+    return JSON.parse(m[0]);
+  }
+}
+
+function guessProject(text) {
+  const t = text.toLowerCase();
+  let best = null, bestLen = 0;
+  for (const p of data.projects) {
+    const n = p.name.toLowerCase();
+    if (t.includes(n) && n.length > bestLen) { best = p.name; bestLen = n.length; }
+  }
+  return best;
 }
 
 function findProject(name) {
+  if (!name) return null;
   const n = name.toLowerCase();
-  return data.projects.find(p =>
-    p.name.toLowerCase().includes(n) || n.includes(p.name.toLowerCase())
-  );
+  return data.projects.find(p => p.name.toLowerCase().includes(n) || n.includes(p.name.toLowerCase()));
 }
 
-function renderAiPreview() {
-  document.getElementById('aiPreviewList').innerHTML = _aiImportData.length
-    ? _aiImportData.map((item, i) => {
-        const matched = findProject(item.project);
-        const dot = `<div class="project-dot" style="background:${matched?.color || '#9CA3AF'}"></div>`;
-        const proj = matched && matched.name !== item.project
-          ? `${esc(item.project)} → <strong>${esc(matched.name)}</strong>`
-          : esc(item.project);
-        return `
-          <div class="preview-item">
-            <input type="checkbox" checked data-idx="${i}">
-            ${dot}
-            <div style="flex:1">
-              <div style="font-weight:500">${esc(item.title)}</div>
-              <div style="font-size:12px;color:var(--text-muted)">${proj}</div>
-            </div>
-            <div style="font-weight:600;flex-shrink:0">${fmtDate(item.date)}</div>
-          </div>`;
-      }).join('')
-    : `<div class="empty">Nenhum prazo encontrado.</div>`;
+function renderImportPreview() {
+  document.getElementById('impPreviewList').innerHTML = _importData.map((item, i) => {
+    const matched = findProject(item.project);
+    const dot = `<div class="project-dot" style="background:${matched?.color || '#9CA3AF'}"></div>`;
+    const proj = matched && matched.name !== item.project
+      ? `${esc(item.project)} → <strong>${esc(matched.name)}</strong>`
+      : esc(item.project || '(sem projeto)');
+    return `<div class="preview-item">
+      <input type="checkbox" checked data-idx="${i}">
+      ${dot}
+      <div style="flex:1">
+        <div style="font-weight:500">${esc(item.title)}</div>
+        <div style="font-size:12px;color:var(--text-muted)">${proj}</div>
+      </div>
+      <div style="font-weight:600;flex-shrink:0">${fmtDate(item.date)}</div>
+    </div>`;
+  }).join('');
 }
 
-function confirmAiImport() {
-  const checkboxes = document.querySelectorAll('#aiPreviewList input[type=checkbox]');
+function confirmImport() {
+  const cbs = document.querySelectorAll('#impPreviewList input[type=checkbox]');
   let imported = 0;
-
-  checkboxes.forEach(cb => {
+  cbs.forEach(cb => {
     if (!cb.checked) return;
-    const item = _aiImportData[parseInt(cb.dataset.idx)];
-
+    const item = _importData[parseInt(cb.dataset.idx)];
     let p = findProject(item.project);
     if (!p) {
-      p = {
-        id: uid(), name: item.project, type: 'freela', client: '',
-        color: COLORS[data.projects.length % COLORS.length], notes: '', deadlines: []
-      };
+      p = { id: uid(), name: item.project || 'Projeto importado', type: 'freela', client: '', color: COLORS[data.projects.length % COLORS.length], notes: '', deadlines: [] };
       data.projects.push(p);
     }
-
     p.deadlines.push({ id: uid(), title: item.title, date: item.date, notes: '', done: false });
     imported++;
   });
-
-  save(); render(); closeAiModal();
+  save(); render(); closeImportModal();
 }
 
 // ══════════════════════════════════════════════════════════
@@ -1172,11 +1360,8 @@ function openProjectModal(projectId) {
     document.getElementById('pmDelete').classList.remove('hidden');
   } else {
     document.getElementById('pmModalTitle').textContent = 'Novo Projeto';
-    document.getElementById('pmId').value     = '';
-    document.getElementById('pmName').value   = '';
-    document.getElementById('pmType').value   = 'freela';
-    document.getElementById('pmClient').value = '';
-    document.getElementById('pmNotes').value  = '';
+    document.getElementById('pmId').value = document.getElementById('pmName').value = document.getElementById('pmClient').value = document.getElementById('pmNotes').value = '';
+    document.getElementById('pmType').value = 'freela';
     pickColor(COLORS[Math.floor(Math.random() * COLORS.length)]);
     document.getElementById('pmDelete').classList.add('hidden');
   }
@@ -1185,39 +1370,24 @@ function openProjectModal(projectId) {
   setTimeout(() => document.getElementById('pmName').focus(), 50);
 }
 
-function pickColor(c) {
-  document.querySelectorAll('.swatch').forEach(s => s.classList.toggle('sel', s.dataset.color === c));
-}
-
-function getColor() {
-  return (document.querySelector('.swatch.sel') || {}).dataset?.color || COLORS[0];
-}
-
+function pickColor(c) { document.querySelectorAll('.swatch').forEach(s => s.classList.toggle('sel', s.dataset.color === c)); }
+function getColor()   { return (document.querySelector('.swatch.sel') || {}).dataset?.color || COLORS[0]; }
 function closeProjectModal() { document.getElementById('projectModal').classList.add('hidden'); }
 
 function saveProject() {
   const name = document.getElementById('pmName').value.trim();
   if (!name) { alert('Informe o nome do projeto.'); return; }
-
   const id = document.getElementById('pmId').value;
   if (id) {
-    const p = data.projects.find(x => x.id === id);
-    Object.assign(p, {
-      name,
-      type:   document.getElementById('pmType').value,
+    Object.assign(data.projects.find(x => x.id === id), {
+      name, type: document.getElementById('pmType').value,
       client: document.getElementById('pmClient').value.trim(),
-      color:  getColor(),
-      notes:  document.getElementById('pmNotes').value.trim(),
+      color: getColor(), notes: document.getElementById('pmNotes').value.trim()
     });
   } else {
-    data.projects.push({
-      id: uid(), name,
-      type:   document.getElementById('pmType').value,
-      client: document.getElementById('pmClient').value.trim(),
-      color:  getColor(),
-      notes:  document.getElementById('pmNotes').value.trim(),
-      deadlines: [],
-    });
+    data.projects.push({ id: uid(), name, type: document.getElementById('pmType').value,
+      client: document.getElementById('pmClient').value.trim(), color: getColor(),
+      notes: document.getElementById('pmNotes').value.trim(), deadlines: [] });
   }
   save(); render(); closeProjectModal();
 }
@@ -1235,27 +1405,24 @@ function deleteProject() {
 function openDeadlineModal(projectId, deadlineId) {
   const sel = document.getElementById('dmProject');
   sel.innerHTML = data.projects.map(p =>
-    `<option value="${p.id}">${esc(p.name)}${p.client ? ' (' + esc(p.client) + ')' : ''}</option>`
-  ).join('');
+    `<option value="${p.id}">${esc(p.name)}${p.client?' ('+esc(p.client)+')':''}</option>`).join('');
   if (projectId) sel.value = projectId;
 
   if (deadlineId) {
     const p = data.projects.find(x => x.id === projectId);
     const d = p.deadlines.find(x => x.id === deadlineId);
-    document.getElementById('dmModalTitle').textContent  = 'Editar Prazo';
-    document.getElementById('dmId').value                = d.id;
-    document.getElementById('dmOldProjectId').value      = projectId;
-    document.getElementById('dmTitleInput').value        = d.title;
-    document.getElementById('dmDate').value              = d.date;
-    document.getElementById('dmNotes').value             = d.notes || '';
+    document.getElementById('dmModalTitle').textContent = 'Editar Prazo';
+    document.getElementById('dmId').value           = d.id;
+    document.getElementById('dmOldProjectId').value = projectId;
+    document.getElementById('dmTitleInput').value   = d.title;
+    document.getElementById('dmDate').value         = d.date;
+    document.getElementById('dmNotes').value        = d.notes || '';
     document.getElementById('dmDelete').classList.remove('hidden');
   } else {
-    document.getElementById('dmModalTitle').textContent  = 'Novo Prazo';
-    document.getElementById('dmId').value                = '';
-    document.getElementById('dmOldProjectId').value      = '';
-    document.getElementById('dmTitleInput').value        = '';
-    document.getElementById('dmDate').value              = '';
-    document.getElementById('dmNotes').value             = '';
+    document.getElementById('dmModalTitle').textContent = 'Novo Prazo';
+    document.getElementById('dmId').value = document.getElementById('dmOldProjectId').value =
+      document.getElementById('dmTitleInput').value = document.getElementById('dmDate').value =
+      document.getElementById('dmNotes').value = '';
     document.getElementById('dmDelete').classList.add('hidden');
   }
 
@@ -1266,33 +1433,24 @@ function openDeadlineModal(projectId, deadlineId) {
 function closeDeadlineModal() { document.getElementById('deadlineModal').classList.add('hidden'); }
 
 function saveDeadline() {
-  const title     = document.getElementById('dmTitleInput').value.trim();
-  const date      = document.getElementById('dmDate').value;
-  const notes     = document.getElementById('dmNotes').value.trim();
-  const projectId = document.getElementById('dmProject').value;
-
-  if (!title) { alert('Informe a descrição do prazo.'); return; }
+  const title = document.getElementById('dmTitleInput').value.trim();
+  const date  = document.getElementById('dmDate').value;
+  if (!title) { alert('Informe a descrição.'); return; }
   if (!date)  { alert('Informe a data.'); return; }
 
+  const projectId = document.getElementById('dmProject').value;
   const p = data.projects.find(x => x.id === projectId);
-  if (!p) { alert('Selecione um projeto válido.'); return; }
-
   const id = document.getElementById('dmId').value;
+
   if (id) {
     const oldProjId = document.getElementById('dmOldProjectId').value;
     const oldP = data.projects.find(x => x.id === oldProjId);
     const d    = oldP.deadlines.find(x => x.id === id);
-    if (oldProjId !== projectId) {
-      oldP.deadlines = oldP.deadlines.filter(x => x.id !== id);
-      Object.assign(d, { title, date, notes });
-      p.deadlines.push(d);
-    } else {
-      Object.assign(d, { title, date, notes });
-    }
+    Object.assign(d, { title, date, notes: document.getElementById('dmNotes').value.trim() });
+    if (oldProjId !== projectId) { oldP.deadlines = oldP.deadlines.filter(x => x.id !== id); p.deadlines.push(d); }
   } else {
-    p.deadlines.push({ id: uid(), title, date, notes, done: false });
+    p.deadlines.push({ id: uid(), title, date, notes: document.getElementById('dmNotes').value.trim(), done: false });
   }
-
   save(); render(); closeDeadlineModal();
 }
 
@@ -1313,21 +1471,21 @@ function toggleDone(projectId, deadlineId) {
 }
 
 // ══════════════════════════════════════════════════════════
-// Close on overlay click / ESC
+// ESC / overlay click
 // ══════════════════════════════════════════════════════════
-['aiModal','projectModal','deadlineModal'].forEach(id => {
-  document.getElementById(id).addEventListener('click', e => {
-    if (e.target.id === id) {
-      if (id === 'aiModal')       closeAiModal();
-      if (id === 'projectModal')  closeProjectModal();
-      if (id === 'deadlineModal') closeDeadlineModal();
-    }
+['importModal','gcalModal','projectModal','deadlineModal'].forEach(id => {
+  const el = document.getElementById(id);
+  el.addEventListener('click', e => {
+    if (e.target.id !== id) return;
+    if (id === 'importModal')  closeImportModal();
+    if (id === 'gcalModal')    closeGcalModal();
+    if (id === 'projectModal') closeProjectModal();
+    if (id === 'deadlineModal')closeDeadlineModal();
   });
 });
-
 document.addEventListener('keydown', e => {
   if (e.key !== 'Escape') return;
-  closeAiModal(); closeProjectModal(); closeDeadlineModal();
+  closeImportModal(); closeGcalModal(); closeProjectModal(); closeDeadlineModal();
 });
 
 // ══════════════════════════════════════════════════════════
