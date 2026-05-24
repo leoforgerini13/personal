@@ -406,34 +406,61 @@
       <button class="btn-ghost" onclick="closeGcalModal()">✕</button>
     </div>
     <div class="modal-body">
-      <div class="info-box" style="margin-bottom:16px">
-        <strong>Como obter a URL iCal do Google Calendar:</strong><br>
-        1. Abra o Google Calendar no computador (não no app)<br>
-        2. Clique em ⚙ → <strong>Configurações</strong><br>
-        3. No menu esquerdo, clique na agenda desejada<br>
-        4. Role até <strong>"Endereço secreto no formato iCal"</strong><br>
-        5. Copie o link que começa com <code>https://calendar.google.com/calendar/ical/…</code><br><br>
-        <strong>Privacidade:</strong> eventos buscados via <code>corsproxy.io</code> (proxy CORS público). Apenas títulos e horários passam por ele.
-      </div>
-      <div id="gcalModalStatus" style="font-size:13px;min-height:20px;margin-bottom:8px;display:flex;align-items:center;gap:8px"></div>
 
+      <!-- Proxy setup -->
+      <details id="gcalProxyDetails" style="margin-bottom:14px">
+        <summary style="cursor:pointer;font-size:13px;font-weight:600;padding:8px 10px;background:var(--bg);border-radius:8px;border:1px solid var(--border);list-style:none;display:flex;justify-content:space-between;align-items:center">
+          ⚙ Configuração de proxy CORS
+          <span id="gcalProxyBadge" style="font-size:11px;font-weight:500;padding:2px 8px;border-radius:99px;background:#DCFCE7;color:#166534">Padrão (público)</span>
+        </summary>
+        <div style="border:1px solid var(--border);border-top:none;border-radius:0 0 8px 8px;padding:14px">
+          <div class="warn-box" style="margin-bottom:12px">
+            <strong>Proxies públicos gratuitos estão instáveis.</strong> A solução mais confiável é criar seu próprio proxy com Google Apps Script (gratuito, 2 min de setup):
+          </div>
+          <ol style="font-size:12px;line-height:1.8;padding-left:18px;color:var(--text);margin-bottom:12px">
+            <li>Acesse <strong>script.google.com</strong> → clique em <strong>"Novo projeto"</strong></li>
+            <li>Apague o conteúdo e cole o código abaixo</li>
+            <li>Clique em <strong>Implantar → Nova implantação → App Web</strong></li>
+            <li>Em "Quem tem acesso" escolha <strong>"Qualquer pessoa"</strong> → Implantar</li>
+            <li>Copie a URL do deploy (começa com <code>https://script.google.com/macros/s/…/exec</code>)</li>
+            <li>Cole no campo "URL do proxy" abaixo e salve</li>
+          </ol>
+          <pre style="background:#1E1E1E;color:#D4D4D4;padding:10px 12px;border-radius:8px;font-size:11px;overflow-x:auto;margin-bottom:12px">function doGet(e) {
+  var res = UrlFetchApp.fetch(e.parameter.url, {muteHttpExceptions:true});
+  return ContentService.createTextOutput(res.getContentText());
+}</pre>
+          <div class="fg" style="margin-bottom:8px">
+            <label style="font-size:12px">URL do seu proxy Apps Script (opcional)</label>
+            <input class="fi" id="gcalCustomProxy" placeholder="https://script.google.com/macros/s/…/exec">
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-secondary btn-sm" onclick="saveCustomProxy()">Salvar proxy</button>
+            <button class="btn btn-danger-soft btn-sm" onclick="clearCustomProxy()">Remover proxy personalizado</button>
+          </div>
+        </div>
+      </details>
+
+      <div id="gcalModalStatus" style="font-size:13px;min-height:20px;margin-bottom:8px;display:flex;align-items:center;gap:8px"></div>
       <div id="gcalList"></div>
 
       <div style="border-top:1px solid var(--border);margin-top:12px;padding-top:16px">
-        <div style="font-size:13px;font-weight:600;margin-bottom:10px">Adicionar agenda</div>
+        <div style="font-size:13px;font-weight:600;margin-bottom:4px">Adicionar agenda</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:10px">
+          Google Calendar → ⚙ Configurações → selecione a agenda → rolar até <strong>"Endereço secreto no formato iCal"</strong> → copiar link
+        </div>
         <div class="fg">
           <label>Nome da agenda</label>
           <input class="fi" id="gcalNewName" placeholder="Ex: Pessoal, Trabalho, Freelas…">
         </div>
         <div class="fg">
-          <label>URL iCal (formato .ics)</label>
+          <label>URL iCal</label>
           <input class="fi" id="gcalNewUrl" placeholder="https://calendar.google.com/calendar/ical/…/basic.ics">
         </div>
         <div class="fg" style="margin-bottom:0">
           <label>Cor</label>
           <div class="color-row" id="gcalColorRow"></div>
         </div>
-        <div id="gcalTestResult" style="margin-top:10px;font-size:12px;display:none;background:#F8F9FA;border:1px solid var(--border);border-radius:8px;padding:10px;word-break:break-all;max-height:100px;overflow-y:auto;font-family:monospace"></div>
+        <div id="gcalTestResult" style="margin-top:10px;font-size:11px;display:none;background:#F8F9FA;border:1px solid var(--border);border-radius:8px;padding:10px;word-break:break-all;max-height:120px;overflow-y:auto;font-family:monospace;white-space:pre-wrap"></div>
       </div>
     </div>
     <div class="modal-foot">
@@ -892,12 +919,43 @@ function renderDayDetail(dateStr, dlMap, evMap) {
 // Google Calendar — iCal fetch & parse
 // ══════════════════════════════════════════════════════════
 
-// Multiple proxies tried in order — if one fails, next is attempted
-const CORS_PROXIES = [
-  url => `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
-  url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-  url => `https://corsproxy.io/${encodeURIComponent(url)}`,
-];
+function getCustomProxy() { return localStorage.getItem('gcal_custom_proxy') || ''; }
+
+function buildProxyList(icalUrl) {
+  const custom = getCustomProxy();
+  const list = [];
+  if (custom) list.push({ name: 'Apps Script', url: `${custom}?url=${encodeURIComponent(icalUrl)}` });
+  list.push(
+    { name: 'corsproxy.io',  url: `https://corsproxy.io/?url=${encodeURIComponent(icalUrl)}` },
+    { name: 'codetabs',      url: `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(icalUrl)}` },
+    { name: 'thingproxy',    url: `https://thingproxy.freeboard.io/fetch/${icalUrl}` },
+  );
+  return list;
+}
+
+function saveCustomProxy() {
+  const val = document.getElementById('gcalCustomProxy').value.trim().replace(/\?.*$/, '').replace(/\/$/, '');
+  if (!val) { alert('Cole a URL do Apps Script.'); return; }
+  localStorage.setItem('gcal_custom_proxy', val);
+  updateProxyBadge();
+  document.getElementById('gcalModalStatus').innerHTML = `<span style="color:var(--success)">✓ Proxy salvo. Teste uma URL para confirmar.</span>`;
+}
+
+function clearCustomProxy() {
+  localStorage.removeItem('gcal_custom_proxy');
+  document.getElementById('gcalCustomProxy').value = '';
+  updateProxyBadge();
+  document.getElementById('gcalModalStatus').innerHTML = `<span style="color:var(--text-muted)">Proxy personalizado removido.</span>`;
+}
+
+function updateProxyBadge() {
+  const badge = document.getElementById('gcalProxyBadge');
+  if (!badge) return;
+  const hasCustom = !!getCustomProxy();
+  badge.style.background = hasCustom ? '#DBEAFE' : '#DCFCE7';
+  badge.style.color       = hasCustom ? '#1E40AF' : '#166534';
+  badge.textContent       = hasCustom ? 'Apps Script ✓' : 'Padrão (público)';
+}
 
 function getGcalEntries() {
   return JSON.parse(localStorage.getItem('gcal_entries') || '[]');
@@ -910,19 +968,19 @@ function loadCachedEvents() {
 }
 
 async function tryFetchICS(icalUrl) {
-  let lastError = '';
-  for (let i = 0; i < CORS_PROXIES.length; i++) {
-    const proxyUrl = CORS_PROXIES[i](icalUrl);
+  const proxies = buildProxyList(icalUrl);
+  const errors  = [];
+  for (const proxy of proxies) {
     try {
-      const res = await fetch(proxyUrl, { signal: AbortSignal.timeout(12000) });
+      const res  = await fetch(proxy.url, { signal: AbortSignal.timeout(14000) });
       const text = await res.text();
-      if (text.includes('BEGIN:VCALENDAR')) return { ok: true, text, proxyIdx: i };
-      lastError = `Proxy ${i+1} respondeu mas não é um iCal válido (início: ${text.slice(0,80).replace(/\n/g,' ')})`;
+      if (text.includes('BEGIN:VCALENDAR')) return { ok: true, text, proxyName: proxy.name };
+      errors.push(`${proxy.name}: respondeu mas não é iCal → "${text.slice(0,70).replace(/\n/g,' ')}"`);
     } catch (e) {
-      lastError = `Proxy ${i+1}: ${e.message}`;
+      errors.push(`${proxy.name}: ${e.message}`);
     }
   }
-  return { ok: false, error: lastError };
+  return { ok: false, errors };
 }
 
 async function fetchSingleCalendar(entry) {
@@ -930,7 +988,7 @@ async function fetchSingleCalendar(entry) {
   if (statusEl) statusEl.innerHTML = `<div class="spinner"></div> Buscando ${esc(entry.name)}…`;
   const r = await tryFetchICS(entry.url);
   if (!r.ok) {
-    const msg = r.error;
+    const msg = r.errors.join(' | ');
     if (statusEl) statusEl.innerHTML = `<span style="color:var(--danger)">❌ ${esc(entry.name)}: ${esc(msg)}</span>`;
     return { ok: false, error: msg };
   }
@@ -1037,10 +1095,12 @@ function parseICS(text, calName, color) {
 let gcalPickedColor = GCAL_COLORS[0];
 
 function openGcalModal() {
-  // Color swatches
   document.getElementById('gcalColorRow').innerHTML = GCAL_COLORS.map(c =>
     `<div class="swatch ${c===gcalPickedColor?'sel':''}" style="background:${c}" data-c="${c}" onclick="pickGcalColor('${c}')"></div>`
   ).join('');
+  const saved = getCustomProxy();
+  if (saved) document.getElementById('gcalCustomProxy').value = saved;
+  updateProxyBadge();
   renderGcalList();
   document.getElementById('gcalModal').classList.remove('hidden');
 }
@@ -1074,23 +1134,25 @@ async function testGcalUrl() {
   if (!url) { alert('Cole a URL iCal acima para testar.'); return; }
 
   out.style.display = 'block';
-  out.style.color = 'var(--text-muted)';
-  out.textContent = 'Testando…';
+  out.style.color   = 'var(--text-muted)';
+  out.style.background   = 'var(--bg)';
+  out.style.borderColor  = 'var(--border)';
+  out.textContent = 'Testando todos os proxies…';
   btn.disabled = true;
 
   const r = await tryFetchICS(url);
   btn.disabled = false;
   if (r.ok) {
-    const lines = r.text.split(/\r?\n/).slice(0, 6).join('\n');
-    out.style.color = '#065F46';
-    out.style.background = '#ECFDF5';
+    const preview = r.text.split(/\r?\n/).slice(0, 8).join('\n');
+    out.style.color       = '#065F46';
+    out.style.background  = '#ECFDF5';
     out.style.borderColor = '#A7F3D0';
-    out.textContent = `✓ iCal válido (proxy ${r.proxyIdx + 1})\n${lines}`;
+    out.textContent = `✓ Funcionou via ${r.proxyName}\n\n${preview}`;
   } else {
-    out.style.color = '#991B1B';
-    out.style.background = '#FEF2F2';
+    out.style.color       = '#991B1B';
+    out.style.background  = '#FEF2F2';
     out.style.borderColor = '#FECACA';
-    out.textContent = `❌ ${r.error}`;
+    out.textContent = `❌ Todos os proxies falharam:\n\n${r.errors.join('\n')}`;
   }
 }
 
