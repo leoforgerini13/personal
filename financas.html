@@ -375,7 +375,7 @@
       </div>
       <div class="stat-row">
         <div class="stat-card">
-          <div class="stat-label">Saldo do mês</div>
+          <div class="stat-label">Saldo do ciclo</div>
           <div class="stat-value" id="stat-saldo">—</div>
         </div>
         <div class="stat-card">
@@ -649,20 +649,34 @@ const fmt = (v) => v != null ? Number(v).toLocaleString('pt-BR', { style: 'curre
 const fmtDate = (d) => d ? new Date(d + 'T12:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) : '';
 const today = () => new Date().toISOString().slice(0, 10);
 
-function daysRemainingInMonth() {
-  const now = new Date();
-  const last = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-  return last.getDate() - now.getDate() + 1;
-}
+// Ciclo financeiro: do dia 23 até o dia 22 do mês seguinte (fechamento do cartão)
+const CYCLE_END_DAY = 22;
 
-function currentMonthRange() {
+function currentCycleRange() {
   const now = new Date();
   const y = now.getFullYear();
-  const m = String(now.getMonth() + 1).padStart(2, '0');
-  const first = `${y}-${m}-01`;
-  const lastDay = new Date(y, now.getMonth() + 1, 0).getDate();
-  const last = `${y}-${m}-${lastDay}`;
-  return { first, last };
+  const mIdx = now.getMonth();
+  const day = now.getDate();
+  let start, end;
+  if (day >= CYCLE_END_DAY + 1) {
+    // ciclo começa dia 23 deste mês, termina dia 22 do próximo
+    start = new Date(y, mIdx, 23);
+    end = new Date(y, mIdx + 1, CYCLE_END_DAY);
+  } else {
+    // ciclo começou dia 23 do mês passado, termina dia 22 deste mês
+    start = new Date(y, mIdx - 1, 23);
+    end = new Date(y, mIdx, CYCLE_END_DAY);
+  }
+  const iso = (d) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  return { first: iso(start), last: iso(end) };
+}
+
+function daysRemainingInCycle() {
+  const { last } = currentCycleRange();
+  const now = new Date(); now.setHours(0, 0, 0, 0);
+  const end = new Date(last + 'T00:00:00');
+  const diff = Math.round((end - now) / 86400000) + 1; // inclui hoje
+  return Math.max(1, diff);
 }
 
 function showToast(msg, isError = false) {
@@ -780,30 +794,40 @@ document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
 async function loadInicio() {
   try {
     const uid = currentUser.id;
-    const { first, last } = currentMonthRange();
+    const { first, last } = currentCycleRange();
     const todayStr = today();
 
-    const { data: txs, error } = await sb.from('transactions')
-      .select('tipo, valor, data')
-      .eq('user_id', uid)
-      .gte('data', first)
-      .lte('data', last);
-    if (error) throw error;
+    const [txRes, fixRes, parcRes] = await Promise.all([
+      sb.from('transactions').select('tipo, valor, data').eq('user_id', uid).gte('data', first).lte('data', last),
+      sb.from('fixed_bills').select('nome, valor').eq('user_id', uid).eq('ativo', true),
+      sb.from('installments').select('valor_parcela, parcela_atual, total_parcelas').eq('user_id', uid),
+    ]);
+    if (txRes.error) throw txRes.error;
+    if (fixRes.error) throw fixRes.error;
+    if (parcRes.error) throw parcRes.error;
 
-    let entradas = 0, saidas = 0, gastoHoje = 0;
-    for (const tx of txs || []) {
+    let entradas = 0, saidasAvulsas = 0, gastoHoje = 0;
+    for (const tx of txRes.data || []) {
       if (tx.tipo === 'entrada') entradas += Number(tx.valor);
-      else { saidas += Number(tx.valor); if (tx.data === todayStr) gastoHoje += Number(tx.valor); }
+      else { saidasAvulsas += Number(tx.valor); if (tx.data === todayStr) gastoHoje += Number(tx.valor); }
     }
+    // Contas fixas — exclui a linha "Cartão" para não contar em dobro com as parcelas
+    const totalFixas = (fixRes.data || [])
+      .filter(f => (f.nome || '').trim().toLowerCase() !== 'cartão')
+      .reduce((s, f) => s + Number(f.valor), 0);
+    // Parcelas ativas
+    const totalParcelas = (parcRes.data || [])
+      .filter(p => Number(p.parcela_atual) <= Number(p.total_parcelas))
+      .reduce((s, p) => s + Number(p.valor_parcela), 0);
 
-    const saldo = entradas - saidas;
-    const dias = daysRemainingInMonth();
+    const saldo = entradas - saidasAvulsas - totalFixas - totalParcelas;
+    const dias = daysRemainingInCycle();
     const possoGastar = dias > 0 ? saldo / dias : saldo;
 
     const heroVal = document.getElementById('hero-value');
     heroVal.textContent = fmt(possoGastar);
     heroVal.className = 'hero-value ' + (possoGastar >= 0 ? 'positive' : 'negative');
-    document.getElementById('hero-sub').textContent = `(Entradas − Saídas) ÷ ${dias} dia${dias !== 1 ? 's' : ''} restante${dias !== 1 ? 's' : ''}`;
+    document.getElementById('hero-sub').textContent = `Ciclo até dia ${CYCLE_END_DAY} · saldo ÷ ${dias} dia${dias !== 1 ? 's' : ''} restante${dias !== 1 ? 's' : ''}`;
 
     const saldoEl = document.getElementById('stat-saldo');
     saldoEl.textContent = fmt(saldo);
@@ -859,7 +883,7 @@ async function loadLancamentos() {
   wrap.innerHTML = '<div class="loading-wrap"><div class="spinner"></div></div>';
   try {
     const uid = currentUser.id;
-    const { first, last } = currentMonthRange();
+    const { first, last } = currentCycleRange();
     const { data: txs, error } = await sb.from('transactions')
       .select('*')
       .eq('user_id', uid)
@@ -877,7 +901,7 @@ async function loadLancamentos() {
     document.getElementById('sum-saida').textContent = fmt(totalSaida);
 
     if (!txs || txs.length === 0) {
-      wrap.innerHTML = '<div class="empty">Nenhum lançamento este mês.</div>';
+      wrap.innerHTML = '<div class="empty">Nenhum lançamento neste ciclo.</div>';
       return;
     }
 
