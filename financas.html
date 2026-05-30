@@ -96,6 +96,18 @@ th,td{padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)}
 th:first-child,td:first-child{text-align:left}
 th{color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase}
 .chart-box{position:relative;height:240px}
+/* Visão Geral */
+.vg-day{background:var(--card);border-radius:var(--r-sm);box-shadow:var(--shadow);margin-bottom:10px;overflow:hidden}
+.vg-today{border:2px solid var(--blue)}
+.vg-header{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:4px}
+.vg-date{font-weight:700;font-size:14px;display:flex;align-items:center;gap:6px}
+.vg-totals{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600}
+.vg-net{font-size:12px;color:var(--muted)}
+.vg-body{padding:8px 12px;display:flex;flex-direction:column;gap:5px}
+.vg-item{font-size:13px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.vg-item b{margin-left:auto;white-space:nowrap}
+.vg-item.green{color:var(--green)}
+.vg-item.red{color:var(--red)}
 </style>
 </head>
 <body>
@@ -122,6 +134,7 @@ th{color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase}
   <section id="tab-parceladas" class="tab-page"></section>
   <section id="tab-patrimonio" class="tab-page"></section>
   <section id="tab-resumo" class="tab-page"></section>
+  <section id="tab-visao" class="tab-page"></section>
 </main>
 
 <nav>
@@ -132,6 +145,7 @@ th{color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase}
     <button data-tab="parceladas"><span class="ic">💳</span>Parceladas</button>
     <button data-tab="patrimonio"><span class="ic">📈</span>Patrimônio</button>
     <button data-tab="resumo"><span class="ic">📊</span>Resumo</button>
+    <button data-tab="visao"><span class="ic">🗓️</span>Visão</button>
   </div>
 </nav>
 
@@ -229,7 +243,93 @@ function calcSaldo(){
 }
 
 /* ============ RENDERING ============ */
-function renderAll(){ renderInicio(); renderLancamentos(); renderFixas(); renderParceladas(); renderPatrimonio(); renderResumo(); }
+function renderAll(){ renderInicio(); renderLancamentos(); renderFixas(); renderParceladas(); renderPatrimonio(); renderResumo(); renderVisao(); }
+
+/* ============ VISÃO GERAL ============ */
+function renderVisao(){
+  const el=document.getElementById('tab-visao');
+  const {first,last}=currentCycleRange();
+  const today_=today();
+
+  // Montar todos os dias do ciclo
+  const days=[];
+  let d=new Date(first+'T12:00:00');
+  const endD=new Date(last+'T12:00:00');
+  while(d<=endD){ days.push(d.toISOString().slice(0,10)); d=new Date(d.getTime()+86400000); }
+
+  // Fixas (sem Cartão) — distribuídas pelo dia de vencimento ou dia 1
+  const fixas=getFixas().filter(f=>f.ativo && f.nome!=='Cartão');
+  // Parcelas ativas
+  const parcelas=DB.parceladas.filter(p=>Number(p.parcela_atual)<=Number(p.total_parcelas));
+  // Transações do ciclo
+  const txs=DB.transacoes.filter(t=>t.data>=first && t.data<=last);
+
+  // Para cada dia, calcular entradas e saídas
+  const byDay=days.map(iso=>{
+    const entradas=txs.filter(t=>t.data===iso && t.tipo==='entrada');
+    const saidasTx=txs.filter(t=>t.data===iso && t.tipo==='saida');
+    // Fixas com vencimento nesse dia
+    const dom=parseInt(iso.slice(8));
+    const saidasFixas=fixas.filter(f=>(f.dia_vencimento||1)===dom);
+    // Parcelas no dia de fatura (usamos dia 22 como padrão)
+    const saidasParc=dom===22 ? parcelas : [];
+    return {iso,entradas,saidasTx,saidasFixas,saidasParc};
+  }).filter(d=> d.entradas.length||d.saidasTx.length||d.saidasFixas.length||d.saidasParc.length);
+
+  const MESES=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  const fmtDay=iso=>{
+    const dt=new Date(iso+'T12:00:00');
+    return `${String(dt.getDate()).padStart(2,'0')} ${MESES[dt.getMonth()]}`;
+  };
+
+  let totalIn=0,totalOut=0;
+
+  const rows=byDay.map(({iso,entradas,saidasTx,saidasFixas,saidasParc})=>{
+    const sumIn=entradas.reduce((s,t)=>s+t.valor,0);
+    const sumOutTx=saidasTx.reduce((s,t)=>s+t.valor,0);
+    const sumOutFx=saidasFixas.reduce((s,f)=>s+f.valor,0);
+    const sumOutPc=saidasParc.reduce((s,p)=>s+p.valor_parcela,0);
+    const sumOut=sumOutTx+sumOutFx+sumOutPc;
+    totalIn+=sumIn; totalOut+=sumOut;
+    const isToday=iso===today_;
+
+    // Build detail lines
+    const inLines=entradas.map(t=>`<div class="vg-item green">↑ ${t.descricao||'Entrada'} <b>${R(t.valor)}</b></div>`).join('');
+    const outLines=[
+      ...saidasTx.map(t=>`<div class="vg-item red">↓ ${t.descricao||t.categoria||'Gasto'} ${t.forma_pagamento==='cartao'?'💳':'💵'} <b>${R(t.valor)}</b></div>`),
+      ...saidasFixas.map(f=>`<div class="vg-item red">📌 ${f.nome} <b>${R(f.valor)}</b></div>`),
+      ...saidasParc.map(p=>`<div class="vg-item red">💳 ${p.nome} <span class="badge blue">${p.parcela_atual}/${p.total_parcelas}</span> <b>${R(p.valor_parcela)}</b></div>`),
+    ].join('');
+
+    return `
+    <div class="vg-day${isToday?' vg-today':''}">
+      <div class="vg-header">
+        <span class="vg-date">${fmtDay(iso)}${isToday?' <span class="badge blue">Hoje</span>':''}</span>
+        <span class="vg-totals">
+          ${sumIn?`<span class="green">+${R(sumIn)}</span>`:''}
+          ${sumOut?`<span class="red">−${R(sumOut)}</span>`:''}
+          <span class="vg-net ${sumIn-sumOut>=0?'green':'red'}">=&nbsp;${R(sumIn-sumOut)}</span>
+        </span>
+      </div>
+      <div class="vg-body">${inLines}${outLines}</div>
+    </div>`;
+  }).join('');
+
+  const cycleStart=new Date(first+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'});
+  const cycleEnd=new Date(last+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'});
+
+  el.innerHTML=`
+    <div class="card" style="margin-bottom:14px">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:8px">Ciclo ${cycleStart} → ${cycleEnd}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center">
+        <div><div style="font-size:11px;color:var(--muted)">Entradas</div><div style="font-size:18px;font-weight:800;color:var(--green)">${R(totalIn)}</div></div>
+        <div><div style="font-size:11px;color:var(--muted)">Saídas</div><div style="font-size:18px;font-weight:800;color:var(--red)">${R(totalOut)}</div></div>
+        <div><div style="font-size:11px;color:var(--muted)">Saldo</div><div style="font-size:18px;font-weight:800;color:${totalIn-totalOut>=0?'var(--green)':'var(--red)'}">${R(totalIn-totalOut)}</div></div>
+      </div>
+    </div>
+    ${byDay.length===0?'<div class="empty">Nenhum evento neste ciclo ainda.</div>':rows}
+  `;
+}
 
 function renderInicio(){
   const saldo=calcSaldo();
@@ -527,6 +627,7 @@ document.querySelectorAll('.nav-in button').forEach(b=>{
     document.getElementById('tab-'+tab).classList.add('active');
     if(tab==='patrimonio') renderPatrimonio();
     if(tab==='resumo') renderResumo();
+    if(tab==='visao') renderVisao();
     window.scrollTo(0,0);
   });
 });
