@@ -1,0 +1,1388 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Finanças Pessoais</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <style>
+    :root {
+      --color-bg: #F4F6FA;
+      --color-header: #0F1623;
+      --color-header-text: #FFFFFF;
+      --color-card: #FFFFFF;
+      --color-green: #059669;
+      --color-red: #E53E3E;
+      --color-blue: #2563EB;
+      --color-text: #1A202C;
+      --color-text-muted: #6B7280;
+      --color-border: #E5E7EB;
+      --color-tab-active: #2563EB;
+      --radius: 12px;
+      --shadow: 0 2px 12px rgba(0,0,0,0.08);
+      --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--color-bg);
+      color: var(--color-text);
+      min-height: 100vh;
+    }
+
+    /* ========== AUTH ========== */
+    #auth-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #0F1623 0%, #1A2A44 100%);
+      padding: 24px;
+    }
+
+    .auth-card {
+      background: white;
+      border-radius: var(--radius);
+      padding: 40px 36px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .auth-logo {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .auth-logo h1 {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--color-header);
+    }
+
+    .auth-logo p {
+      color: var(--color-text-muted);
+      font-size: 14px;
+      margin-top: 4px;
+    }
+
+    .auth-logo .icon {
+      font-size: 48px;
+      margin-bottom: 8px;
+    }
+
+    /* ========== HEADER ========== */
+    #app-screen { display: none; flex-direction: column; min-height: 100vh; }
+
+    header {
+      background: var(--color-header);
+      color: var(--color-header-text);
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 60px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+
+    header h1 {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+
+    header .user-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    header .user-email {
+      font-size: 12px;
+      color: rgba(255,255,255,0.6);
+      max-width: 140px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* ========== TABS ========== */
+    .tabs-bar {
+      background: var(--color-header);
+      border-top: 1px solid rgba(255,255,255,0.08);
+      display: flex;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .tabs-bar::-webkit-scrollbar { display: none; }
+
+    .tab-btn {
+      flex: 1;
+      min-width: 64px;
+      padding: 12px 8px;
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.5);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: color 0.2s, border-bottom 0.2s;
+      border-bottom: 3px solid transparent;
+      white-space: nowrap;
+    }
+
+    .tab-btn.active {
+      color: #FFFFFF;
+      border-bottom-color: var(--color-tab-active);
+    }
+
+    /* ========== CONTENT ========== */
+    .content {
+      flex: 1;
+      padding: 20px 16px;
+      max-width: 700px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; }
+
+    /* ========== CARDS ========== */
+    .card {
+      background: var(--color-card);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow);
+      margin-bottom: 16px;
+    }
+
+    .card-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+
+    .card-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--color-text);
+    }
+
+    .card-value.green { color: var(--color-green); }
+    .card-value.red { color: var(--color-red); }
+
+    /* ========== HOME TAB ========== */
+    .hero-card {
+      background: linear-gradient(135deg, #0F1623 0%, #1A2A44 100%);
+      color: white;
+      border-radius: var(--radius);
+      padding: 28px 24px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .hero-card .label {
+      font-size: 13px;
+      color: rgba(255,255,255,0.65);
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+
+    .hero-value {
+      font-size: 52px;
+      font-weight: 800;
+      color: #34D399;
+      line-height: 1;
+      letter-spacing: -2px;
+    }
+
+    .hero-value.negative { color: #FC8181; }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .stat-card {
+      background: var(--color-card);
+      border-radius: var(--radius);
+      padding: 16px 14px;
+      box-shadow: var(--shadow);
+    }
+
+    .stat-card .label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      margin-bottom: 6px;
+    }
+
+    .stat-card .value {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    /* ========== BUTTONS ========== */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+
+    .btn:active { transform: scale(0.97); }
+    .btn:hover { opacity: 0.88; }
+
+    .btn-primary {
+      background: var(--color-blue);
+      color: white;
+    }
+
+    .btn-green {
+      background: var(--color-green);
+      color: white;
+      width: 100%;
+      padding: 16px;
+      font-size: 16px;
+      border-radius: var(--radius);
+    }
+
+    .btn-danger {
+      background: none;
+      color: var(--color-red);
+      border: 1px solid var(--color-red);
+      padding: 6px 12px;
+      font-size: 12px;
+    }
+
+    .btn-sm {
+      padding: 6px 14px;
+      font-size: 13px;
+    }
+
+    .btn-outline {
+      background: none;
+      color: var(--color-blue);
+      border: 1.5px solid var(--color-blue);
+    }
+
+    .btn-logout {
+      background: rgba(255,255,255,0.1);
+      color: white;
+      border: none;
+      padding: 7px 14px;
+      font-size: 12px;
+      border-radius: 6px;
+    }
+
+    /* ========== FORMS ========== */
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--color-text);
+      margin-bottom: 6px;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="number"],
+    input[type="date"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1.5px solid var(--color-border);
+      border-radius: 8px;
+      font-size: 15px;
+      color: var(--color-text);
+      background: #FAFAFA;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--color-blue);
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+      background: white;
+    }
+
+    .radio-group {
+      display: flex;
+      gap: 12px;
+    }
+
+    .radio-option {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px;
+      border: 1.5px solid var(--color-border);
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.15s;
+    }
+
+    .radio-option:has(input:checked) {
+      border-color: var(--color-blue);
+      background: rgba(37,99,235,0.06);
+      color: var(--color-blue);
+    }
+
+    .radio-option input { display: none; }
+
+    /* ========== MODAL ========== */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.55);
+      z-index: 200;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 0;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .modal {
+      background: white;
+      border-radius: 20px 20px 0 0;
+      padding: 28px 24px 32px;
+      width: 100%;
+      max-width: 480px;
+      max-height: 90vh;
+      overflow-y: auto;
+      animation: slideUp 0.25s ease;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(40px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+
+    .modal-title {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .modal-close {
+      background: #F3F4F6;
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-text-muted);
+    }
+
+    /* ========== LISTS ========== */
+    .list-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .list-item:last-child { border-bottom: none; }
+
+    .list-item-left { flex: 1; min-width: 0; }
+    .list-item-main {
+      font-size: 14px;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .list-item-sub {
+      font-size: 12px;
+      color: var(--color-text-muted);
+      margin-top: 2px;
+    }
+
+    .list-item-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+      margin-left: 12px;
+    }
+
+    .amount {
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .amount.red { color: var(--color-red); }
+    .amount.green { color: var(--color-green); }
+
+    /* ========== SECTION HEADER ========== */
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    /* ========== TOTALS ROW ========== */
+    .totals-row {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .total-chip {
+      flex: 1;
+      background: white;
+      border-radius: 10px;
+      padding: 12px 16px;
+      box-shadow: var(--shadow);
+    }
+
+    .total-chip .label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .total-chip .val {
+      font-size: 17px;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    /* ========== TABLE ========== */
+    .summary-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .summary-table th {
+      text-align: left;
+      padding: 10px 12px;
+      background: #F9FAFB;
+      border-bottom: 1.5px solid var(--color-border);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .summary-table td {
+      padding: 12px;
+      border-bottom: 1px solid var(--color-border);
+      vertical-align: middle;
+    }
+
+    .summary-table tr:last-child td { border-bottom: none; }
+    .summary-table tr:hover td { background: #F9FAFB; }
+
+    /* ========== BADGE ========== */
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .badge-green { background: #D1FAE5; color: #065F46; }
+    .badge-red { background: #FEE2E2; color: #991B1B; }
+    .badge-blue { background: #DBEAFE; color: #1E40AF; }
+
+    /* ========== EMPTY STATE ========== */
+    .empty-state {
+      text-align: center;
+      padding: 48px 24px;
+      color: var(--color-text-muted);
+    }
+
+    .empty-state .icon { font-size: 40px; margin-bottom: 12px; }
+    .empty-state p { font-size: 14px; }
+
+    /* ========== TOAST ========== */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: #1A202C;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      z-index: 999;
+      transition: transform 0.3s ease;
+      max-width: calc(100vw - 40px);
+      text-align: center;
+      box-shadow: var(--shadow-lg);
+    }
+
+    #toast.show { transform: translateX(-50%) translateY(0); }
+    #toast.error { background: var(--color-red); }
+    #toast.success { background: var(--color-green); }
+
+    /* ========== LOADING ========== */
+    .spinner {
+      width: 20px;
+      height: 20px;
+      border: 2.5px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: inline-block;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loading-overlay {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+    }
+
+    /* ========== DIVIDER ========== */
+    .divider {
+      height: 1px;
+      background: var(--color-border);
+      margin: 16px 0;
+    }
+
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 380px) {
+      .hero-value { font-size: 38px; }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- AUTH SCREEN -->
+<div id="auth-screen">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="icon">💰</div>
+      <h1>Finanças Pessoais</h1>
+      <p>Controle seus gastos com facilidade</p>
+    </div>
+    <form id="login-form">
+      <div class="form-group">
+        <label for="login-email">E-mail</label>
+        <input type="email" id="login-email" placeholder="seu@email.com" required autocomplete="email" />
+      </div>
+      <div class="form-group">
+        <label for="login-password">Senha</label>
+        <input type="password" id="login-password" placeholder="••••••••" required autocomplete="current-password" />
+      </div>
+      <div id="login-error" style="color:var(--color-red);font-size:13px;margin-bottom:12px;display:none;"></div>
+      <button type="submit" class="btn btn-primary" style="width:100%;padding:13px;" id="login-btn">
+        Entrar
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- APP SCREEN -->
+<div id="app-screen">
+  <header>
+    <h1>💰 Finanças</h1>
+    <div class="user-info">
+      <span class="user-email" id="header-email"></span>
+      <button class="btn btn-logout" id="logout-btn">Sair</button>
+    </div>
+  </header>
+
+  <div class="tabs-bar">
+    <button class="tab-btn active" data-tab="inicio">Início</button>
+    <button class="tab-btn" data-tab="lancamentos">Lançamentos</button>
+    <button class="tab-btn" data-tab="fixas">Fixas</button>
+    <button class="tab-btn" data-tab="parceladas">Parceladas</button>
+    <button class="tab-btn" data-tab="resumo">Resumo</button>
+  </div>
+
+  <div class="content">
+
+    <!-- TAB: INÍCIO -->
+    <div class="tab-pane active" id="tab-inicio">
+      <div class="hero-card">
+        <div class="label">Posso gastar hoje</div>
+        <div class="hero-value" id="home-posso-gastar">R$ 0,00</div>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="label">Saldo do Mês</div>
+          <div class="value" id="home-saldo" style="color:var(--color-green)">R$ 0</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Gasto Hoje</div>
+          <div class="value" id="home-hoje" style="color:var(--color-red)">R$ 0</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Dias Restantes</div>
+          <div class="value" id="home-dias">0</div>
+        </div>
+      </div>
+      <button class="btn btn-green" id="btn-lancar-gasto">+ Lançar Gasto</button>
+    </div>
+
+    <!-- TAB: LANÇAMENTOS -->
+    <div class="tab-pane" id="tab-lancamentos">
+      <div class="section-header">
+        <div class="section-title">Lançamentos</div>
+        <button class="btn btn-outline btn-sm" id="btn-novo-lancamento">+ Novo</button>
+      </div>
+      <div class="totals-row">
+        <div class="total-chip">
+          <div class="label">Entradas</div>
+          <div class="val green" id="lanc-total-entradas">R$ 0,00</div>
+        </div>
+        <div class="total-chip">
+          <div class="label">Saídas</div>
+          <div class="val red" id="lanc-total-saidas">R$ 0,00</div>
+        </div>
+      </div>
+      <div class="card" id="lanc-list-container">
+        <div class="loading-overlay"><div class="spinner" style="border-top-color:var(--color-blue);border-color:var(--color-border);"></div></div>
+      </div>
+    </div>
+
+    <!-- TAB: FIXAS -->
+    <div class="tab-pane" id="tab-fixas">
+      <div class="section-header">
+        <div class="section-title">Contas Fixas</div>
+        <button class="btn btn-outline btn-sm" id="btn-nova-fixa">+ Nova</button>
+      </div>
+      <div class="card" id="fixas-list-container">
+        <div class="loading-overlay"><div class="spinner" style="border-top-color:var(--color-blue);border-color:var(--color-border);"></div></div>
+      </div>
+    </div>
+
+    <!-- TAB: PARCELADAS -->
+    <div class="tab-pane" id="tab-parceladas">
+      <div class="section-header">
+        <div class="section-title">Parceladas</div>
+        <button class="btn btn-outline btn-sm" id="btn-nova-parcelada">+ Nova</button>
+      </div>
+      <div class="card" id="parceladas-list-container">
+        <div class="loading-overlay"><div class="spinner" style="border-top-color:var(--color-blue);border-color:var(--color-border);"></div></div>
+      </div>
+    </div>
+
+    <!-- TAB: RESUMO -->
+    <div class="tab-pane" id="tab-resumo">
+      <div class="section-title" style="margin-bottom:16px;">Resumo Mensal</div>
+      <div class="card" style="padding:0;overflow:hidden;" id="resumo-container">
+        <div class="loading-overlay"><div class="spinner" style="border-top-color:var(--color-blue);border-color:var(--color-border);"></div></div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /app-screen -->
+
+<!-- ========== MODAL: LANÇAMENTO ========== -->
+<div class="modal-overlay" id="modal-lancamento">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Novo Lançamento</div>
+      <button class="modal-close" data-close="modal-lancamento">✕</button>
+    </div>
+    <form id="form-lancamento">
+      <div class="form-group">
+        <label>Tipo</label>
+        <div class="radio-group">
+          <label class="radio-option">
+            <input type="radio" name="tipo" value="saida" checked />
+            🔴 Saída
+          </label>
+          <label class="radio-option">
+            <input type="radio" name="tipo" value="entrada" />
+            🟢 Entrada
+          </label>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="lanc-valor">Valor (R$) *</label>
+        <input type="number" id="lanc-valor" step="0.01" min="0.01" placeholder="0,00" required />
+      </div>
+      <div class="form-group">
+        <label for="lanc-descricao">Descrição</label>
+        <input type="text" id="lanc-descricao" placeholder="Ex: Almoço, Supermercado..." />
+      </div>
+      <div class="form-group">
+        <label for="lanc-categoria">Categoria</label>
+        <input type="text" id="lanc-categoria" placeholder="Ex: Alimentação, Transporte..." />
+      </div>
+      <div class="form-group">
+        <label for="lanc-forma">Forma de Pagamento</label>
+        <select id="lanc-forma">
+          <option value="Dinheiro/Pix">Dinheiro / Pix</option>
+          <option value="Cartão">Cartão</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="lanc-data">Data</label>
+        <input type="date" id="lanc-data" required />
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;padding:13px;" id="lanc-submit-btn">
+        Salvar Lançamento
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- ========== MODAL: FIXA ========== -->
+<div class="modal-overlay" id="modal-fixa">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Nova Conta Fixa</div>
+      <button class="modal-close" data-close="modal-fixa">✕</button>
+    </div>
+    <form id="form-fixa">
+      <div class="form-group">
+        <label for="fixa-nome">Nome *</label>
+        <input type="text" id="fixa-nome" placeholder="Ex: Aluguel, Internet..." required />
+      </div>
+      <div class="form-group">
+        <label for="fixa-valor">Valor (R$) *</label>
+        <input type="number" id="fixa-valor" step="0.01" min="0.01" placeholder="0,00" required />
+      </div>
+      <div class="form-group">
+        <label for="fixa-dia">Dia de Vencimento</label>
+        <input type="number" id="fixa-dia" min="1" max="31" placeholder="Ex: 5" />
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;padding:13px;" id="fixa-submit-btn">
+        Salvar
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- ========== MODAL: PARCELADA ========== -->
+<div class="modal-overlay" id="modal-parcelada">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Nova Parcelada</div>
+      <button class="modal-close" data-close="modal-parcelada">✕</button>
+    </div>
+    <form id="form-parcelada">
+      <div class="form-group">
+        <label for="parc-nome">Nome *</label>
+        <input type="text" id="parc-nome" placeholder="Ex: Notebook, Celular..." required />
+      </div>
+      <div class="form-group">
+        <label for="parc-valor">Valor da Parcela (R$) *</label>
+        <input type="number" id="parc-valor" step="0.01" min="0.01" placeholder="0,00" required />
+      </div>
+      <div class="form-group">
+        <label for="parc-atual">Parcela Atual *</label>
+        <input type="number" id="parc-atual" min="1" placeholder="Ex: 1" required />
+      </div>
+      <div class="form-group">
+        <label for="parc-total">Total de Parcelas *</label>
+        <input type="number" id="parc-total" min="1" placeholder="Ex: 12" required />
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;padding:13px;" id="parc-submit-btn">
+        Salvar
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script>
+  // =====================================================
+  // SUPABASE INIT
+  // =====================================================
+  const SUPABASE_URL = 'https://cclbmlocaneybptcljsx.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_5c2GqmJDfH2e9dstcOGYFg_RpDKisuu';
+  const { createClient } = supabase;
+  const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  let currentUser = null;
+
+  // =====================================================
+  // UTILS
+  // =====================================================
+  function fmt(val) {
+    return Number(val || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  }
+
+  function fmtDate(str) {
+    if (!str) return '';
+    const d = new Date(str + 'T12:00:00');
+    return d.toLocaleDateString('pt-BR');
+  }
+
+  function todayISO() {
+    const d = new Date();
+    return d.toISOString().split('T')[0];
+  }
+
+  function monthRange() {
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = now.getMonth();
+    const first = new Date(y, m, 1).toISOString().split('T')[0];
+    const last = new Date(y, m + 1, 0).toISOString().split('T')[0];
+    return { first, last };
+  }
+
+  function remainingDays() {
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = now.getMonth();
+    const lastDay = new Date(y, m + 1, 0).getDate();
+    const today = now.getDate();
+    return lastDay - today + 1;
+  }
+
+  function showToast(msg, type = '') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'show ' + type;
+    clearTimeout(t._timer);
+    t._timer = setTimeout(() => { t.className = ''; }, 3200);
+  }
+
+  function openModal(id) {
+    document.getElementById(id).classList.add('open');
+  }
+
+  function closeModal(id) {
+    document.getElementById(id).classList.remove('open');
+  }
+
+  // Close modals on overlay click
+  document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', e => {
+      if (e.target === overlay) overlay.classList.remove('open');
+    });
+  });
+
+  document.querySelectorAll('[data-close]').forEach(btn => {
+    btn.addEventListener('click', () => closeModal(btn.dataset.close));
+  });
+
+  // =====================================================
+  // AUTH
+  // =====================================================
+  async function checkSession() {
+    const { data: { session } } = await sb.auth.getSession();
+    if (session?.user) {
+      currentUser = session.user;
+      showApp();
+    } else {
+      showAuth();
+    }
+  }
+
+  function showAuth() {
+    document.getElementById('auth-screen').style.display = 'flex';
+    document.getElementById('app-screen').style.display = 'none';
+  }
+
+  function showApp() {
+    document.getElementById('auth-screen').style.display = 'none';
+    document.getElementById('app-screen').style.display = 'flex';
+    document.getElementById('header-email').textContent = currentUser.email;
+    loadHome();
+  }
+
+  document.getElementById('login-form').addEventListener('submit', async e => {
+    e.preventDefault();
+    const email = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-password').value;
+    const btn = document.getElementById('login-btn');
+    const errEl = document.getElementById('login-error');
+    errEl.style.display = 'none';
+    btn.innerHTML = '<span class="spinner"></span>';
+    btn.disabled = true;
+
+    const { data, error } = await sb.auth.signInWithPassword({ email, password });
+    btn.innerHTML = 'Entrar';
+    btn.disabled = false;
+
+    if (error) {
+      errEl.textContent = 'E-mail ou senha incorretos.';
+      errEl.style.display = 'block';
+    } else {
+      currentUser = data.user;
+      showApp();
+    }
+  });
+
+  document.getElementById('logout-btn').addEventListener('click', async () => {
+    await sb.auth.signOut();
+    currentUser = null;
+    showAuth();
+  });
+
+  // =====================================================
+  // TABS
+  // =====================================================
+  const tabLoaded = {};
+
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      const tab = btn.dataset.tab;
+      document.getElementById('tab-' + tab).classList.add('active');
+      if (!tabLoaded[tab]) {
+        tabLoaded[tab] = true;
+        if (tab === 'lancamentos') loadLancamentos();
+        if (tab === 'fixas') loadFixas();
+        if (tab === 'parceladas') loadParceladas();
+        if (tab === 'resumo') loadResumo();
+      }
+    });
+  });
+
+  // =====================================================
+  // HOME TAB
+  // =====================================================
+  async function loadHome() {
+    const { first, last } = monthRange();
+    const today = todayISO();
+
+    const { data: txns, error } = await sb
+      .from('transactions')
+      .select('tipo, valor, data')
+      .eq('user_id', currentUser.id)
+      .gte('data', first)
+      .lte('data', last);
+
+    if (error) { showToast('Erro ao carregar dados', 'error'); return; }
+
+    let totalEntrada = 0, totalSaida = 0, gastoHoje = 0;
+    (txns || []).forEach(t => {
+      const v = Number(t.valor);
+      if (t.tipo === 'entrada') totalEntrada += v;
+      else { totalSaida += v; if (t.data === today) gastoHoje += v; }
+    });
+
+    const saldo = totalEntrada - totalSaida;
+    const dias = remainingDays();
+    const possoPorDia = dias > 0 ? saldo / dias : 0;
+
+    const heroEl = document.getElementById('home-posso-gastar');
+    heroEl.textContent = fmt(possoPorDia);
+    heroEl.className = 'hero-value' + (possoPorDia < 0 ? ' negative' : '');
+
+    const saldoEl = document.getElementById('home-saldo');
+    saldoEl.textContent = fmt(saldo);
+    saldoEl.style.color = saldo >= 0 ? 'var(--color-green)' : 'var(--color-red)';
+
+    document.getElementById('home-hoje').textContent = fmt(gastoHoje);
+    document.getElementById('home-dias').textContent = dias;
+  }
+
+  // =====================================================
+  // MODAL: LANÇAMENTO
+  // =====================================================
+  document.getElementById('btn-lancar-gasto').addEventListener('click', () => {
+    document.getElementById('lanc-data').value = todayISO();
+    openModal('modal-lancamento');
+  });
+
+  document.getElementById('btn-novo-lancamento').addEventListener('click', () => {
+    document.getElementById('lanc-data').value = todayISO();
+    openModal('modal-lancamento');
+  });
+
+  document.getElementById('form-lancamento').addEventListener('submit', async e => {
+    e.preventDefault();
+    const btn = document.getElementById('lanc-submit-btn');
+    btn.innerHTML = '<span class="spinner"></span> Salvando...';
+    btn.disabled = true;
+
+    const tipo = document.querySelector('input[name="tipo"]:checked').value;
+    const valor = parseFloat(document.getElementById('lanc-valor').value);
+    const descricao = document.getElementById('lanc-descricao').value.trim();
+    const categoria = document.getElementById('lanc-categoria').value.trim();
+    const forma_pagamento = document.getElementById('lanc-forma').value;
+    const data = document.getElementById('lanc-data').value;
+
+    const { error } = await sb.from('transactions').insert({
+      user_id: currentUser.id,
+      tipo, valor, descricao, categoria, forma_pagamento, data
+    });
+
+    btn.innerHTML = 'Salvar Lançamento';
+    btn.disabled = false;
+
+    if (error) {
+      showToast('Erro ao salvar: ' + error.message, 'error');
+    } else {
+      showToast('Lançamento salvo!', 'success');
+      closeModal('modal-lancamento');
+      document.getElementById('form-lancamento').reset();
+      document.getElementById('lanc-data').value = todayISO();
+      loadHome();
+      tabLoaded['lancamentos'] = false;
+      if (document.getElementById('tab-lancamentos').classList.contains('active')) {
+        tabLoaded['lancamentos'] = true;
+        loadLancamentos();
+      }
+    }
+  });
+
+  // =====================================================
+  // LANÇAMENTOS TAB
+  // =====================================================
+  async function loadLancamentos() {
+    const { first, last } = monthRange();
+    const container = document.getElementById('lanc-list-container');
+    container.innerHTML = '<div class="loading-overlay"><div class="spinner" style="border-top-color:var(--color-blue);border-color:var(--color-border);"></div></div>';
+
+    const { data, error } = await sb
+      .from('transactions')
+      .select('*')
+      .eq('user_id', currentUser.id)
+      .gte('data', first)
+      .lte('data', last)
+      .order('data', { ascending: false });
+
+    if (error) {
+      container.innerHTML = '<p style="color:var(--color-red);padding:16px;">Erro ao carregar lançamentos.</p>';
+      return;
+    }
+
+    let totalE = 0, totalS = 0;
+    (data || []).forEach(t => {
+      if (t.tipo === 'entrada') totalE += Number(t.valor);
+      else totalS += Number(t.valor);
+    });
+
+    document.getElementById('lanc-total-entradas').textContent = fmt(totalE);
+    document.getElementById('lanc-total-saidas').textContent = fmt(totalS);
+
+    if (!data || data.length === 0) {
+      container.innerHTML = `<div class="empty-state"><div class="icon">📭</div><p>Nenhum lançamento este mês</p></div>`;
+      return;
+    }
+
+    container.innerHTML = data.map(t => `
+      <div class="list-item" id="lanc-${t.id}">
+        <div class="list-item-left">
+          <div class="list-item-main">${escHtml(t.descricao || t.categoria || '—')}</div>
+          <div class="list-item-sub">
+            ${fmtDate(t.data)}
+            ${t.categoria && t.descricao ? ' · ' + escHtml(t.categoria) : ''}
+            ${t.forma_pagamento ? ' · ' + escHtml(t.forma_pagamento) : ''}
+          </div>
+        </div>
+        <div class="list-item-right">
+          <span class="amount ${t.tipo === 'entrada' ? 'green' : 'red'}">
+            ${t.tipo === 'entrada' ? '+' : '-'}${fmt(t.valor)}
+          </span>
+          <button class="btn btn-danger" onclick="deleteLancamento('${t.id}')">✕</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  async function deleteLancamento(id) {
+    if (!confirm('Excluir este lançamento?')) return;
+    const { error } = await sb.from('transactions').delete().eq('id', id).eq('user_id', currentUser.id);
+    if (error) { showToast('Erro ao excluir', 'error'); return; }
+    document.getElementById('lanc-' + id)?.remove();
+    showToast('Lançamento excluído', 'success');
+    loadHome();
+    loadLancamentos();
+  }
+
+  // =====================================================
+  // FIXAS TAB
+  // =====================================================
+  async function loadFixas() {
+    const container = document.getElementById('fixas-list-container');
+    container.innerHTML = '<div class="loading-overlay"><div class="spinner" style="border-top-color:var(--color-blue);border-color:var(--color-border);"></div></div>';
+
+    const { data, error } = await sb
+      .from('fixed_bills')
+      .select('*')
+      .eq('user_id', currentUser.id)
+      .eq('ativo', true)
+      .order('nome');
+
+    if (error) {
+      container.innerHTML = '<p style="color:var(--color-red);padding:16px;">Erro ao carregar contas fixas.</p>';
+      return;
+    }
+
+    if (!data || data.length === 0) {
+      container.innerHTML = `<div class="empty-state"><div class="icon">📄</div><p>Nenhuma conta fixa cadastrada</p></div>`;
+      return;
+    }
+
+    const total = data.reduce((s, r) => s + Number(r.valor), 0);
+
+    container.innerHTML = data.map(r => `
+      <div class="list-item" id="fixa-${r.id}">
+        <div class="list-item-left">
+          <div class="list-item-main">${escHtml(r.nome)}</div>
+          ${r.dia_vencimento ? `<div class="list-item-sub">Vence dia ${r.dia_vencimento}</div>` : ''}
+        </div>
+        <div class="list-item-right">
+          <span class="amount red">${fmt(r.valor)}</span>
+          <button class="btn btn-danger" onclick="deleteFixa('${r.id}')">✕</button>
+        </div>
+      </div>
+    `).join('') + `
+      <div class="divider"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0 0">
+        <span style="font-size:13px;font-weight:700;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.4px">Total</span>
+        <span class="amount red" style="font-size:17px">${fmt(total)}</span>
+      </div>
+    `;
+  }
+
+  document.getElementById('btn-nova-fixa').addEventListener('click', () => openModal('modal-fixa'));
+
+  document.getElementById('form-fixa').addEventListener('submit', async e => {
+    e.preventDefault();
+    const btn = document.getElementById('fixa-submit-btn');
+    btn.innerHTML = '<span class="spinner"></span> Salvando...';
+    btn.disabled = true;
+
+    const nome = document.getElementById('fixa-nome').value.trim();
+    const valor = parseFloat(document.getElementById('fixa-valor').value);
+    const dia_vencimento = document.getElementById('fixa-dia').value || null;
+
+    const { error } = await sb.from('fixed_bills').insert({
+      user_id: currentUser.id, nome, valor, dia_vencimento, ativo: true
+    });
+
+    btn.innerHTML = 'Salvar';
+    btn.disabled = false;
+
+    if (error) { showToast('Erro ao salvar: ' + error.message, 'error'); return; }
+    showToast('Conta fixa salva!', 'success');
+    closeModal('modal-fixa');
+    document.getElementById('form-fixa').reset();
+    loadFixas();
+  });
+
+  async function deleteFixa(id) {
+    if (!confirm('Excluir esta conta fixa?')) return;
+    const { error } = await sb.from('fixed_bills').update({ ativo: false }).eq('id', id).eq('user_id', currentUser.id);
+    if (error) { showToast('Erro ao excluir', 'error'); return; }
+    showToast('Conta fixa removida', 'success');
+    loadFixas();
+  }
+
+  // =====================================================
+  // PARCELADAS TAB
+  // =====================================================
+  async function loadParceladas() {
+    const container = document.getElementById('parceladas-list-container');
+    container.innerHTML = '<div class="loading-overlay"><div class="spinner" style="border-top-color:var(--color-blue);border-color:var(--color-border);"></div></div>';
+
+    const { data, error } = await sb
+      .from('installments')
+      .select('*')
+      .eq('user_id', currentUser.id)
+      .eq('ativo', true)
+      .order('nome');
+
+    if (error) {
+      container.innerHTML = '<p style="color:var(--color-red);padding:16px;">Erro ao carregar parceladas.</p>';
+      return;
+    }
+
+    if (!data || data.length === 0) {
+      container.innerHTML = `<div class="empty-state"><div class="icon">💳</div><p>Nenhuma compra parcelada</p></div>`;
+      return;
+    }
+
+    const total = data.reduce((s, r) => s + Number(r.valor_parcela), 0);
+
+    container.innerHTML = data.map(r => `
+      <div class="list-item" id="parc-${r.id}">
+        <div class="list-item-left">
+          <div class="list-item-main">${escHtml(r.nome)}</div>
+          <div class="list-item-sub">Parcela ${r.parcela_atual}/${r.total_parcelas}</div>
+        </div>
+        <div class="list-item-right">
+          <span class="amount red">${fmt(r.valor_parcela)}</span>
+          <button class="btn btn-danger" onclick="deleteParcelada('${r.id}')">✕</button>
+        </div>
+      </div>
+    `).join('') + `
+      <div class="divider"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0 0">
+        <span style="font-size:13px;font-weight:700;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.4px">Total / mês</span>
+        <span class="amount red" style="font-size:17px">${fmt(total)}</span>
+      </div>
+    `;
+  }
+
+  document.getElementById('btn-nova-parcelada').addEventListener('click', () => openModal('modal-parcelada'));
+
+  document.getElementById('form-parcelada').addEventListener('submit', async e => {
+    e.preventDefault();
+    const btn = document.getElementById('parc-submit-btn');
+    btn.innerHTML = '<span class="spinner"></span> Salvando...';
+    btn.disabled = true;
+
+    const nome = document.getElementById('parc-nome').value.trim();
+    const valor_parcela = parseFloat(document.getElementById('parc-valor').value);
+    const parcela_atual = parseInt(document.getElementById('parc-atual').value);
+    const total_parcelas = parseInt(document.getElementById('parc-total').value);
+
+    const { error } = await sb.from('installments').insert({
+      user_id: currentUser.id, nome, valor_parcela, parcela_atual, total_parcelas, ativo: true
+    });
+
+    btn.innerHTML = 'Salvar';
+    btn.disabled = false;
+
+    if (error) { showToast('Erro ao salvar: ' + error.message, 'error'); return; }
+    showToast('Parcelada salva!', 'success');
+    closeModal('modal-parcelada');
+    document.getElementById('form-parcelada').reset();
+    loadParceladas();
+  });
+
+  async function deleteParcelada(id) {
+    if (!confirm('Excluir esta parcelada?')) return;
+    const { error } = await sb.from('installments').update({ ativo: false }).eq('id', id).eq('user_id', currentUser.id);
+    if (error) { showToast('Erro ao excluir', 'error'); return; }
+    showToast('Parcelada removida', 'success');
+    loadParceladas();
+  }
+
+  // =====================================================
+  // RESUMO TAB
+  // =====================================================
+  const MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+
+  async function loadResumo() {
+    const container = document.getElementById('resumo-container');
+    container.innerHTML = '<div class="loading-overlay"><div class="spinner" style="border-top-color:var(--color-blue);border-color:var(--color-border);"></div></div>';
+
+    const { data, error } = await sb
+      .from('monthly_summary')
+      .select('*')
+      .eq('user_id', currentUser.id)
+      .order('ano', { ascending: false })
+      .order('mes', { ascending: false });
+
+    if (error) {
+      container.innerHTML = '<p style="color:var(--color-red);padding:16px;">Erro ao carregar resumo.</p>';
+      return;
+    }
+
+    if (!data || data.length === 0) {
+      container.innerHTML = `<div class="empty-state"><div class="icon">📊</div><p>Nenhum resumo disponível</p></div>`;
+      return;
+    }
+
+    container.innerHTML = `
+      <div style="overflow-x:auto;">
+        <table class="summary-table">
+          <thead>
+            <tr>
+              <th>Mês/Ano</th>
+              <th>Entrada</th>
+              <th>Economizado</th>
+              <th>% Guardada</th>
+              <th>Imposto</th>
+              <th>Fatura</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${data.map(r => {
+              const pct = r.entrada_total > 0 ? (r.economizado / r.entrada_total * 100).toFixed(1) : '0.0';
+              return `
+                <tr>
+                  <td style="font-weight:600;white-space:nowrap">${MESES[(r.mes||1)-1]} ${r.ano}</td>
+                  <td class="amount green">${fmt(r.entrada_total)}</td>
+                  <td class="amount" style="color:${Number(r.economizado)>=0?'var(--color-green)':'var(--color-red)'}">${fmt(r.economizado)}</td>
+                  <td><span class="badge ${parseFloat(pct)>=20?'badge-green':parseFloat(pct)>=0?'badge-blue':'badge-red'}">${pct}%</span></td>
+                  <td class="amount red">${fmt(r.imposto)}</td>
+                  <td class="amount red">${fmt(r.fatura_cartao)}</td>
+                </tr>
+              `;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  // =====================================================
+  // ESCAPE HTML
+  // =====================================================
+  function escHtml(str) {
+    if (!str) return '';
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  // =====================================================
+  // INIT
+  // =====================================================
+  checkSession();
+</script>
+</body>
+</html>
