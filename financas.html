@@ -249,7 +249,7 @@ function renderAll(){ renderInicio(); renderLancamentos(); renderFixas(); render
 function renderVisao(){
   const el=document.getElementById('tab-visao');
   const {first,last}=currentCycleRange();
-  const today_=today();
+  const today_=todayISO();
 
   // Montar todos os dias do ciclo
   const days=[];
@@ -294,11 +294,11 @@ function renderVisao(){
     const isToday=iso===today_;
 
     // Build detail lines
-    const inLines=entradas.map(t=>`<div class="vg-item green">↑ ${t.descricao||'Entrada'} <b>${R(t.valor)}</b></div>`).join('');
+    const inLines=entradas.map(t=>`<div class="vg-item green">↑ ${t.descricao||'Entrada'} <b>${brl(t.valor)}</b></div>`).join('');
     const outLines=[
-      ...saidasTx.map(t=>`<div class="vg-item red">↓ ${t.descricao||t.categoria||'Gasto'} ${t.forma_pagamento==='cartao'?'💳':'💵'} <b>${R(t.valor)}</b></div>`),
-      ...saidasFixas.map(f=>`<div class="vg-item red">📌 ${f.nome} <b>${R(f.valor)}</b></div>`),
-      ...saidasParc.map(p=>`<div class="vg-item red">💳 ${p.nome} <span class="badge blue">${p.parcela_atual}/${p.total_parcelas}</span> <b>${R(p.valor_parcela)}</b></div>`),
+      ...saidasTx.map(t=>`<div class="vg-item red">↓ ${t.descricao||t.categoria||'Gasto'} ${t.forma_pagamento==='cartao'?'💳':'💵'} <b>${brl(t.valor)}</b></div>`),
+      ...saidasFixas.map(f=>`<div class="vg-item red">📌 ${f.nome} <b>${brl(f.valor)}</b></div>`),
+      ...saidasParc.map(p=>`<div class="vg-item red">💳 ${p.nome} <span class="badge blue">${p.parcela_atual}/${p.total_parcelas}</span> <b>${brl(p.valor_parcela)}</b></div>`),
     ].join('');
 
     return `
@@ -306,9 +306,9 @@ function renderVisao(){
       <div class="vg-header">
         <span class="vg-date">${fmtDay(iso)}${isToday?' <span class="badge blue">Hoje</span>':''}</span>
         <span class="vg-totals">
-          ${sumIn?`<span class="green">+${R(sumIn)}</span>`:''}
-          ${sumOut?`<span class="red">−${R(sumOut)}</span>`:''}
-          <span class="vg-net ${sumIn-sumOut>=0?'green':'red'}">=&nbsp;${R(sumIn-sumOut)}</span>
+          ${sumIn?`<span class="green">+${brl(sumIn)}</span>`:''}
+          ${sumOut?`<span class="red">−${brl(sumOut)}</span>`:''}
+          <span class="vg-net ${sumIn-sumOut>=0?'green':'red'}">=&nbsp;${brl(sumIn-sumOut)}</span>
         </span>
       </div>
       <div class="vg-body">${inLines}${outLines}</div>
@@ -322,9 +322,9 @@ function renderVisao(){
     <div class="card" style="margin-bottom:14px">
       <div style="font-size:12px;color:var(--muted);margin-bottom:8px">Ciclo ${cycleStart} → ${cycleEnd}</div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center">
-        <div><div style="font-size:11px;color:var(--muted)">Entradas</div><div style="font-size:18px;font-weight:800;color:var(--green)">${R(totalIn)}</div></div>
-        <div><div style="font-size:11px;color:var(--muted)">Saídas</div><div style="font-size:18px;font-weight:800;color:var(--red)">${R(totalOut)}</div></div>
-        <div><div style="font-size:11px;color:var(--muted)">Saldo</div><div style="font-size:18px;font-weight:800;color:${totalIn-totalOut>=0?'var(--green)':'var(--red)'}">${R(totalIn-totalOut)}</div></div>
+        <div><div style="font-size:11px;color:var(--muted)">Entradas</div><div style="font-size:18px;font-weight:800;color:var(--green)">${brl(totalIn)}</div></div>
+        <div><div style="font-size:11px;color:var(--muted)">Saídas</div><div style="font-size:18px;font-weight:800;color:var(--red)">${brl(totalOut)}</div></div>
+        <div><div style="font-size:11px;color:var(--muted)">Saldo</div><div style="font-size:18px;font-weight:800;color:${totalIn-totalOut>=0?'var(--green)':'var(--red)'}">${brl(totalIn-totalOut)}</div></div>
       </div>
     </div>
     ${byDay.length===0?'<div class="empty">Nenhum evento neste ciclo ainda.</div>':rows}
