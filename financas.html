@@ -475,14 +475,12 @@ function renderResumo(){
     const pct=(m.entrada_total&&m.economizado)?(m.economizado/m.entrada_total*100):null;
     const col=pct===null?'var(--muted)':(pct>25?'var(--green)':(pct>=15?'#CA8A04':'var(--red)'));
     const pctStr=pct!==null?pct.toFixed(0)+'%':'—';
-    return `<tr>
-      <td>${nomesC[m.mes]}/${m.ano}</td>
+    const vazio=!m.entrada_total;
+    return `<tr onclick="openResumoModal(${m.mes},${m.ano})" style="cursor:pointer" title="Clique para editar">
+      <td><b>${nomesC[m.mes]}/${m.ano}</b>${vazio?' <span class="badge" style="font-size:9px">+</span>':''}</td>
       <td>${brl(m.entrada_total)}</td>
       <td>${brl(m.economizado)}</td>
       <td style="color:${col};font-weight:700">${pctStr}</td>
-      <td>${brl(m.imposto_pago)}</td>
-      <td>${brl(m.fatura_cartao)}</td>
-      <td><button class="del" style="font-size:14px" onclick="openResumoModal(${m.mes},${m.ano})">✏️</button></td>
     </tr>`;
   }).join('');
 
@@ -490,11 +488,15 @@ function renderResumo(){
     <h2 class="page-title">Resumo</h2>
     <div class="section-title">Evolução Mensal</div>
     <div class="card"><div class="chart-box"><canvas id="resumoChart"></canvas></div></div>
-    <div class="section-title">Histórico</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin:18px 0 10px">
+      <span class="section-title" style="margin:0">Histórico</span>
+      <button class="btn-add" style="width:auto;padding:8px 14px;font-size:13px" onclick="openResumoModal(${new Date().getMonth()+1},${new Date().getFullYear()})">+ Cadastrar mês</button>
+    </div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:10px">Toque em qualquer linha para editar</p>
     <div class="card" style="overflow-x:auto">
       <table>
-        <thead><tr><th>Mês</th><th>Entrada</th><th>Economizado</th><th>% Guard.</th><th>Imposto</th><th>Fatura</th><th></th></tr></thead>
-        <tbody>${trs||'<tr><td colspan="7" class="empty">Sem dados.</td></tr>'}</tbody>
+        <thead><tr><th>Mês</th><th>Entrada</th><th>Economizado</th><th>% Guard.</th></tr></thead>
+        <tbody>${trs||'<tr><td colspan="4" class="empty">Sem dados.</td></tr>'}</tbody>
       </table>
     </div>
   `;
