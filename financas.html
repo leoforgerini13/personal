@@ -458,23 +458,34 @@ function renderPatrimonio(){
 
 let resumoChart=null;
 function renderResumo(){
-  const ms=getSummary().filter(m=>m.entrada_total).slice();
-  const chartData=ms.slice().sort((a,b)=> a.ano-b.ano || a.mes-b.mes );
-  const histData=ms.slice().sort((a,b)=> b.ano-a.ano || b.mes-a.mes );
-  const nomes=['','Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  const nomes=['','Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  const nomesC=['','Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+
+  // Todos os 12 meses do ano corrente para a tabela (preenche ausentes com —)
+  const ano=new Date().getFullYear();
+  const allMonths=Array.from({length:12},(_,i)=>{
+    const mes=i+1;
+    return getSummary().find(m=>m.mes===mes && m.ano===ano) || {id:null,mes,ano,entrada_total:null,economizado:null,imposto_pago:null,fatura_cartao:null};
+  });
+
+  const ms=getSummary().filter(m=>m.entrada_total).sort((a,b)=>a.ano-b.ano||a.mes-b.mes);
   const el=document.getElementById('tab-resumo');
-  let trs=histData.map(m=>{
-    const pct=m.entrada_total? (m.economizado/m.entrada_total*100):0;
-    const col=pct>25?'var(--green)':(pct>=15?'#CA8A04':'var(--red)');
+
+  let trs=allMonths.slice().reverse().map(m=>{
+    const pct=(m.entrada_total&&m.economizado)?(m.economizado/m.entrada_total*100):null;
+    const col=pct===null?'var(--muted)':(pct>25?'var(--green)':(pct>=15?'#CA8A04':'var(--red)'));
+    const pctStr=pct!==null?pct.toFixed(0)+'%':'—';
     return `<tr>
-      <td>${nomes[m.mes]}/${m.ano}</td>
+      <td>${nomesC[m.mes]}/${m.ano}</td>
       <td>${brl(m.entrada_total)}</td>
       <td>${brl(m.economizado)}</td>
-      <td style="color:${col};font-weight:700">${pct.toFixed(0)}%</td>
+      <td style="color:${col};font-weight:700">${pctStr}</td>
       <td>${brl(m.imposto_pago)}</td>
       <td>${brl(m.fatura_cartao)}</td>
+      <td><button class="del" style="font-size:14px" onclick="openResumoModal(${m.mes},${m.ano})">✏️</button></td>
     </tr>`;
   }).join('');
+
   el.innerHTML=`
     <h2 class="page-title">Resumo</h2>
     <div class="section-title">Evolução Mensal</div>
@@ -482,20 +493,20 @@ function renderResumo(){
     <div class="section-title">Histórico</div>
     <div class="card" style="overflow-x:auto">
       <table>
-        <thead><tr><th>Mês</th><th>Entrada</th><th>Economizado</th><th>% Guard.</th><th>Imposto</th><th>Fatura</th></tr></thead>
-        <tbody>${trs||'<tr><td colspan="6" class="empty">Sem dados.</td></tr>'}</tbody>
+        <thead><tr><th>Mês</th><th>Entrada</th><th>Economizado</th><th>% Guard.</th><th>Imposto</th><th>Fatura</th><th></th></tr></thead>
+        <tbody>${trs||'<tr><td colspan="7" class="empty">Sem dados.</td></tr>'}</tbody>
       </table>
     </div>
   `;
   if(window.Chart){
     if(resumoChart) resumoChart.destroy();
     const ctx=document.getElementById('resumoChart');
-    const labels=chartData.map(m=>nomes[m.mes]+'/'+String(m.ano).slice(2));
+    const labels=ms.map(m=>nomesC[m.mes]+'/'+String(m.ano).slice(2));
     if(ctx) resumoChart=new Chart(ctx,{
       data:{labels,datasets:[
-        {type:'bar',label:'Entrada',data:chartData.map(m=>m.entrada_total),backgroundColor:'#2563EB',yAxisID:'y'},
-        {type:'bar',label:'Economizado',data:chartData.map(m=>m.economizado),backgroundColor:'#16A34A',yAxisID:'y'},
-        {type:'line',label:'% Guardada',data:chartData.map(m=>m.entrada_total?+(m.economizado/m.entrada_total*100).toFixed(1):0),borderColor:'#0F1623',backgroundColor:'#0F1623',yAxisID:'y1',tension:.3,pointRadius:3}
+        {type:'bar',label:'Entrada',data:ms.map(m=>m.entrada_total),backgroundColor:'#2563EB',yAxisID:'y'},
+        {type:'bar',label:'Economizado',data:ms.map(m=>m.economizado),backgroundColor:'#16A34A',yAxisID:'y'},
+        {type:'line',label:'% Guardada',data:ms.map(m=>m.entrada_total?+(m.economizado/m.entrada_total*100).toFixed(1):0),borderColor:'#0F1623',backgroundColor:'#0F1623',yAxisID:'y1',tension:.3,pointRadius:3}
       ]},
       options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{boxWidth:12,font:{size:11}}}},
         scales:{
@@ -504,6 +515,38 @@ function renderResumo(){
         }}
     });
   }
+}
+
+function openResumoModal(mes,ano){
+  const nomes=['','Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  const ex=getSummary().find(m=>m.mes===mes && m.ano===ano);
+  const v=(field)=>ex&&ex[field]!=null?ex[field]:'';
+  openModal(`
+    <h3>${nomes[mes]} ${ano}</h3>
+    <div class="field"><label>Entrada total (R$)</label><input id="rs-entrada" type="number" step="0.01" inputmode="decimal" placeholder="0,00" value="${v('entrada_total')}"></div>
+    <div class="field"><label>Dinheiro guardado (R$)</label><input id="rs-eco" type="number" step="0.01" inputmode="decimal" placeholder="0,00" value="${v('economizado')}"></div>
+    <div class="field"><label>Imposto pago (R$)</label><input id="rs-imp" type="number" step="0.01" inputmode="decimal" placeholder="0,00" value="${v('imposto_pago')}"></div>
+    <div class="field"><label>Fatura cartão (R$)</label><input id="rs-fat" type="number" step="0.01" inputmode="decimal" placeholder="0,00" value="${v('fatura_cartao')}"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+      <button class="btn-green" style="color:#fff" onclick="saveResumo(${mes},${ano})">Salvar</button>
+    </div>
+  `);
+}
+
+function saveResumo(mes,ano){
+  const parse=id=>{ const v=parseFloat(document.getElementById(id).value); return isNaN(v)?null:v; };
+  const entrada_total=parse('rs-entrada');
+  const economizado=parse('rs-eco');
+  const imposto_pago=parse('rs-imp');
+  const fatura_cartao=parse('rs-fat');
+  const idx=DB.monthly_summary.findIndex(m=>m.mes===mes && m.ano===ano);
+  if(idx>=0){
+    DB.monthly_summary[idx]={...DB.monthly_summary[idx],entrada_total,economizado,imposto_pago,fatura_cartao};
+  } else {
+    DB.monthly_summary.push({id:uid(),mes,ano,entrada_total,economizado,imposto_pago,fatura_cartao});
+  }
+  saveDB(); closeModal(); renderResumo(); toast('Resumo salvo!');
 }
 
 function escapeHtml(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
