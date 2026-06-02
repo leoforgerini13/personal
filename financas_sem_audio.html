@@ -183,16 +183,22 @@ function seed(){
     ['2026-05-22',20168,'Economia de Maio'],['2026-06-22',7500,'Economia de Junho']
   ].map(([data,valor,desc])=>({id:uid(),data,tipo:'aporte',valor,descricao:desc}));
 
-  return {fixas,parceladas,transacoes,monthly_summary,savings};
+  const entradas_fixas=[
+    {id:uid(),nome:'Salário Inpress',valor:10000,dia_recebimento:10,ativo:true}
+  ];
+  return {fixas,parceladas,transacoes,monthly_summary,savings,entradas_fixas};
 }
 
 let DB=null;
 function loadDB(){
   const raw=localStorage.getItem(KEY);
-  if(raw){ try{ DB=JSON.parse(raw); }catch(e){ DB=seed(); saveDB(); } }
+  if(raw){ try{ DB=JSON.parse(raw); migrateDB(); }catch(e){ DB=seed(); saveDB(); } }
   else { DB=seed(); saveDB(); }
 }
 function saveDB(){ localStorage.setItem(KEY,JSON.stringify(DB)); }
+function migrateDB(){
+  if(!DB.entradas_fixas) DB.entradas_fixas=[];
+}
 function resetData(){
   if(confirm('Apagar todos os dados e restaurar os valores iniciais?')){
     DB=seed(); saveDB(); renderAll(); toast('Dados restaurados');
@@ -204,6 +210,7 @@ const getParceladas=()=>DB.parceladas;
 const getTransacoes=()=>DB.transacoes;
 const getSummary=()=>DB.monthly_summary;
 const getSavings=()=>DB.savings;
+const getEntradasFixas=()=>(DB.entradas_fixas||[]);
 
 /* ============ HELPERS ============ */
 function brl(v){ if(v===null||v===undefined||v==='') return '—'; return Number(v).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}); }
@@ -239,7 +246,9 @@ function calcSaldo(){
   // fatura do cartão, então contar as duas faria dupla contagem do mesmo valor.
   const fixasTotal=getFixas().filter(f=>f.ativo && f.nome!=='Cartão').reduce((s,f)=>s+f.valor,0);
   const parcelasTotal=getParceladas().filter(p=>p.ativo).reduce((s,p)=>s+p.valor_parcela,0);
-  return entradas - saidas - fixasTotal - parcelasTotal;
+  // Entradas fixas mensais (salário fixo, etc) somam ao saldo
+  const entradasFixasTotal=getEntradasFixas().filter(f=>f.ativo).reduce((s,f)=>s+f.valor,0);
+  return entradas - saidas - fixasTotal - parcelasTotal + entradasFixasTotal;
 }
 
 /* ============ RENDERING ============ */
@@ -273,7 +282,7 @@ function renderVisao(){
     const saidasFixas=fixas.filter(f=>(f.dia_vencimento||1)===dom);
     // Parcelas no dia de fatura (usamos dia 22 como padrão)
     const saidasParc=dom===22 ? parcelas : [];
-    return {iso,entradas,saidasTx,saidasFixas,saidasParc};
+    return {iso,entradas,saidasTx,saidasFixas,saidasParc,entradasFixasDia};
   }).filter(d=> d.entradas.length||d.saidasTx.length||d.saidasFixas.length||d.saidasParc.length);
 
   const MESES=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
@@ -383,20 +392,44 @@ function renderLancamentos(){
 
 function renderFixas(){
   const fx=getFixas().filter(f=>f.ativo);
-  const total=fx.reduce((s,f)=>s+f.valor,0); // inclui Cartão (apenas listagem)
+  const totalSaidas=fx.reduce((s,f)=>s+f.valor,0);
+  const ef=getEntradasFixas().filter(f=>f.ativo);
+  const totalEntradas=ef.reduce((s,f)=>s+f.valor,0);
+
   const el=document.getElementById('tab-fixas');
-  let rows=fx.slice().sort((a,b)=>a.dia_vencimento-b.dia_vencimento).map(f=>`
+
+  let rowsSaidas=fx.slice().sort((a,b)=>a.dia_vencimento-b.dia_vencimento).map(f=>`
     <div class="row">
       <div class="main"><div class="name">${escapeHtml(f.nome)}</div><div class="subt">Vence dia ${f.dia_vencimento}</div></div>
-      <div class="val">${brl(f.valor)}</div>
+      <div class="val neg">${brl(f.valor)}</div>
       <button class="del" onclick="delFixa('${f.id}')">🗑</button>
     </div>`).join('');
-  if(!fx.length) rows='<div class="empty">Nenhuma conta fixa.</div>';
+  if(!fx.length) rowsSaidas='<div class="empty">Nenhuma conta fixa de saída.</div>';
+
+  let rowsEntradas=ef.slice().sort((a,b)=>a.dia_recebimento-b.dia_recebimento).map(f=>`
+    <div class="row">
+      <div class="main"><div class="name">${escapeHtml(f.nome)}</div><div class="subt">Recebe dia ${f.dia_recebimento}</div></div>
+      <div class="val pos">${brl(f.valor)}</div>
+      <button class="del" onclick="delEntradaFixa('${f.id}')">🗑</button>
+    </div>`).join('');
+  if(!ef.length) rowsEntradas='<div class="empty">Nenhuma entrada fixa cadastrada.</div>';
+
+  const saldo=totalEntradas-totalSaidas;
   el.innerHTML=`
-    <h2 class="page-title">Contas Fixas Mensais</h2>
-    <div class="card summary-card"><span class="muted">Total mensal</span><span class="v">${brl(total)}</span></div>
-    <div class="card">${rows}</div>
-    <button class="btn-add" onclick="openFixaModal()">+ Adicionar</button>
+    <h2 class="page-title">Fixas</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px">
+      <div class="stat"><div class="v pos">${brl(totalEntradas)}</div><div class="l">Entradas fixas</div></div>
+      <div class="stat"><div class="v neg">${brl(totalSaidas)}</div><div class="l">Saídas fixas</div></div>
+      <div class="stat"><div class="v ${saldo>=0?'pos':'neg'}">${brl(saldo)}</div><div class="l">Saldo fixo</div></div>
+    </div>
+
+    <div class="section-title">Entradas Fixas</div>
+    <div class="card">${rowsEntradas}</div>
+    <button class="btn-add" style="background:#16A34A;margin-bottom:18px" onclick="openEntradaFixaModal()">+ Adicionar entrada fixa</button>
+
+    <div class="section-title">Saídas Fixas</div>
+    <div class="card">${rowsSaidas}</div>
+    <button class="btn-add" onclick="openFixaModal()">+ Adicionar saída fixa</button>
   `;
 }
 
@@ -556,6 +589,7 @@ function escapeHtml(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<'
 /* ============ DELETES ============ */
 function delTx(id){ if(confirm('Excluir este lançamento?')){ DB.transacoes=DB.transacoes.filter(t=>t.id!==id); saveDB(); renderInicio(); renderLancamentos(); toast('Lançamento excluído'); } }
 function delFixa(id){ if(confirm('Excluir esta conta fixa?')){ DB.fixas=DB.fixas.filter(f=>f.id!==id); saveDB(); renderFixas(); renderInicio(); toast('Conta excluída'); } }
+function delEntradaFixa(id){ if(confirm('Excluir esta entrada fixa?')){ DB.entradas_fixas=DB.entradas_fixas.filter(f=>f.id!==id); saveDB(); renderFixas(); renderInicio(); toast('Entrada fixa excluída'); } }
 function delParcela(id){ if(confirm('Excluir esta parcela?')){ DB.parceladas=DB.parceladas.filter(p=>p.id!==id); saveDB(); renderParceladas(); renderInicio(); toast('Parcela excluída'); } }
 function delSaving(id){ if(confirm('Excluir esta movimentação?')){ DB.savings=DB.savings.filter(s=>s.id!==id); saveDB(); renderPatrimonio(); toast('Movimentação excluída'); } }
 
@@ -595,6 +629,25 @@ function saveTx(){
   saveDB(); closeModal(); renderInicio(); renderLancamentos(); toast('Lançamento salvo');
 }
 
+function openEntradaFixaModal(){
+  openModal(`
+    <h3>Adicionar Entrada Fixa</h3>
+    <div class="field"><label>Nome</label><input id="ef-nome" type="text" placeholder="Ex: Salário, Freelance"></div>
+    <div class="field"><label>Valor (R$)</label><input id="ef-valor" type="number" step="0.01" inputmode="decimal" placeholder="0,00"></div>
+    <div class="field"><label>Dia de recebimento</label><input id="ef-dia" type="number" min="1" max="31" value="5"></div>
+    <div class="modal-actions"><button class="btn-cancel" onclick="closeModal()">Cancelar</button><button style="background:var(--green);color:#fff" onclick="saveEntradaFixa()">Salvar</button></div>
+  `);
+}
+function saveEntradaFixa(){
+  const nome=document.getElementById('ef-nome').value.trim();
+  const valor=parseFloat(document.getElementById('ef-valor').value);
+  const dia=parseInt(document.getElementById('ef-dia').value)||5;
+  if(!nome){ toast('Informe o nome'); return; }
+  if(!(valor>0)){ toast('Informe um valor válido'); return; }
+  if(!DB.entradas_fixas) DB.entradas_fixas=[];
+  DB.entradas_fixas.push({id:uid(),nome,valor,dia_recebimento:dia,ativo:true});
+  saveDB(); closeModal(); renderFixas(); renderInicio(); toast('Entrada fixa adicionada!');
+}
 function openFixaModal(){
   openModal(`
     <h3>Adicionar Conta Fixa</h3>
