@@ -318,6 +318,51 @@
     .hidden { display: none !important; }
     ::-webkit-scrollbar { width: 5px; height: 5px; }
     ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 3px; }
+
+    /* ─────────── Mobile elements (hidden on desktop) ─────────── */
+    .bottom-nav, .fab, .fab-sheet { display: none; }
+
+    /* ─────────── Bottom Nav ─────────── */
+    .bottom-nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 4px 0; background: none; border: none; cursor: pointer; color: var(--text-faint); transition: color 0.15s; font-family: inherit; }
+    .bottom-nav-item.active { color: #4F46E5; }
+    .bottom-nav-icon { font-size: 20px; line-height: 1; }
+    .bottom-nav-label { font-size: 10px; font-weight: 600; letter-spacing: 0.02em; }
+
+    /* ─────────── FAB ─────────── */
+    .fab { position: fixed; bottom: calc(62px + max(8px, env(safe-area-inset-bottom))); right: 20px; width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #4F46E5, #7C3AED); color: #fff; font-size: 26px; border: none; cursor: pointer; box-shadow: 0 4px 20px rgba(79,70,229,0.45); align-items: center; justify-content: center; z-index: 150; transition: transform 0.18s, box-shadow 0.18s; }
+    .fab:active { transform: scale(0.92); box-shadow: 0 2px 10px rgba(79,70,229,0.3); }
+    .fab-sheet { position: fixed; bottom: calc(120px + max(8px, env(safe-area-inset-bottom))); right: 16px; background: var(--surface); border-radius: 16px; box-shadow: var(--shadow-lg); border: 1px solid var(--border); overflow: hidden; z-index: 149; transform-origin: bottom right; min-width: 210px; }
+    .fab-sheet:not(.hidden) { animation: fabIn 0.18s ease; }
+    @keyframes fabIn { from { opacity:0; transform: scale(0.85) translateY(8px); } to { opacity:1; transform: scale(1) translateY(0); } }
+    .fab-action { display: flex; align-items: center; gap: 12px; padding: 14px 18px; border: none; background: transparent; width: 100%; text-align: left; font-size: 14px; font-weight: 600; color: var(--text); cursor: pointer; font-family: inherit; border-bottom: 1px solid var(--border-subtle); transition: background 0.1s; }
+    .fab-action:last-child { border-bottom: none; }
+    .fab-action:active { background: var(--bg); }
+    .fab-icon { font-size: 16px; width: 22px; text-align: center; flex-shrink: 0; }
+
+    /* ─────────── Mobile (<600px) ─────────── */
+    @media (max-width: 600px) {
+      header { padding: 0 16px; height: 54px; }
+      .header-date-chip { display: none; }
+      .header-greeting { display: none; }
+      .header-actions .btn { display: none; }
+      .container { padding: 14px 14px 90px; }
+      .stats-bar { gap: 10px; margin-bottom: 18px; }
+      .stat-card { padding: 14px 16px; }
+      .stat-num { font-size: 26px; }
+      .tabs { display: none; }
+      .dl-card:hover .dl-actions, .dl-actions { opacity: 1; }
+      .dl-actions .icon-btn { padding: 7px 11px; }
+      .kanban-header > div:last-child { width: 100%; }
+      .tl2-nav .btn { padding: 6px 12px; font-size: 12px; }
+      .overlay { align-items: flex-end; padding: 0; }
+      .modal { border-radius: 20px 20px 0 0; max-height: 88vh; max-width: 100%; }
+      .modal-head { padding: 16px 20px 14px; }
+      .modal-body { padding: 16px 20px; }
+      .modal-foot { padding: 14px 20px; flex-wrap: wrap; gap: 8px; }
+      .bottom-nav { display: flex; position: fixed; bottom: 0; left: 0; right: 0; background: var(--surface); border-top: 1px solid var(--border); padding: 6px 0 max(8px, env(safe-area-inset-bottom)); z-index: 200; box-shadow: 0 -2px 16px rgba(15,22,35,0.08); }
+      .fab { display: flex; }
+      .fab-sheet:not(.hidden) { display: block; }
+    }
   </style>
 </head>
 <body>
@@ -393,6 +438,34 @@
     </div>
     <div class="projects-grid" id="projectsGrid"></div>
   </div>
+</div>
+
+<!-- ══════════════ Mobile: Bottom Nav + FAB ══════════════ -->
+<nav class="bottom-nav" id="bottomNav">
+  <button class="bottom-nav-item active" data-tab="deadlines" onclick="setTab('deadlines')">
+    <span class="bottom-nav-icon">📋</span>
+    <span class="bottom-nav-label">Prazos</span>
+  </button>
+  <button class="bottom-nav-item" data-tab="timeline" onclick="setTab('timeline')">
+    <span class="bottom-nav-icon">📆</span>
+    <span class="bottom-nav-label">Timeline</span>
+  </button>
+  <button class="bottom-nav-item" data-tab="kanban" onclick="setTab('kanban')">
+    <span class="bottom-nav-icon">🗂</span>
+    <span class="bottom-nav-label">Semana</span>
+  </button>
+  <button class="bottom-nav-item" data-tab="projects" onclick="setTab('projects')">
+    <span class="bottom-nav-icon">📁</span>
+    <span class="bottom-nav-label">Projetos</span>
+  </button>
+</nav>
+
+<button class="fab" id="fabBtn" onclick="toggleFabSheet()">+</button>
+<div class="fab-sheet hidden" id="fabSheet">
+  <button class="fab-action" onclick="closeFabSheet();openImportModal()"><span class="fab-icon">↑</span>Importar prazos</button>
+  <button class="fab-action" onclick="closeFabSheet();openDeadlineModal()"><span class="fab-icon">⏰</span>Novo prazo</button>
+  <button class="fab-action" onclick="closeFabSheet();openTaskModal(null,'todo')"><span class="fab-icon">✓</span>Nova tarefa</button>
+  <button class="fab-action" onclick="closeFabSheet();openProjectModal()"><span class="fab-icon">📁</span>Novo projeto</button>
 </div>
 
 <!-- ══════════════ Modal: Importar ══════════════ -->
@@ -615,6 +688,7 @@ function setTab(tab) {
   if (tab==='timeline') renderTimeline();
   if (tab==='projects') renderProjects();
   if (tab==='kanban')   renderKanban();
+  document.querySelectorAll('.bottom-nav-item').forEach(el=>el.classList.toggle('active',el.dataset.tab===tab));
 }
 
 // ══════════════════════════════════════════════════════════
@@ -958,6 +1032,13 @@ function confirmImport(){document.querySelectorAll('#impPreviewList input[type=c
 // ══════════════════════════════════════════════════════════
 ['importModal','taskModal','projectModal','deadlineModal'].forEach(id=>{document.getElementById(id).addEventListener('click',e=>{if(e.target.id!==id)return;if(id==='importModal')closeImportModal();if(id==='taskModal')closeTaskModal();if(id==='projectModal')closeProjectModal();if(id==='deadlineModal')closeDeadlineModal();});});
 document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;closeImportModal();closeTaskModal();closeProjectModal();closeDeadlineModal();});
+
+// ══════════════════════════════════════════════════════════
+// Mobile FAB
+// ══════════════════════════════════════════════════════════
+function toggleFabSheet(){document.getElementById('fabSheet').classList.toggle('hidden');}
+function closeFabSheet(){document.getElementById('fabSheet').classList.add('hidden');}
+document.addEventListener('click',e=>{if(!e.target.closest('#fabBtn')&&!e.target.closest('#fabSheet'))closeFabSheet();});
 
 // ══════════════════════════════════════════════════════════
 // Init
