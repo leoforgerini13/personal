@@ -587,8 +587,41 @@ function renderInicio(){
       </div>
     </div>
     ${block5020}
+    ${renderCatSpendBlock()}
     <button class="btn-add" onclick="openTxModal()">+ Lançar Gasto</button>
   `;
+}
+
+function renderCatSpendBlock(){
+  const {first,last}=currentCycleRange();
+  const saidas=getTransacoes().filter(t=>t.tipo==='saida'&&t.data>=first&&t.data<=last);
+  if(!saidas.length) return '';
+  const cats=getCategorias();
+  // agrupa por categoria (inclui "sem categoria")
+  const map={};
+  saidas.forEach(t=>{
+    const k=t.categoria||'Sem categoria';
+    map[k]=(map[k]||0)+t.valor;
+  });
+  const total=saidas.reduce((s,t)=>s+t.valor,0);
+  const sorted=Object.entries(map).sort((a,b)=>b[1]-a[1]);
+  const rows=sorted.map(([nome,val])=>{
+    const pct=Math.round(val/total*100);
+    const cat=cats.find(c=>c.nome===nome);
+    const cor=cat?cat.cor:'#64748B';
+    const ic=cat?cat.icone:'📦';
+    return `<div style="margin-bottom:10px">
+      <div style="display:flex;align-items:center;justify-content:space-between;font-size:13px;margin-bottom:3px">
+        <span><span style="margin-right:5px">${ic}</span><b>${escapeHtml(nome)}</b></span>
+        <span style="color:var(--text2)">${brl(val)} <b style="color:var(--text)">(${pct}%)</b></span>
+      </div>
+      <div class="rule-bar"><div class="rule-bar-fill" style="width:${pct}%;background:${cor}"></div></div>
+    </div>`;
+  }).join('');
+  return `<div class="card">
+    <div class="section-head" style="margin-top:0"><span class="section-title">Gasto por categoria</span><span class="muted" style="font-size:11px">Ciclo atual · ${brl(total)}</span></div>
+    ${rows}
+  </div>`;
 }
 
 /* ============ RENDER: LANÇAMENTOS ============ */
@@ -885,7 +918,25 @@ function renderResumo(){
     </tr>`;
   }).join('');
 
+  // Consolidado anual
+  const anoAtual=new Date().getFullYear();
+  const mesesAno=getSummary().filter(m=>m.ano===anoAtual);
+  const anoEntrada=mesesAno.reduce((s,m)=>s+(m.entrada_total||0),0);
+  const anoEco=mesesAno.reduce((s,m)=>s+(m.economizado||0),0);
+  const anoTaxaMedia=mesesAno.filter(m=>m.entrada_total&&m.economizado!=null).reduce((acc,m,_,arr)=>acc+(m.economizado/m.entrada_total*100)/arr.length,0);
+  const anoBlock=anoEntrada>0?`<div class="card" style="margin-bottom:14px">
+    <div class="section-head" style="margin-top:0"><span class="section-title">Consolidado ${anoAtual}</span><span class="tag tag-accent">${mesesAno.filter(m=>m.entrada_total).length} meses</span></div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;text-align:center">
+      <div><div style="font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Entradas no ano</div><div style="font-size:22px;font-weight:800;color:var(--pos)">${brl(anoEntrada)}</div></div>
+      <div><div style="font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Economizado no ano</div><div style="font-size:22px;font-weight:800;color:var(--pos)">${brl(anoEco)}</div></div>
+      <div><div style="font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Taxa média anual</div><div style="font-size:22px;font-weight:800;color:${anoTaxaMedia>=20?'var(--pos)':(anoTaxaMedia>=10?'var(--accent)':'var(--neg)')}">${anoTaxaMedia.toFixed(1)}%</div></div>
+    </div>
+    <div class="prog" style="margin-top:12px;height:10px"><div style="width:${Math.min(100,Math.round(anoEco/anoEntrada*100))}%;background:var(--accent)"></div></div>
+    <div style="font-size:11px;color:var(--text2);margin-top:5px">Poupança sobre entrada total: ${(anoEco/anoEntrada*100).toFixed(1)}%</div>
+  </div>`:'';
+
   el.innerHTML=`
+    ${anoBlock}
     ${avgRate!==null?`<div class="dash-grid3" style="margin-bottom:14px">
       <div class="stat-card"><div class="sc-label">Taxa de poupança média</div><div class="sc-val" style="color:${avgRate>=20?'var(--pos)':(avgRate>=10?'var(--accent)':'var(--neg)')}">${avgRate.toFixed(1)}%</div><div class="sc-sub">meta: 20%</div></div>
       <div class="stat-card"><div class="sc-label">Total economizado</div><div class="sc-val pos">${brl(totalEco)}</div></div>
