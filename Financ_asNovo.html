@@ -123,7 +123,7 @@ th{color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase}
       <span>Finanças</span>
     </div>
     <div class="spacer"></div>
-    <button class="btn-reset" onclick="resetData()">Resetar dados</button>
+    <button class="btn-reset" onclick="openBackupModal()">⚙️ Dados</button>
   </div>
 </header>
 
@@ -168,9 +168,9 @@ function seed(){
     ['Sousmiles',388,16,18],['Moletom Corinthians',250,2,2],['Lacoste',200,2,2]
   ].map(([nome,vp,pa,tp])=>({id:uid(),nome,valor_parcela:vp,parcela_atual:pa,total_parcelas:tp,ativo:true}));
 
-  const transacoes=[
-    {id:uid(),data:'2026-06-10',tipo:'entrada',valor:10000,descricao:'Salário Inpress',categoria:'Salário',forma_pagamento:'dinheiro_pix'}
-  ];
+  // Sem lançamentos avulsos no seed: o salário é uma ENTRADA FIXA (recorrente),
+  // não uma transação, para não contar em dobro no saldo do ciclo.
+  const transacoes=[];
 
   const monthly_summary=[
     [1,2026,18000,2950],[2,2026,18000,4200],[3,2026,20500,6364],
@@ -266,24 +266,25 @@ function renderVisao(){
   const endD=new Date(last+'T12:00:00');
   while(d<=endD){ days.push(d.toISOString().slice(0,10)); d=new Date(d.getTime()+86400000); }
 
-  // Fixas (sem Cartão) — distribuídas pelo dia de vencimento ou dia 1
+  // Fixas de saída (sem "Cartão" — as parcelas já representam a fatura do cartão)
   const fixas=getFixas().filter(f=>f.ativo && f.nome!=='Cartão');
-  // Parcelas ativas
+  // Entradas fixas (salário etc.) — distribuídas no dia de recebimento dentro do ciclo
+  const entradasFixas=getEntradasFixas().filter(f=>f.ativo);
+  // Parcelas ativas (aparecem no dia 22, fechamento do cartão)
   const parcelas=DB.parceladas.filter(p=>Number(p.parcela_atual)<=Number(p.total_parcelas));
-  // Transações do ciclo
+  // Transações avulsas do ciclo
   const txs=DB.transacoes.filter(t=>t.data>=first && t.data<=last);
 
-  // Para cada dia, calcular entradas e saídas
+  // Para cada dia do ciclo, agrupar entradas e saídas (avulsas + recorrentes)
   const byDay=days.map(iso=>{
-    const entradas=txs.filter(t=>t.data===iso && t.tipo==='entrada');
-    const saidasTx=txs.filter(t=>t.data===iso && t.tipo==='saida');
-    // Fixas com vencimento nesse dia
-    const dom=parseInt(iso.slice(8));
-    const saidasFixas=fixas.filter(f=>(f.dia_vencimento||1)===dom);
-    // Parcelas no dia de fatura (usamos dia 22 como padrão)
-    const saidasParc=dom===22 ? parcelas : [];
+    const dom=parseInt(iso.slice(8));                                            // dia do mês (1-31)
+    const entradas=txs.filter(t=>t.data===iso && t.tipo==='entrada');            // entradas avulsas
+    const saidasTx=txs.filter(t=>t.data===iso && t.tipo==='saida');              // gastos avulsos
+    const saidasFixas=fixas.filter(f=>(f.dia_vencimento||1)===dom);              // contas fixas que vencem hoje
+    const entradasFixasDia=entradasFixas.filter(f=>(f.dia_recebimento||1)===dom);// entradas fixas recebidas hoje
+    const saidasParc=dom===22 ? parcelas : [];                                   // parcelas no fechamento (dia 22)
     return {iso,entradas,saidasTx,saidasFixas,saidasParc,entradasFixasDia};
-  }).filter(d=> d.entradas.length||d.saidasTx.length||d.saidasFixas.length||d.saidasParc.length);
+  }).filter(d=> d.entradas.length||d.saidasTx.length||d.saidasFixas.length||d.saidasParc.length||d.entradasFixasDia.length);
 
   const MESES=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
   const fmtDay=iso=>{
@@ -293,8 +294,9 @@ function renderVisao(){
 
   let totalIn=0,totalOut=0;
 
-  const rows=byDay.map(({iso,entradas,saidasTx,saidasFixas,saidasParc})=>{
-    const sumIn=entradas.reduce((s,t)=>s+t.valor,0);
+  const rows=byDay.map(({iso,entradas,saidasTx,saidasFixas,saidasParc,entradasFixasDia})=>{
+    // Entradas do dia = avulsas + entradas fixas recebidas nesse dia
+    const sumIn=entradas.reduce((s,t)=>s+t.valor,0)+entradasFixasDia.reduce((s,f)=>s+f.valor,0);
     const sumOutTx=saidasTx.reduce((s,t)=>s+t.valor,0);
     const sumOutFx=saidasFixas.reduce((s,f)=>s+f.valor,0);
     const sumOutPc=saidasParc.reduce((s,p)=>s+p.valor_parcela,0);
@@ -302,8 +304,11 @@ function renderVisao(){
     totalIn+=sumIn; totalOut+=sumOut;
     const isToday=iso===today_;
 
-    // Build detail lines
-    const inLines=entradas.map(t=>`<div class="vg-item green">↑ ${t.descricao||'Entrada'} <b>${brl(t.valor)}</b></div>`).join('');
+    // Linhas de detalhe — entradas (avulsas + fixas com 💰) e saídas
+    const inLines=[
+      ...entradas.map(t=>`<div class="vg-item green">↑ ${escapeHtml(t.descricao||'Entrada')} <b>${brl(t.valor)}</b></div>`),
+      ...entradasFixasDia.map(f=>`<div class="vg-item green">💰 ${escapeHtml(f.nome)} (fixa) <b>${brl(f.valor)}</b></div>`),
+    ].join('');
     const outLines=[
       ...saidasTx.map(t=>`<div class="vg-item red">↓ ${t.descricao||t.categoria||'Gasto'} ${t.forma_pagamento==='cartao'?'💳':'💵'} <b>${brl(t.valor)}</b></div>`),
       ...saidasFixas.map(f=>`<div class="vg-item red">📌 ${f.nome} <b>${brl(f.valor)}</b></div>`),
@@ -733,13 +738,99 @@ document.querySelectorAll('.nav-in button').forEach(b=>{
 /* ============ AUDIO + BANNER ============ */
 function playAudio(){ const a=document.getElementById('sccp-audio'); if(a) a.play().catch(()=>{}); }
 function initBannerAudio(){
-  playAudio();
   const banner=document.getElementById('banner');
+  // Banner/áudio alvinegro: aparece só uma vez por sessão e é dispensável (sem autoplay insistente)
+  if(sessionStorage.getItem('banner_shown')){ if(banner) banner.style.display='none'; return; }
+  sessionStorage.setItem('banner_shown','1');
+  playAudio();
   setTimeout(()=>{ banner.style.opacity='0'; setTimeout(()=>banner.style.display='none',900); },3000);
-  // fallback: browsers may block autoplay until a user gesture
-  const once=()=>{ playAudio(); document.removeEventListener('click',once); document.removeEventListener('touchstart',once); };
-  document.addEventListener('click',once,{once:true});
-  document.addEventListener('touchstart',once,{once:true});
+  // toque no banner também dispensa na hora
+  if(banner) banner.addEventListener('click',()=>{ banner.style.opacity='0'; setTimeout(()=>banner.style.display='none',400); });
+}
+
+/* ============ BACKUP: EXPORTAR / IMPORTAR ============ */
+// Baixa um arquivo gerado em memória (sem servidor).
+function downloadFile(filename, content, mime){
+  const blob=new Blob([content],{type:mime});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download=filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+
+// Exporta TODO o banco como JSON (backup completo, reimportável).
+function exportJSON(){
+  downloadFile('financas-backup-'+todayISO()+'.json', JSON.stringify(DB,null,2), 'application/json');
+  toast('Backup .json baixado');
+}
+
+// Escapa um campo para CSV (aspas, ponto-e-vírgula, quebra de linha).
+function csvEscape(v){
+  if(v==null) return '';
+  const s=String(v);
+  return /[",\n;]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s;
+}
+// Exporta os lançamentos em CSV (separador ';', vírgula decimal, BOM p/ Excel).
+function exportCSV(){
+  const header=['data','tipo','valor','descricao','categoria','forma_pagamento'];
+  const lines=[header.join(';')];
+  getTransacoes().slice().sort((a,b)=>a.data.localeCompare(b.data)).forEach(t=>{
+    lines.push([t.data,t.tipo,String(t.valor).replace('.',','),t.descricao,t.categoria,t.forma_pagamento].map(csvEscape).join(';'));
+  });
+  downloadFile('lancamentos-'+todayISO()+'.csv', '﻿'+lines.join('\n'), 'text/csv;charset=utf-8');
+  toast('Lançamentos .csv baixados');
+}
+
+// Importa um backup .json — valida, confirma e SÓ ENTÃO substitui (nunca apaga silenciosamente).
+function importJSON(){
+  const input=document.createElement('input');
+  input.type='file'; input.accept='application/json,.json';
+  input.onchange=()=>{
+    const file=input.files && input.files[0];
+    if(!file) return;
+    const reader=new FileReader();
+    reader.onload=()=>{
+      let data;
+      try{ data=JSON.parse(reader.result); }
+      catch(e){ alert('Arquivo inválido: não é um JSON legível.'); return; }
+      // Validação básica: objeto com ao menos uma das coleções esperadas
+      const cols=['fixas','parceladas','transacoes','monthly_summary','savings','entradas_fixas'];
+      if(typeof data!=='object' || data===null || !cols.some(k=>Array.isArray(data[k]))){
+        alert('Arquivo inválido: não parece um backup do Finanças.'); return;
+      }
+      const resumo='Importar este backup vai SUBSTITUIR seus dados atuais.\n\n'+
+        '• '+((data.transacoes||[]).length)+' lançamentos\n'+
+        '• '+((data.fixas||[]).length)+' contas fixas\n'+
+        '• '+((data.entradas_fixas||[]).length)+' entradas fixas\n'+
+        '• '+((data.parceladas||[]).length)+' parceladas\n'+
+        '• '+((data.savings||[]).length)+' movimentações de patrimônio\n\n'+
+        'Deseja continuar?';
+      if(!confirm(resumo)) return;
+      // Reconstrói garantindo todas as coleções; migrateDB preenche campos novos.
+      DB={
+        fixas:data.fixas||[], parceladas:data.parceladas||[], transacoes:data.transacoes||[],
+        monthly_summary:data.monthly_summary||[], savings:data.savings||[], entradas_fixas:data.entradas_fixas||[]
+      };
+      migrateDB(); saveDB(); renderAll(); closeModal();
+      toast('Backup importado com sucesso');
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
+
+// Central de dados/backup (acessível pelo botão "⚙️ Dados" no topo).
+function openBackupModal(){
+  openModal(`
+    <h3>Dados & Backup</h3>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:14px">Seus dados ficam só neste navegador. Exporte um backup de tempos em tempos para não perder nada.</p>
+    <button class="btn-add" style="background:var(--green);margin-bottom:8px" onclick="exportJSON()">⬇️ Exportar backup (.json)</button>
+    <button class="btn-add" style="margin-bottom:8px" onclick="exportCSV()">📄 Exportar lançamentos (.csv)</button>
+    <button class="btn-add" style="background:#0F1623;margin-bottom:16px" onclick="importJSON()">⬆️ Importar backup (.json)</button>
+    <button class="btn-add" style="background:var(--red)" onclick="closeModal();resetData()">🗑️ Resetar para dados iniciais</button>
+    <div class="modal-actions" style="margin-top:14px"><button class="btn-cancel" onclick="closeModal()">Fechar</button></div>
+  `);
 }
 
 /* ============ INIT ============ */
