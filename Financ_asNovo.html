@@ -3,189 +3,221 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Finanças</title>
-<!-- PWA / Adicionar à tela inicial (funciona ao abrir via http/https; offline já garantido pelo localStorage) -->
-<meta name="theme-color" content="#0F1623">
+<title>Finanças · SCCP</title>
+<meta name="theme-color" content="#0A0A0A">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Finanças">
-<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Crect width='180' height='180' fill='%230F1623'/%3E%3Ccircle cx='90' cy='90' r='70' fill='none' stroke='%23fff' stroke-width='8'/%3E%3Ctext x='90' y='104' text-anchor='middle' font-size='44' fill='%23fff' font-family='sans-serif' font-weight='bold'%3ESCCP%3C/text%3E%3C/svg%3E">
-<link rel="manifest" href='data:application/json,{"name":"Finan%C3%A7as","short_name":"Finan%C3%A7as","start_url":".","display":"standalone","background_color":"%230F1623","theme_color":"%230F1623"}'>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
 <style>
+/* ── Design tokens ─────────────────────────────────────────── */
 :root{
-  /* Cores de marca (fixas nos dois temas) */
-  --navy:#0F1623; --green:#16A34A; --red:#DC2626; --blue:#2563EB;
-  /* Superfícies / texto (TEMA CLARO) */
-  --bg:#F1F5F9; --card:#FFFFFF; --field-bg:#FFFFFF; --text:#0F1623; --muted:#64748B;
-  --border:#E2E8F0;
-  /* Escala de espaçamento, raios e sombras (design tokens) */
-  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:24px;
-  --r-lg:16px; --r-sm:10px;
-  --shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);
+  --accent:#F0B429;
+  --pos:#22C55E; --neg:#EF4444;
+  --sidebar-w:220px;
+  /* Light */
+  --bg:#F2F2F2; --surface:#FFFFFF; --surface2:#F7F7F7;
+  --text:#0A0A0A; --text2:#555; --border:#E0E0E0;
+  --shadow:0 1px 3px rgba(0,0,0,.07),0 1px 2px rgba(0,0,0,.04);
 }
-/* TEMA ESCURO — automático pelo sistema, a menos que o usuário force claro */
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){
-    --bg:#0B1220; --card:#151B26; --field-bg:#1B2330; --text:#E5E9F0; --muted:#94A3B8;
-    --border:#26303D; --shadow:0 1px 3px rgba(0,0,0,.45);
-  }
-}
-/* TEMA ESCURO — forçado manualmente pelo toggle */
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0A0A0A; --surface:#161616; --surface2:#1C1C1C;
+  --text:#F2F2F2; --text2:#888; --border:#2A2A2A;
+  --shadow:0 1px 3px rgba(0,0,0,.5);
+}}
 :root[data-theme="dark"]{
-  --bg:#0B1220; --card:#151B26; --field-bg:#1B2330; --text:#E5E9F0; --muted:#94A3B8;
-  --border:#26303D; --shadow:0 1px 3px rgba(0,0,0,.45);
+  --bg:#0A0A0A; --surface:#161616; --surface2:#1C1C1C;
+  --text:#F2F2F2; --text2:#888; --border:#2A2A2A;
+  --shadow:0 1px 3px rgba(0,0,0,.5);
 }
-/* Utilitários (consolidam style="" inline repetidos) */
-.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s2);text-align:center}
-.cap{font-size:11px;color:var(--muted)}
-.row-between{display:flex;align-items:center;justify-content:space-between;gap:var(--s2)}
-.muted-note{font-size:12px;color:var(--muted);margin-bottom:10px}
-.big-num{font-size:18px;font-weight:800}
+/* ── Reset ─────────────────────────────────────────────────── */
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);padding-bottom:80px;line-height:1.4}
-.wrap{max-width:640px;margin:0 auto}
-/* Header */
-header{position:sticky;top:0;z-index:50;background:var(--navy);color:#fff}
-.header-in{max-width:640px;margin:0 auto;display:flex;align-items:center;gap:10px;padding:12px 16px}
-.brand{display:flex;align-items:center;gap:8px;font-weight:700;font-size:18px}
-.header-in .spacer{flex:1}
-.btn-reset{background:rgba(255,255,255,.12);color:#fff;border:none;border-radius:8px;padding:6px 10px;font-size:12px;cursor:pointer}
-/* Banner */
-#banner{position:fixed;top:0;left:0;right:0;z-index:200;background:var(--navy);color:#fff;text-align:center;padding:16px;font-weight:700;font-size:18px;letter-spacing:1px;transition:opacity .8s;border-bottom:3px solid #fff}
-/* Toast */
-#toast{position:fixed;top:-100px;left:50%;transform:translateX(-50%);z-index:300;background:var(--navy);color:#fff;padding:12px 20px;border-radius:10px;box-shadow:0 6px 20px rgba(0,0,0,.25);transition:top .35s;font-size:14px;max-width:90%}
-#toast.show{top:16px}
-/* Layout */
-main{padding:16px}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.4}
+/* ── Layout: sidebar + main ────────────────────────────────── */
+.layout{display:flex;min-height:100vh}
+/* ── Sidebar ────────────────────────────────────────────────── */
+.sidebar{
+  width:var(--sidebar-w);flex:none;
+  background:#0A0A0A;color:#F2F2F2;
+  display:flex;flex-direction:column;
+  position:fixed;top:0;left:0;bottom:0;z-index:60;
+  transition:transform .25s;
+}
+.sb-brand{display:flex;align-items:center;gap:10px;padding:20px 16px 16px;border-bottom:1px solid #1E1E1E}
+.sb-brand img{width:32px;height:32px;object-fit:contain;border-radius:4px}
+.sb-brand span{font-weight:800;font-size:16px;letter-spacing:.5px}
+.sb-nav{flex:1;padding:12px 8px;display:flex;flex-direction:column;gap:2px}
+.sb-nav button{
+  display:flex;align-items:center;gap:10px;
+  width:100%;background:none;border:none;
+  color:#888;font-size:14px;font-weight:600;
+  padding:10px 12px;border-radius:8px;cursor:pointer;
+  text-align:left;transition:background .15s,color .15s;
+}
+.sb-nav button .sb-ic{font-size:16px;width:20px;text-align:center}
+.sb-nav button:hover{background:#1A1A1A;color:#F2F2F2}
+.sb-nav button.active{background:var(--accent);color:#0A0A0A}
+.sb-nav button.active .sb-ic{color:#0A0A0A}
+.sb-foot{padding:12px 8px;border-top:1px solid #1E1E1E;display:flex;gap:6px}
+.sb-foot button{flex:1;background:#1A1A1A;color:#888;border:none;border-radius:8px;padding:8px;font-size:12px;cursor:pointer}
+.sb-foot button:hover{color:#F2F2F2}
+/* ── Sidebar overlay (mobile) ───────────────────────────────── */
+.sb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:59}
+/* ── Main content ───────────────────────────────────────────── */
+.main-wrap{flex:1;margin-left:var(--sidebar-w);min-height:100vh;display:flex;flex-direction:column}
+/* ── Mobile header ──────────────────────────────────────────── */
+.mob-header{display:none;position:sticky;top:0;z-index:50;background:#0A0A0A;color:#F2F2F2;padding:12px 16px;align-items:center;gap:10px}
+.mob-header .mob-title{flex:1;font-weight:700;font-size:16px}
+.mob-btn{background:rgba(255,255,255,.12);color:#F2F2F2;border:none;border-radius:8px;padding:7px 10px;font-size:14px;cursor:pointer}
+/* ── Pages ──────────────────────────────────────────────────── */
+main{padding:20px;max-width:1100px;width:100%}
 .tab-page{display:none}
-.tab-page.active{display:block}
-.card{background:var(--card);border-radius:var(--r-lg);box-shadow:var(--shadow);padding:16px;margin-bottom:14px}
-h2.page-title{font-size:20px;margin-bottom:14px}
-.section-title{font-size:15px;font-weight:700;margin:18px 0 10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
-/* Hero */
-.hero{background:var(--navy);color:#fff;border-radius:var(--r-lg);padding:22px;margin-bottom:14px}
-.hero .label{font-size:14px;opacity:.8}
-.hero .big{font-size:52px;font-weight:800;line-height:1.1;margin:6px 0}
-.hero .sub{font-size:13px;opacity:.7}
-.pos{color:var(--green)} .neg{color:var(--red)}
-/* Stat grid */
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
-.stat{background:var(--card);border-radius:var(--r-sm);box-shadow:var(--shadow);padding:12px;text-align:center}
-.stat .v{font-size:18px;font-weight:700}
-.stat .l{font-size:11px;color:var(--muted);margin-top:2px}
-/* Buttons */
-.btn{display:block;width:100%;border:none;border-radius:var(--r-sm);padding:15px;font-size:16px;font-weight:700;cursor:pointer}
-.btn-green{background:var(--green);color:#fff}
-.btn-blue{background:var(--blue);color:#fff}
-.btn-add{background:var(--blue);color:#fff;border:none;border-radius:var(--r-sm);padding:12px;font-size:15px;font-weight:600;width:100%;cursor:pointer;margin-top:8px}
-/* Rows / list */
-.row{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--border)}
+.tab-page.active{display:block;animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+/* ── Cards ──────────────────────────────────────────────────── */
+.card{background:var(--surface);border-radius:12px;box-shadow:var(--shadow);padding:16px;margin-bottom:14px}
+.card-dark{background:#0A0A0A;color:#F2F2F2;border-radius:12px;padding:20px;margin-bottom:14px}
+/* ── Dashboard grid ─────────────────────────────────────────── */
+.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.dash-grid .span2{grid-column:1/-1}
+.dash-grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:14px}
+/* ── Stat cards ─────────────────────────────────────────────── */
+.stat-card{background:var(--surface);border-radius:12px;box-shadow:var(--shadow);padding:14px 16px}
+.stat-card .sc-label{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--text2);margin-bottom:4px}
+.stat-card .sc-val{font-size:22px;font-weight:800;line-height:1.1}
+.stat-card .sc-sub{font-size:12px;color:var(--text2);margin-top:4px}
+/* ── Hero gauge ─────────────────────────────────────────────── */
+.hero-card{background:#0A0A0A;color:#F2F2F2;border-radius:12px;padding:20px;display:flex;align-items:center;gap:20px}
+.gauge-wrap{position:relative;width:96px;height:96px;flex:none}
+.gauge-wrap svg{width:96px;height:96px;transform:rotate(-90deg)}
+.gauge-bg{fill:none;stroke:rgba(255,255,255,.12);stroke-width:9}
+.gauge-fg{fill:none;stroke-width:9;stroke-linecap:round;transition:stroke-dashoffset .5s ease,stroke .3s}
+.gauge-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.gauge-pct{font-size:20px;font-weight:800;line-height:1}
+.gauge-cap{font-size:9px;opacity:.7;margin-top:1px}
+.hero-text .ht-label{font-size:12px;opacity:.7;text-transform:uppercase;letter-spacing:.5px}
+.hero-text .ht-val{font-size:36px;font-weight:800;line-height:1.1;margin:4px 0}
+.hero-text .ht-sub{font-size:12px;opacity:.65}
+/* ── Accent tag ─────────────────────────────────────────────── */
+.tag{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700}
+.tag-accent{background:var(--accent);color:#0A0A0A}
+.tag-green{background:#DCFCE7;color:#166534}
+.tag-red{background:#FEE2E2;color:#991B1B}
+.tag-blue{background:#DBEAFE;color:#1E40AF}
+.tag-gray{background:var(--surface2);color:var(--text2)}
+/* ── Section titles ─────────────────────────────────────────── */
+.section-head{display:flex;align-items:center;justify-content:space-between;margin:20px 0 10px}
+.section-title{font-size:12px;text-transform:uppercase;letter-spacing:.7px;font-weight:700;color:var(--text2)}
+/* ── Rows / lists ───────────────────────────────────────────── */
+.row{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--border);cursor:pointer}
 .row:last-child{border-bottom:none}
-.row .main{flex:1;min-width:0}
-.row .name{font-weight:600;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.row .subt{font-size:12px;color:var(--muted)}
-.row .val{font-weight:700;font-size:15px;white-space:nowrap}
-.badge{display:inline-block;background:var(--border);color:var(--muted);font-size:11px;padding:2px 8px;border-radius:999px;font-weight:600}
-.badge.green{background:#DCFCE7;color:var(--green)}
-.badge.red{background:#FEE2E2;color:var(--red)}
-.badge.blue{background:#DBEAFE;color:var(--blue)}
-.del{background:none;border:none;color:var(--red);font-size:18px;cursor:pointer;padding:4px 6px;opacity:.7}
-.muted{color:var(--muted)}
-.totals{display:flex;justify-content:space-between;margin-bottom:10px;font-size:14px}
-.summary-card{display:flex;justify-content:space-between;align-items:center}
-.summary-card .v{font-size:24px;font-weight:800}
-/* progress */
+.row .rm{flex:1;min-width:0}
+.row .rname{font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .rsub{font-size:12px;color:var(--text2);margin-top:2px}
+.row .rval{font-weight:700;font-size:14px;white-space:nowrap}
+.del{background:none;border:none;color:var(--neg);font-size:16px;cursor:pointer;padding:4px 6px;opacity:.6}
+.del:hover{opacity:1}
+@keyframes rowIn{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:none}}
+@keyframes rowOut{to{opacity:0;transform:translateX(30px);max-height:0;padding:0}}
+.row.row-new{animation:rowIn .25s ease}
+.row.leaving{animation:rowOut .18s ease forwards;overflow:hidden}
+/* ── Progress bars ──────────────────────────────────────────── */
 .prog{height:6px;background:var(--border);border-radius:999px;overflow:hidden;margin-top:6px}
-.prog>div{height:100%;background:var(--blue)}
-/* nav */
-nav{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--border);z-index:60}
-.nav-in{max-width:640px;margin:0 auto;display:flex}
-.nav-in button{flex:1;background:none;border:none;padding:8px 2px 10px;cursor:pointer;color:var(--muted);font-size:10px;display:flex;flex-direction:column;align-items:center;gap:2px}
-.nav-in button .ic{font-size:20px}
-.nav-in button.active{color:var(--blue)}
-/* modal */
-.backdrop{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:100;display:none}
-.backdrop.open{display:block}
-.modal{position:fixed;left:0;right:0;bottom:0;z-index:101;background:var(--card);color:var(--text);border-radius:18px 18px 0 0;padding:20px;max-width:640px;margin:0 auto;transform:translateY(100%);transition:transform .3s}
-.modal.open{transform:translateY(0)}
-.modal h3{margin-bottom:14px;font-size:18px}
-.field{margin-bottom:12px}
-.field label{display:block;font-size:13px;color:var(--muted);margin-bottom:4px}
-.field input,.field select{width:100%;padding:12px;border:1px solid var(--border);border-radius:var(--r-sm);font-size:16px;background:var(--field-bg);color:var(--text);font-family:inherit}
-.toggle{display:flex;gap:8px}
-.toggle button{flex:1;padding:12px;border:1px solid var(--border);background:var(--card);border-radius:var(--r-sm);font-size:14px;font-weight:600;cursor:pointer;color:var(--muted)}
-.toggle button.on-out{background:var(--red);color:#fff;border-color:var(--red)}
-.toggle button.on-in{background:var(--green);color:#fff;border-color:var(--green)}
-.toggle button.on-blue{background:var(--blue);color:#fff;border-color:var(--blue)}
-.modal-actions{display:flex;gap:10px;margin-top:8px}
-.modal-actions button{flex:1;padding:14px;border:none;border-radius:var(--r-sm);font-size:15px;font-weight:700;cursor:pointer}
-.btn-cancel{background:var(--border);color:var(--text)}
-.empty{text-align:center;color:var(--muted);padding:24px 0;font-size:14px}
+.prog>div{height:100%;border-radius:999px}
+/* ── 50/30/20 rule bars ─────────────────────────────────────── */
+.rule-row{margin-bottom:12px}
+.rule-labels{display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px}
+.rule-labels .rl-name{font-weight:600;color:var(--text)}
+.rule-labels .rl-pct{color:var(--text2)}
+.rule-bar{height:8px;background:var(--border);border-radius:999px;overflow:hidden;position:relative}
+.rule-bar-fill{height:100%;border-radius:999px;transition:width .5s ease}
+.rule-target{position:absolute;top:0;bottom:0;width:2px;background:var(--text2);opacity:.4}
+.rule-note{font-size:11px;color:var(--text2);margin-top:3px}
+/* ── Allocation donut-like bars ─────────────────────────────── */
+.alloc-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.alloc-dot{width:10px;height:10px;border-radius:50%;flex:none}
+.alloc-name{flex:1;font-size:13px;font-weight:600}
+.alloc-pct{font-size:12px;color:var(--text2)}
+.alloc-val{font-size:13px;font-weight:700}
+/* ── Runway indicator ───────────────────────────────────────── */
+.runway-big{font-size:48px;font-weight:800;line-height:1;margin-bottom:4px}
+/* ── Table ──────────────────────────────────────────────────── */
 table{width:100%;border-collapse:collapse;font-size:13px}
 th,td{padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)}
 th:first-child,td:first-child{text-align:left}
-th{color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase}
-.chart-box{position:relative;height:240px}
-/* Visão Geral */
-.vg-day{background:var(--card);border-radius:var(--r-sm);box-shadow:var(--shadow);margin-bottom:10px;overflow:hidden}
-.vg-today{border:2px solid var(--blue)}
-.vg-header{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:4px}
-.vg-date{font-weight:700;font-size:14px;display:flex;align-items:center;gap:6px}
-.vg-totals{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600}
-.vg-net{font-size:12px;color:var(--muted)}
-.vg-body{padding:8px 12px;display:flex;flex-direction:column;gap:5px}
-.vg-item{font-size:13px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.vg-item b{margin-left:auto;white-space:nowrap}
-.vg-item.green{color:var(--green)}
-.vg-item.red{color:var(--red)}
-/* Sub-navegação (abas agrupadas Planejamento / Análise) */
-.subnav{display:flex;gap:6px;margin-bottom:var(--s4);background:var(--card);padding:4px;border-radius:var(--r-sm);box-shadow:var(--shadow)}
-.subnav button{flex:1;border:none;background:none;padding:9px;border-radius:8px;font-weight:600;font-size:14px;color:var(--muted);cursor:pointer;transition:background .2s,color .2s}
-.subnav button.active{background:var(--blue);color:#fff}
+th{color:var(--text2);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.4px}
+tr{cursor:pointer}tr:hover td{background:var(--surface2)}
+/* ── Subnav ─────────────────────────────────────────────────── */
+.subnav{display:flex;gap:6px;margin-bottom:16px}
+.subnav button{padding:7px 14px;border:none;border-radius:8px;font-size:13px;font-weight:600;color:var(--text2);background:var(--surface);cursor:pointer;box-shadow:var(--shadow)}
+.subnav button.active{background:var(--accent);color:#0A0A0A}
 .subview{display:none}
 .subview.active{display:block}
-/* Seletor de ciclo (‹ ›) */
-.cycle-sel{display:flex;align-items:center;gap:8px;background:var(--card);border-radius:var(--r-sm);box-shadow:var(--shadow);padding:6px;margin-bottom:14px}
-.cycle-sel>button{width:40px;height:40px;border:none;background:var(--bg);color:var(--text);border-radius:8px;font-size:22px;line-height:1;cursor:pointer;flex:none}
-.cycle-sel>button:active{background:var(--border)}
-.cycle-mid{flex:1;text-align:center;cursor:pointer}
-.cycle-range{font-weight:700;font-size:14px}
-.cycle-tag{font-size:11px;color:var(--muted);margin-top:1px}
-/* Busca e filtros (Lançamentos) */
-.search-input{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:var(--r-sm);font-size:15px;background:var(--field-bg);color:var(--text)}
-.filters{display:flex;gap:8px;margin-top:10px}
-.filters select{flex:1;min-width:0;padding:8px;border:1px solid var(--border);border-radius:8px;background:var(--field-bg);color:var(--text);font-size:12px}
-/* Categorias com orçamento */
-.cat-ic{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:8px;font-size:16px;margin-right:8px;flex:none}
-.cat-row .name{display:flex;align-items:center}
-/* Toggle de tema no header */
-.btn-theme{background:rgba(255,255,255,.12);color:#fff;border:none;border-radius:8px;padding:6px 9px;font-size:14px;cursor:pointer;line-height:1}
-/* Transição suave ao trocar de aba + entrada sutil de itens de lista */
-.tab-page.active{animation:fadeIn .22s ease}
-@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
-/* Item recém-criado: leve destaque/entrada */
-@keyframes rowIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
-.row.row-new{animation:rowIn .3s ease}
-/* Item sendo excluído: desliza e some antes do re-render */
-@keyframes rowOut{to{opacity:0;transform:translateX(40px);max-height:0;padding-top:0;padding-bottom:0}}
-.row.leaving{animation:rowOut .2s ease forwards;overflow:hidden}
-.row{cursor:pointer}
-/* Hero com anel/gauge (Início) */
-.hero-gauge{display:flex;align-items:center;gap:18px}
-.gauge-wrap{position:relative;width:104px;height:104px;flex:none}
-.gauge-wrap svg{width:104px;height:104px;transform:rotate(-90deg)}
-.gauge-bg{fill:none;stroke:rgba(255,255,255,.16);stroke-width:10}
-.gauge-fg{fill:none;stroke-width:10;stroke-linecap:round;transition:stroke-dashoffset .5s ease,stroke .3s ease}
-.gauge-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.gauge-pct{font-size:22px;font-weight:800;line-height:1}
-.gauge-cap{font-size:10px;opacity:.75;margin-top:2px}
-.hero-gauge .hero-text{min-width:0}
-.hero-gauge .big{font-size:32px}
-/* Toast com ação "Desfazer" */
-#toast{display:flex;align-items:center;gap:6px}
-.toast-undo{background:none;border:none;color:#7DD3FC;font-weight:700;font-size:14px;cursor:pointer;padding:2px 4px;white-space:nowrap}
-@media (prefers-reduced-motion: reduce){
+/* ── Cycle selector ─────────────────────────────────────────── */
+.cycle-sel{display:inline-flex;align-items:center;gap:6px;background:var(--surface);border-radius:10px;box-shadow:var(--shadow);padding:4px}
+.cycle-sel>button{width:32px;height:32px;border:none;background:var(--surface2);color:var(--text);border-radius:7px;font-size:18px;cursor:pointer;flex:none}
+.cycle-mid{padding:0 8px;text-align:center;cursor:pointer}
+.cycle-range{font-weight:700;font-size:13px}
+.cycle-tag{font-size:10px;color:var(--text2)}
+/* ── Buttons ────────────────────────────────────────────────── */
+.btn-add{display:block;width:100%;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;background:var(--accent);color:#0A0A0A;margin-top:8px}
+.btn-accent{background:var(--accent);color:#0A0A0A;border:none;border-radius:8px;padding:8px 14px;font-size:13px;font-weight:700;cursor:pointer}
+.btn-ghost{background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600;cursor:pointer}
+.btn-danger{background:var(--neg);color:#fff}
+/* ── Modals ─────────────────────────────────────────────────── */
+.backdrop{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;display:none}
+.backdrop.open{display:block}
+.modal{position:fixed;left:0;right:0;bottom:0;z-index:101;background:var(--surface);color:var(--text);border-radius:16px 16px 0 0;padding:20px;max-width:560px;margin:0 auto;transform:translateY(100%);transition:transform .28s}
+.modal.open{transform:translateY(0)}
+.modal h3{margin-bottom:14px;font-size:18px;font-weight:800}
+.field{margin-bottom:12px}
+.field label{display:block;font-size:12px;color:var(--text2);margin-bottom:4px;font-weight:600;text-transform:uppercase;letter-spacing:.4px}
+.field input,.field select{width:100%;padding:11px 12px;border:1px solid var(--border);border-radius:8px;font-size:15px;background:var(--surface2);color:var(--text);font-family:inherit}
+.toggle{display:flex;gap:6px}
+.toggle button{flex:1;padding:11px;border:1px solid var(--border);background:var(--surface2);border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;color:var(--text2)}
+.toggle button.on-out{background:var(--neg);color:#fff;border-color:var(--neg)}
+.toggle button.on-in{background:var(--pos);color:#fff;border-color:var(--pos)}
+.toggle button.on-blue{background:#2563EB;color:#fff;border-color:#2563EB}
+.modal-actions{display:flex;gap:8px;margin-top:10px}
+.modal-actions button{flex:1;padding:13px;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer}
+.btn-cancel{background:var(--surface2);color:var(--text)}
+/* ── Toast ──────────────────────────────────────────────────── */
+#toast{position:fixed;top:-80px;left:50%;transform:translateX(-50%);z-index:300;background:#0A0A0A;color:#F2F2F2;padding:10px 18px;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.3);transition:top .3s;font-size:13px;max-width:90%;display:flex;align-items:center;gap:8px}
+#toast.show{top:12px}
+.toast-undo{background:none;border:none;color:var(--accent);font-weight:700;font-size:13px;cursor:pointer;padding:0}
+/* ── Banner ─────────────────────────────────────────────────── */
+#banner{position:fixed;top:0;left:0;right:0;z-index:200;background:#0A0A0A;color:#F2F2F2;text-align:center;padding:14px;font-weight:800;font-size:16px;letter-spacing:1px;transition:opacity .8s;border-bottom:2px solid var(--accent)}
+/* ── Empty / misc ───────────────────────────────────────────── */
+.empty{text-align:center;color:var(--text2);padding:20px 0;font-size:13px}
+.muted{color:var(--text2)}
+.pos{color:var(--pos)} .neg{color:var(--neg)}
+.row-between{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.chart-box{position:relative;height:220px}
+.vg-day{background:var(--surface);border-radius:10px;box-shadow:var(--shadow);margin-bottom:8px;overflow:hidden}
+.vg-today{border:2px solid var(--accent)}
+.vg-header{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:4px}
+.vg-date{font-weight:700;font-size:13px;display:flex;align-items:center;gap:6px}
+.vg-totals{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600}
+.vg-body{padding:8px 12px;display:flex;flex-direction:column;gap:4px}
+.vg-item{font-size:12px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.vg-item b{margin-left:auto;white-space:nowrap}
+.cat-ic{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:8px;font-size:14px;margin-right:6px;flex:none}
+.search-input{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:var(--surface2);color:var(--text)}
+.filters{display:flex;gap:6px;margin-top:8px}
+.filters select{flex:1;min-width:0;padding:7px;border:1px solid var(--border);border-radius:7px;background:var(--surface2);color:var(--text);font-size:12px}
+/* ── Responsive: mobile ─────────────────────────────────────── */
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .sb-overlay.open{display:block}
+  .main-wrap{margin-left:0}
+  .mob-header{display:flex}
+  main{padding:14px}
+  .dash-grid{grid-template-columns:1fr}
+  .dash-grid3{grid-template-columns:repeat(3,1fr)}
+  .hero-text .ht-val{font-size:28px}
+}
+@media(prefers-reduced-motion:reduce){
   .tab-page.active,.row.row-new{animation:none}
   .row.leaving{animation-duration:.01s}
   .modal,.gauge-fg{transition:none}
@@ -194,70 +226,76 @@ th{color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase}
 </head>
 <body>
 <audio id="sccp-audio" preload="auto"><source src="" type="audio/mpeg"></audio>
-
 <div id="banner">⚫⚪ Saudações Alvinegras! ⚪⚫</div>
 <div id="toast"></div>
 
-<header>
-  <div class="header-in">
-    <div class="brand">
-      <img id="sccp-logo" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%23000' stroke='%23fff' stroke-width='1'/%3E%3Ctext x='16' y='21' text-anchor='middle' font-size='11' fill='%23fff' font-weight='bold'%3ESCCP%3C/text%3E%3C/svg%3E" alt="Corinthians" style="width:30px;height:30px;object-fit:contain;border-radius:4px;" />
+<div class="layout">
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-brand">
+      <img id="sccp-logo" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%23000' stroke='%23fff' stroke-width='1'/%3E%3Ctext x='16' y='21' text-anchor='middle' font-size='11' fill='%23fff' font-weight='bold'%3ESCCP%3C/text%3E%3C/svg%3E" alt="SCCP">
       <span>Finanças</span>
     </div>
-    <div class="spacer"></div>
-    <button class="btn-theme" id="btn-theme" onclick="toggleTheme()" title="Alternar tema">🌙</button>
-    <button class="btn-reset" onclick="openBackupModal()">⚙️ Dados</button>
-  </div>
-</header>
-
-<main class="wrap">
-  <section id="tab-inicio" class="tab-page active"></section>
-  <section id="tab-lancamentos" class="tab-page"></section>
-
-  <!-- Planejamento agrupa Fixas + Parceladas -->
-  <section id="tab-planejamento" class="tab-page">
-    <div class="subnav">
-      <button data-sub="fixas" class="active" onclick="showSub('planejamento','fixas')">📌 Fixas</button>
-      <button data-sub="parceladas" onclick="showSub('planejamento','parceladas')">💳 Parcelas</button>
-      <button data-sub="categorias" onclick="showSub('planejamento','categorias')">🏷️ Categorias</button>
+    <nav class="sb-nav">
+      <button data-tab="inicio" class="active"><span class="sb-ic">◉</span> Dashboard</button>
+      <button data-tab="lancamentos"><span class="sb-ic">≡</span> Lançamentos</button>
+      <button data-tab="planejamento"><span class="sb-ic">⊞</span> Planejamento</button>
+      <button data-tab="patrimonio"><span class="sb-ic">△</span> Patrimônio</button>
+      <button data-tab="analise"><span class="sb-ic">⌗</span> Análise</button>
+    </nav>
+    <div class="sb-foot">
+      <button id="btn-theme" onclick="toggleTheme()">🌙 Tema</button>
+      <button onclick="openBackupModal()">⚙️ Dados</button>
     </div>
-    <div id="sub-fixas" class="subview active"></div>
-    <div id="sub-parceladas" class="subview"></div>
-    <div id="sub-categorias" class="subview"></div>
-  </section>
+  </aside>
+  <div class="sb-overlay" id="sb-overlay" onclick="closeSidebar()"></div>
 
-  <section id="tab-patrimonio" class="tab-page"></section>
+  <!-- Main -->
+  <div class="main-wrap">
+    <header class="mob-header">
+      <button class="mob-btn" onclick="openSidebar()">☰</button>
+      <span class="mob-title">Finanças</span>
+      <button class="mob-btn" id="btn-theme-mob" onclick="toggleTheme()">🌙</button>
+      <button class="mob-btn" onclick="openBackupModal()">⚙️</button>
+    </header>
 
-  <!-- Análise agrupa Resumo + Visão -->
-  <section id="tab-analise" class="tab-page">
-    <div class="subnav">
-      <button data-sub="resumo" class="active" onclick="showSub('analise','resumo')">📊 Resumo</button>
-      <button data-sub="visao" onclick="showSub('analise','visao')">🗓️ Visão</button>
-    </div>
-    <div id="sub-resumo" class="subview active"></div>
-    <div id="sub-visao" class="subview"></div>
-  </section>
-</main>
+    <main>
+      <section id="tab-inicio" class="tab-page active"></section>
+      <section id="tab-lancamentos" class="tab-page"></section>
 
-<nav>
-  <div class="nav-in">
-    <button data-tab="inicio" class="active"><span class="ic">🏠</span>Início</button>
-    <button data-tab="lancamentos"><span class="ic">🧾</span>Lançar</button>
-    <button data-tab="planejamento"><span class="ic">📌</span>Planejar</button>
-    <button data-tab="patrimonio"><span class="ic">📈</span>Patrimônio</button>
-    <button data-tab="analise"><span class="ic">📊</span>Análise</button>
+      <section id="tab-planejamento" class="tab-page">
+        <div class="subnav">
+          <button data-sub="fixas" class="active" onclick="showSub('planejamento','fixas')">📌 Fixas</button>
+          <button data-sub="parceladas" onclick="showSub('planejamento','parceladas')">💳 Parcelas</button>
+          <button data-sub="categorias" onclick="showSub('planejamento','categorias')">🏷️ Categorias</button>
+        </div>
+        <div id="sub-fixas" class="subview active"></div>
+        <div id="sub-parceladas" class="subview"></div>
+        <div id="sub-categorias" class="subview"></div>
+      </section>
+
+      <section id="tab-patrimonio" class="tab-page"></section>
+
+      <section id="tab-analise" class="tab-page">
+        <div class="subnav">
+          <button data-sub="resumo" class="active" onclick="showSub('analise','resumo')">📊 Resumo</button>
+          <button data-sub="visao" onclick="showSub('analise','visao')">🗓️ Visão</button>
+        </div>
+        <div id="sub-resumo" class="subview active"></div>
+        <div id="sub-visao" class="subview"></div>
+      </section>
+    </main>
   </div>
-</nav>
+</div>
 
 <div class="backdrop" id="backdrop" onclick="closeModal()"></div>
 <div class="modal" id="modal"></div>
 
 <script>
-/* ============ DATA LAYER (localStorage) ============ */
+/* ============ DATA LAYER ============ */
 const KEY='financas_v1';
-const uid=()=> (crypto.randomUUID? crypto.randomUUID() : 'id'+Date.now()+Math.random().toString(16).slice(2));
+const uid=()=>(crypto.randomUUID?crypto.randomUUID():'id'+Date.now()+Math.random().toString(16).slice(2));
 
-// Categorias padrão (ícone + cor); orçamento (teto mensal) opcional por categoria.
 const CAT_DEFAULTS=[
   ['Alimentação','🍔','#F97316'],['Transporte','🚗','#3B82F6'],['Moradia','🏠','#8B5CF6'],
   ['Lazer','🎉','#EC4899'],['Saúde','💊','#10B981'],['Compras','🛍️','#F59E0B'],['Outros','📦','#64748B']
@@ -270,51 +308,38 @@ function seed(){
     ['Plano de saúde',250,1],['Contador',200,10],['Gympass',140,1],['Contas Mãe',128,5],
     ['Claude',115,1],['Basquete FFLCH',60,15],['Apple',50,1],['Nubank',50,1]
   ].map(([nome,valor,dia])=>({id:uid(),nome,valor,dia_vencimento:dia,ativo:true}));
-
   const parceladas=[
     ['Sousmiles',388,16,18],['Moletom Corinthians',250,2,2],['Lacoste',200,2,2]
   ].map(([nome,vp,pa,tp])=>({id:uid(),nome,valor_parcela:vp,parcela_atual:pa,total_parcelas:tp,ativo:true}));
-
-  // Sem lançamentos avulsos no seed: o salário é uma ENTRADA FIXA (recorrente),
-  // não uma transação, para não contar em dobro no saldo do ciclo.
-  const transacoes=[];
-
   const monthly_summary=[
     [1,2026,18000,2950],[2,2026,18000,4200],[3,2026,20500,6364],
     [4,2026,23212,5760],[5,2026,32118,20168],[6,2026,26500,7500]
   ].map(([mes,ano,et,ec])=>({id:uid(),mes,ano,entrada_total:et,economizado:ec,imposto_pago:null,fatura_cartao:null}));
-
   const savings=[
-    ['2026-01-31',2950,'Economia de Janeiro'],['2026-02-28',4200,'Economia de Fevereiro'],
-    ['2026-03-31',6364,'Economia de Março'],['2026-04-30',5760,'Economia de Abril'],
-    ['2026-05-22',20168,'Economia de Maio'],['2026-06-22',7500,'Economia de Junho']
-  ].map(([data,valor,desc])=>({id:uid(),data,tipo:'aporte',valor,descricao:desc}));
-
-  const entradas_fixas=[
-    {id:uid(),nome:'Salário Inpress',valor:10000,dia_recebimento:10,ativo:true}
-  ];
-  return {fixas,parceladas,transacoes,monthly_summary,savings,entradas_fixas,categorias:defaultCategorias(),metaPoupanca:null};
+    ['2026-01-31',2950,'Economia de Janeiro','reserva'],['2026-02-28',4200,'Economia de Fevereiro','reserva'],
+    ['2026-03-31',6364,'Economia de Março','reserva'],['2026-04-30',5760,'Economia de Abril','reserva'],
+    ['2026-05-22',20168,'Economia de Maio','investimentos'],['2026-06-22',7500,'Economia de Junho','reserva']
+  ].map(([data,valor,desc,aloc])=>({id:uid(),data,tipo:'aporte',valor,descricao:desc,alocacao:aloc||'reserva'}));
+  const entradas_fixas=[{id:uid(),nome:'Salário Inpress',valor:10000,dia_recebimento:10,ativo:true}];
+  return {fixas,parceladas,transacoes:[],monthly_summary,savings,entradas_fixas,categorias:defaultCategorias(),metaPoupanca:null};
 }
 
 let DB=null;
 function loadDB(){
   const raw=localStorage.getItem(KEY);
-  if(raw){ try{ DB=JSON.parse(raw); migrateDB(); }catch(e){ DB=seed(); } }
-  else { DB=seed(); }
-  advanceCyclesIfNeeded();   // avança parcelas se viraram ciclos desde a última abertura
+  if(raw){ try{ DB=JSON.parse(raw); migrateDB(); }catch(e){ DB=seed(); } } else { DB=seed(); }
+  advanceCyclesIfNeeded();
   saveDB();
 }
 function saveDB(){ localStorage.setItem(KEY,JSON.stringify(DB)); }
 function migrateDB(){
   if(!DB.entradas_fixas) DB.entradas_fixas=[];
-  if(!DB.categorias) DB.categorias=defaultCategorias();   // adiciona categorias preservando dados
+  if(!DB.categorias) DB.categorias=defaultCategorias();
   if(DB.metaPoupanca===undefined) DB.metaPoupanca=null;
+  // add alocacao to savings that don't have it
+  (DB.savings||[]).forEach(s=>{ if(!s.alocacao) s.alocacao='reserva'; });
 }
 function monthsBetween(isoA,isoB){ const a=new Date(isoA+'T12:00:00'),b=new Date(isoB+'T12:00:00'); return (b.getFullYear()-a.getFullYear())*12+(b.getMonth()-a.getMonth()); }
-// Virada de ciclo: se passaram N ciclos (dia 22) desde a última abertura, avança
-// parcela_atual de cada parcelamento e desativa os que terminaram. Só avança para
-// frente e grava uma âncora — em instalações já existentes, apenas registra a
-// âncora na 1ª vez (não mexe em nada retroativamente).
 function advanceCyclesIfNeeded(){
   const curLast=cycleRangeByOffset(0).last;
   if(DB.cycleAnchor){
@@ -328,12 +353,8 @@ function advanceCyclesIfNeeded(){
   }
   DB.cycleAnchor=curLast;
 }
-function resetData(){
-  if(confirm('Apagar todos os dados e restaurar os valores iniciais?')){
-    DB=seed(); saveDB(); renderAll(); toast('Dados restaurados');
-  }
-}
-// collection helpers
+function resetData(){ if(confirm('Apagar todos os dados e restaurar os valores iniciais?')){ DB=seed(); saveDB(); renderAll(); toast('Dados restaurados'); } }
+
 const getFixas=()=>DB.fixas;
 const getParceladas=()=>DB.parceladas;
 const getTransacoes=()=>DB.transacoes;
@@ -347,230 +368,146 @@ function brl(v){ if(v===null||v===undefined||v==='') return '—'; return Number
 function fdate(d){ return new Date(d+'T12:00:00').toLocaleDateString('pt-BR'); }
 function todayISO(){ const n=new Date(); return n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0'); }
 function iso(y,m,d){ return y+'-'+String(m).padStart(2,'0')+'-'+String(d).padStart(2,'0'); }
+function moneyMaskInput(el){ let d=el.value.replace(/\D/g,''); if(!d){ el.value=''; return; } d=String(parseInt(d,10)); while(d.length<3) d='0'+d; el.value=Number(d.slice(0,-2)).toLocaleString('pt-BR')+','+d.slice(-2); }
+function parseMoeda(s){ if(s==null||s==='') return NaN; return parseFloat(String(s).replace(/\./g,'').replace(',','.').replace(/[^\d.]/g,'')); }
+function moedaToInput(v){ return v==null?'':Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
-/* ===== Máscara de moeda (formata enquanto digita; trata o input como centavos) ===== */
-function moneyMaskInput(el){
-  let d=el.value.replace(/\D/g,'');
-  if(!d){ el.value=''; return; }
-  d=String(parseInt(d,10));                 // remove zeros à esquerda
-  while(d.length<3) d='0'+d;                // garante pelo menos 0,0X
-  el.value=Number(d.slice(0,-2)).toLocaleString('pt-BR')+','+d.slice(-2);
-}
-function parseMoeda(s){                       // "1.234,56" -> 1234.56
-  if(s==null||s==='') return NaN;
-  return parseFloat(String(s).replace(/\./g,'').replace(',','.').replace(/[^\d.]/g,''));
-}
-function moedaToInput(v){                      // 1234.5 -> "1.234,50" (para pré-preencher na edição)
-  return v==null?'':Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
-}
-
-/* ===== Destaque do item recém-criado/editado (animação de entrada) ===== */
 let flashId=null;
 function clearFlash(){ flashId=null; }
 function flashCls(id){ return id===flashId?' row-new':''; }
 
-/* ===== Ciclo financeiro: dia 23 -> dia 22 (fechamento do cartão = 22) ===== */
-// Ciclo identificado pelo mês que contém o dia 22 de término. offset desloca em ciclos.
+/* ============ CYCLE MATH ============ */
 function cycleRangeByOffset(offset){
   const n=new Date();
-  const endM=n.getMonth() + (n.getDate()>=23?1:0) + offset; // mês (0-based; JS normaliza estouro) do dia 22 final
-  const end=new Date(n.getFullYear(), endM, 22);
-  const start=new Date(n.getFullYear(), endM-1, 23);        // dia 23 do mês anterior
-  return { first: iso(start.getFullYear(),start.getMonth()+1,start.getDate()),
-           last:  iso(end.getFullYear(),  end.getMonth()+1,  end.getDate()) };
+  const endM=n.getMonth()+(n.getDate()>=23?1:0)+offset;
+  const end=new Date(n.getFullYear(),endM,22);
+  const start=new Date(n.getFullYear(),endM-1,23);
+  return { first:iso(start.getFullYear(),start.getMonth()+1,start.getDate()),
+           last: iso(end.getFullYear(),end.getMonth()+1,end.getDate()) };
 }
 function currentCycleRange(){ return cycleRangeByOffset(0); }
-
-/* Ciclo selecionado para navegação (‹ ›); 0 = ciclo atual */
 let cycleOffset=0;
 function selectedCycleRange(){ return cycleRangeByOffset(cycleOffset); }
 function changeCycle(delta){ cycleOffset+=delta; refresh('inicio','lancamentos','visao'); }
 function resetCycle(){ if(cycleOffset!==0){ cycleOffset=0; refresh('inicio','lancamentos','visao'); } }
 function cycleLabel(offset){
   const {first,last}=cycleRangeByOffset(offset);
-  const f=new Date(first+'T12:00:00'), l=new Date(last+'T12:00:00');
+  const f=new Date(first+'T12:00:00'),l=new Date(last+'T12:00:00');
   const dd=x=>String(x.getDate()).padStart(2,'0');
   const MM=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
   return dd(f)+'/'+MM[f.getMonth()]+' – '+dd(l)+'/'+MM[l.getMonth()];
 }
 function cycleSelectorHTML(){
-  const tag = cycleOffset===0?'Ciclo atual':(cycleOffset<0?'Ciclo passado':'Ciclo futuro');
-  return '<div class="cycle-sel">'
-    +'<button onclick="changeCycle(-1)" aria-label="Ciclo anterior">‹</button>'
+  const tag=cycleOffset===0?'Ciclo atual':(cycleOffset<0?'Ciclo passado':'Ciclo futuro');
+  return '<div style="margin-bottom:14px"><div class="cycle-sel">'
+    +'<button onclick="changeCycle(-1)">‹</button>'
     +'<div class="cycle-mid" onclick="resetCycle()"><div class="cycle-range">'+cycleLabel(cycleOffset)+'</div><div class="cycle-tag">'+tag+'</div></div>'
-    +'<button onclick="changeCycle(1)" aria-label="Próximo ciclo">›</button>'
-    +'</div>';
+    +'<button onclick="changeCycle(1)">›</button>'
+    +'</div></div>';
 }
 function daysRemainingInCycle(){
   const {last}=currentCycleRange();
-  const t=new Date(todayISO()+'T12:00:00');
-  const l=new Date(last+'T12:00:00');
-  const diff=Math.floor((l-t)/86400000)+1; // inclusive of the 22nd
-  return Math.max(1,diff);
+  const t=new Date(todayISO()+'T12:00:00'),l=new Date(last+'T12:00:00');
+  return Math.max(1,Math.floor((l-t)/86400000)+1);
 }
-function inCurrentCycle(d){ const {first,last}=currentCycleRange(); return d>=first && d<=last; }
+function inCurrentCycle(d){ const {first,last}=currentCycleRange(); return d>=first&&d<=last; }
 
-/* ============ MONEY CALCULATIONS (fonte única de recorrentes) ============ */
-function cycleTransactions(){ return getTransacoes().filter(t=>inCurrentCycle(t.data)); }
-
-// Eventos recorrentes DATADOS de um ciclo — a MESMA fonte alimenta Início, Visão
-// e o cálculo de saldo, evitando divergência entre as abas:
-//  • contas fixas: saída no dia de vencimento
-//  • entradas fixas: entrada no dia de recebimento
-//  • parcelas: saída no dia 22 (fechamento), com o nº da parcela do ciclo
+/* ============ FINANCE CALCULATIONS ============ */
 function recurringEvents(offset){
   const {first,last}=cycleRangeByOffset(offset);
-  const dateForDom=dom=>{ // 1ª data do ciclo cujo dia do mês == dom (ou início, se não existir)
+  const dateForDom=dom=>{
     let d=new Date(first+'T12:00:00'); const end=new Date(last+'T12:00:00');
     while(d<=end){ if(d.getDate()===dom) return iso(d.getFullYear(),d.getMonth()+1,d.getDate()); d=new Date(d.getTime()+86400000); }
     return first;
   };
   const evs=[];
-  // Excluímos a fixa "Cartão": as parcelas já somam a fatura (sem dupla contagem).
-  getFixas().filter(f=>f.ativo && f.nome!=='Cartão').forEach(f=>
+  getFixas().filter(f=>f.ativo&&f.nome!=='Cartão').forEach(f=>
     evs.push({tipo:'saida',origem:'fixa',nome:f.nome,valor:f.valor,data:dateForDom(f.dia_vencimento||1)}));
   getEntradasFixas().filter(f=>f.ativo).forEach(f=>
     evs.push({tipo:'entrada',origem:'entrada_fixa',nome:f.nome,valor:f.valor,data:dateForDom(f.dia_recebimento||1)}));
   getParceladas().forEach(p=>{
-    const n=Number(p.parcela_atual)+offset; // nº da parcela NESTE ciclo (sem mutar dados)
-    if(p.ativo!==false && n>=1 && n<=Number(p.total_parcelas))
+    const n=Number(p.parcela_atual)+offset;
+    if(p.ativo!==false&&n>=1&&n<=Number(p.total_parcelas))
       evs.push({tipo:'saida',origem:'parcela',nome:p.nome,valor:p.valor_parcela,parcelaNum:n,total:Number(p.total_parcelas),data:dateForDom(22)});
   });
   return evs;
 }
-
-// Saldo de um ciclo = transações avulsas do ciclo ± recorrentes do ciclo.
 function calcSaldoForCycle(offset){
   const {first,last}=cycleRangeByOffset(offset);
   let s=0;
-  getTransacoes().forEach(t=>{ if(t.data>=first && t.data<=last) s += (t.tipo==='entrada'?t.valor:-t.valor); });
-  recurringEvents(offset).forEach(e=> s += (e.tipo==='entrada'?e.valor:-e.valor));
+  getTransacoes().forEach(t=>{ if(t.data>=first&&t.data<=last) s+=(t.tipo==='entrada'?t.valor:-t.valor); });
+  recurringEvents(offset).forEach(e=>s+=(e.tipo==='entrada'?e.valor:-e.valor));
   return s;
 }
 function calcSaldo(){ return calcSaldoForCycle(0); }
 
-/* ============ RENDERING: estado → render direcionado ============ */
-// Cada "view" sabe em qual aba vive e qual função a desenha. Em vez de
-// reconstruir o app inteiro a cada ação, só re-renderizamos a view afetada
-// que estiver visível; as demais ficam "sujas" e renderizam ao abrir a aba.
-const RENDER={ inicio:renderInicio, lancamentos:renderLancamentos, fixas:renderFixas,
-  parceladas:renderParceladas, categorias:renderCategorias, patrimonio:renderPatrimonio, resumo:renderResumo, visao:renderVisao };
-const VIEW_TAB={ inicio:'inicio', lancamentos:'lancamentos', fixas:'planejamento',
-  parceladas:'planejamento', categorias:'planejamento', patrimonio:'patrimonio', resumo:'analise', visao:'analise' };
-const TAB_VIEWS={ inicio:['inicio'], lancamentos:['lancamentos'], planejamento:['fixas','parceladas','categorias'],
-  patrimonio:['patrimonio'], analise:['resumo','visao'] };
-const ALL_VIEWS=Object.keys(RENDER);
+/* ── 50/30/20 helpers ── */
+function get5020Data(){
+  const ano=new Date().getFullYear(), mes=new Date().getMonth()+1;
+  const summ=getSummary().find(m=>m.mes===mes&&m.ano===ano);
+  const income=summ?.entrada_total || getEntradasFixas().filter(f=>f.ativo).reduce((s,f)=>s+f.valor,0);
+  if(!income) return null;
+  const rec=recurringEvents(0);
+  const essencial=rec.filter(e=>e.tipo==='saida').reduce((s,e)=>s+e.valor,0);
+  const {first,last}=currentCycleRange();
+  const estilo=getTransacoes().filter(t=>t.tipo==='saida'&&t.data>=first&&t.data<=last).reduce((s,t)=>s+t.valor,0);
+  const poupanca=summ?.economizado||0;
+  return {income,essencial,estilo,poupanca};
+}
 
+/* ── Runway helper ── */
+function calcRunway(){
+  const total=getSavings().reduce((s,m)=>s+(m.tipo==='aporte'?m.valor:-m.valor),0);
+  const monthly=getFixas().filter(f=>f.ativo&&f.nome!=='Cartão').reduce((s,f)=>s+f.valor,0)
+    +getParceladas().filter(p=>p.ativo).reduce((s,p)=>s+p.valor_parcela,0);
+  if(!monthly) return null;
+  return {total,monthly,months:total/monthly};
+}
+
+/* ============ RENDER ORCHESTRATION ============ */
+const RENDER={inicio:renderInicio,lancamentos:renderLancamentos,fixas:renderFixas,
+  parceladas:renderParceladas,categorias:renderCategorias,patrimonio:renderPatrimonio,resumo:renderResumo,visao:renderVisao};
+const VIEW_TAB={inicio:'inicio',lancamentos:'lancamentos',fixas:'planejamento',
+  parceladas:'planejamento',categorias:'planejamento',patrimonio:'patrimonio',resumo:'analise',visao:'analise'};
+const TAB_VIEWS={inicio:['inicio'],lancamentos:['lancamentos'],planejamento:['fixas','parceladas','categorias'],
+  patrimonio:['patrimonio'],analise:['resumo','visao']};
+const ALL_VIEWS=Object.keys(RENDER);
 let activeTab='inicio';
-let dirty=new Set();        // views que precisam re-renderizar quando ficarem visíveis
-const scrollPos={};         // posição de scroll por aba (para não "pular" ao voltar)
+let dirty=new Set();
+const scrollPos={};
 
 function renderView(name){ RENDER[name](); dirty.delete(name); }
+function refresh(...names){ names.forEach(n=>{ if(VIEW_TAB[n]===activeTab) renderView(n); else dirty.add(n); }); }
+function renderAll(){ dirty=new Set(ALL_VIEWS); TAB_VIEWS[activeTab].forEach(renderView); }
 
-// Atualização direcionada após mudança de estado: re-renderiza só as views
-// afetadas que estão visíveis; o resto fica marcado para render preguiçoso.
-function refresh(...names){
-  names.forEach(n=>{ if(VIEW_TAB[n]===activeTab) renderView(n); else dirty.add(n); });
-}
-
-// Render "completo" lógico (reset/import): marca tudo sujo e desenha só a aba ativa.
-function renderAll(){
-  dirty=new Set(ALL_VIEWS);
-  TAB_VIEWS[activeTab].forEach(renderView);
-}
-
-// Troca de aba preservando o scroll e renderizando o que estiver sujo.
 function showTab(tab){
   if(tab===activeTab){ window.scrollTo(0,0); return; }
   scrollPos[activeTab]=window.scrollY;
   activeTab=tab;
-  document.querySelectorAll('.nav-in button').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
+  document.querySelectorAll('.sb-nav button').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
   document.querySelectorAll('.tab-page').forEach(p=>p.classList.remove('active'));
   document.getElementById('tab-'+tab).classList.add('active');
   TAB_VIEWS[tab].forEach(n=>{ if(dirty.has(n)) renderView(n); });
-  window.scrollTo(0, scrollPos[tab]||0);
+  window.scrollTo(0,scrollPos[tab]||0);
+  closeSidebar();
 }
-
-// Sub-navegação dentro de abas agrupadas (Planejamento / Análise).
-function showSub(tab, sub){
+function showSub(tab,sub){
   const sec=document.getElementById('tab-'+tab);
   sec.querySelectorAll('.subnav button').forEach(b=>b.classList.toggle('active',b.dataset.sub===sub));
   sec.querySelectorAll('.subview').forEach(v=>v.classList.remove('active'));
   document.getElementById('sub-'+sub).classList.add('active');
-  // Resumo tem gráfico → re-render ao exibir garante o dimensionamento correto.
-  if(sub==='resumo' || dirty.has(sub)) renderView(sub);
+  if(sub==='resumo'||dirty.has(sub)) renderView(sub);
 }
 
-/* ============ VISÃO GERAL ============ */
-function renderVisao(){
-  const el=document.getElementById('sub-visao');
-  const {first,last}=selectedCycleRange();
-  const today_=todayISO();
+/* ============ SIDEBAR MOBILE ============ */
+function openSidebar(){ document.getElementById('sidebar').classList.add('open'); document.getElementById('sb-overlay').classList.add('open'); }
+function closeSidebar(){ document.getElementById('sidebar').classList.remove('open'); document.getElementById('sb-overlay').classList.remove('open'); }
 
-  // Dias do ciclo
-  const days=[]; let d=new Date(first+'T12:00:00'); const endD=new Date(last+'T12:00:00');
-  while(d<=endD){ days.push(iso(d.getFullYear(),d.getMonth()+1,d.getDate())); d=new Date(d.getTime()+86400000); }
-
-  const txs=getTransacoes().filter(t=>t.data>=first && t.data<=last);
-  const evs=recurringEvents(cycleOffset); // FONTE ÚNICA (fixas, entradas fixas, parcelas)
-
-  const MESES=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-  const fmtDay=isoDay=>{ const dt=new Date(isoDay+'T12:00:00'); return String(dt.getDate()).padStart(2,'0')+' '+MESES[dt.getMonth()]; };
-
-  let totalIn=0,totalOut=0;
-  const byDay=days.map(isoDay=>{
-    const inTx=txs.filter(t=>t.data===isoDay && t.tipo==='entrada');
-    const outTx=txs.filter(t=>t.data===isoDay && t.tipo==='saida');
-    const evDay=evs.filter(e=>e.data===isoDay);
-    return {isoDay, inTx, outTx, evIn:evDay.filter(e=>e.tipo==='entrada'), evOut:evDay.filter(e=>e.tipo==='saida')};
-  }).filter(x=> x.inTx.length||x.outTx.length||x.evIn.length||x.evOut.length);
-
-  const rows=byDay.map(x=>{
-    const sumIn=x.inTx.reduce((s,t)=>s+t.valor,0)+x.evIn.reduce((s,e)=>s+e.valor,0);
-    const sumOut=x.outTx.reduce((s,t)=>s+t.valor,0)+x.evOut.reduce((s,e)=>s+e.valor,0);
-    totalIn+=sumIn; totalOut+=sumOut;
-    const isToday=x.isoDay===today_;
-    const inLines=[
-      ...x.inTx.map(t=>`<div class="vg-item green">↑ ${escapeHtml(t.descricao||'Entrada')} <b>${brl(t.valor)}</b></div>`),
-      ...x.evIn.map(e=>`<div class="vg-item green">💰 ${escapeHtml(e.nome)} (fixa) <b>${brl(e.valor)}</b></div>`)
-    ].join('');
-    const outLines=[
-      ...x.outTx.map(t=>`<div class="vg-item red">↓ ${escapeHtml(t.descricao||t.categoria||'Gasto')} ${t.forma_pagamento==='cartao'?'💳':'💵'} <b>${brl(t.valor)}</b></div>`),
-      ...x.evOut.map(e=> e.origem==='parcela'
-        ? `<div class="vg-item red">💳 ${escapeHtml(e.nome)} <span class="badge blue">${e.parcelaNum}/${e.total}</span> <b>${brl(e.valor)}</b></div>`
-        : `<div class="vg-item red">📌 ${escapeHtml(e.nome)} <b>${brl(e.valor)}</b></div>`)
-    ].join('');
-    return `
-    <div class="vg-day${isToday?' vg-today':''}">
-      <div class="vg-header">
-        <span class="vg-date">${fmtDay(x.isoDay)}${isToday?' <span class="badge blue">Hoje</span>':''}</span>
-        <span class="vg-totals">
-          ${sumIn?`<span class="green">+${brl(sumIn)}</span>`:''}
-          ${sumOut?`<span class="red">−${brl(sumOut)}</span>`:''}
-          <span class="vg-net ${sumIn-sumOut>=0?'green':'red'}">=&nbsp;${brl(sumIn-sumOut)}</span>
-        </span>
-      </div>
-      <div class="vg-body">${inLines}${outLines}</div>
-    </div>`;
-  }).join('');
-
-  el.innerHTML=`
-    ${cycleSelectorHTML()}
-    <div class="card">
-      <div class="grid3">
-        <div><div class="cap">Entradas</div><div class="big-num pos">${brl(totalIn)}</div></div>
-        <div><div class="cap">Saídas</div><div class="big-num neg">${brl(totalOut)}</div></div>
-        <div><div class="cap">Saldo</div><div class="big-num ${totalIn-totalOut>=0?'pos':'neg'}">${brl(totalIn-totalOut)}</div></div>
-      </div>
-    </div>
-    ${byDay.length===0?'<div class="empty">Nenhum evento neste ciclo.</div>':rows}
-  `;
-}
-
+/* ============ RENDER: DASHBOARD ============ */
 function renderInicio(){
   const el=document.getElementById('tab-inicio');
 
-  // ----- Ciclo passado/futuro: mostra o resumo do ciclo (sem "posso gastar hoje") -----
   if(cycleOffset!==0){
     const {first,last}=selectedCycleRange();
     const saldo=calcSaldoForCycle(cycleOffset);
@@ -579,73 +516,90 @@ function renderInicio(){
     recurringEvents(cycleOffset).forEach(e=>{ if(e.tipo==='entrada')entradas+=e.valor; else saidas+=e.valor; });
     el.innerHTML=`
       ${cycleSelectorHTML()}
-      <div class="hero"><div class="label">Saldo do ciclo</div><div class="big ${saldo>=0?'pos':'neg'}">${brl(saldo)}</div>
-        <div class="sub">${cycleOffset<0?'Ciclo encerrado':'Ciclo futuro · projeção pelas recorrentes'}</div></div>
-      <div class="stats">
-        <div class="stat"><div class="v pos">${brl(entradas)}</div><div class="l">Entradas</div></div>
-        <div class="stat"><div class="v neg">${brl(saidas)}</div><div class="l">Saídas</div></div>
-        <div class="stat"><div class="v ${saldo>=0?'pos':'neg'}">${brl(saldo)}</div><div class="l">Saldo</div></div>
+      <div class="card-dark"><div style="font-size:12px;opacity:.7;margin-bottom:4px">SALDO DO CICLO</div>
+        <div style="font-size:44px;font-weight:800;color:${saldo>=0?'var(--pos)':'var(--neg)'}">${brl(saldo)}</div>
+        <div style="font-size:12px;opacity:.6;margin-top:4px">${cycleOffset<0?'Ciclo encerrado':'Ciclo futuro · projeção pelas recorrentes'}</div>
       </div>
-      <button class="btn btn-green" onclick="openTxModal()">+ Lançar Gasto</button>
+      <div class="dash-grid3">
+        <div class="stat-card"><div class="sc-label">Entradas</div><div class="sc-val pos">${brl(entradas)}</div></div>
+        <div class="stat-card"><div class="sc-label">Saídas</div><div class="sc-val neg">${brl(saidas)}</div></div>
+        <div class="stat-card"><div class="sc-label">Saldo</div><div class="sc-val ${saldo>=0?'pos':'neg'}">${brl(saldo)}</div></div>
+      </div>
+      <button class="btn-add" onclick="openTxModal()">+ Lançar Gasto</button>
     `;
     return;
   }
 
-  // ----- Ciclo atual: anel/gauge + "posso gastar hoje" + projeção de fim de ciclo -----
-  const saldo=calcSaldo();
-  const dias=daysRemainingInCycle();
-  const possoGastar=saldo/dias;
-  const gastoHoje=getTransacoes().filter(t=>t.tipo==='saida' && t.data===todayISO()).reduce((s,t)=>s+t.valor,0);
-
-  // Anel: quanto da diária já foi consumida hoje (verde < 80%, âmbar 80-99%, vermelho >= 100%)
-  let pct, gcolor;
-  if(possoGastar<=0){ pct=100; gcolor='#F87171'; }
-  else { pct=Math.min(100,Math.round(gastoHoje/possoGastar*100)); gcolor=pct>=100?'#F87171':(pct>=80?'#FBBF24':'#4ADE80'); }
-  const C=2*Math.PI*52, off=(C*(1-Math.min(pct,100)/100)).toFixed(1);
-
-  // Projeção: ritmo médio de gasto avulso por dia decorrido × dias que faltam.
+  const saldo=calcSaldo(), dias=daysRemainingInCycle(), possoGastar=saldo/dias;
+  const gastoHoje=getTransacoes().filter(t=>t.tipo==='saida'&&t.data===todayISO()).reduce((s,t)=>s+t.valor,0);
+  let pct,gcolor;
+  if(possoGastar<=0){pct=100;gcolor='#EF4444';}
+  else{pct=Math.min(100,Math.round(gastoHoje/possoGastar*100));gcolor=pct>=100?'#EF4444':(pct>=80?'#F59E0B':'#22C55E');}
+  const C=2*Math.PI*48, off=(C*(1-Math.min(pct,100)/100)).toFixed(1);
   const {first}=currentCycleRange();
   const elapsed=Math.max(1,Math.floor((new Date(todayISO()+'T12:00:00')-new Date(first+'T12:00:00'))/86400000)+1);
-  const saidasAteHoje=getTransacoes().filter(t=>t.tipo==='saida' && t.data>=first && t.data<=todayISO()).reduce((s,t)=>s+t.valor,0);
-  const projecao=saldo - (saidasAteHoje/elapsed)*Math.max(0,dias-1);
+  const saidasAteHoje=getTransacoes().filter(t=>t.tipo==='saida'&&t.data>=first&&t.data<=todayISO()).reduce((s,t)=>s+t.valor,0);
+  const projecao=saldo-(saidasAteHoje/elapsed)*Math.max(0,dias-1);
+
+  // 50/30/20
+  const d5020=get5020Data();
+  let block5020='';
+  if(d5020){
+    const {income,essencial,estilo,poupanca}=d5020;
+    const mkBar=(label,val,target,color)=>{
+      const actual=Math.round(val/income*100);
+      const targetPx=Math.min(100,target);
+      const fillW=Math.min(100,actual);
+      const over=actual>target;
+      return `<div class="rule-row">
+        <div class="rule-labels"><span class="rl-name">${label}</span><span class="rl-pct">${brl(val)} · <b style="color:${over?'var(--neg)':'var(--pos)'}">${actual}%</b> <span style="color:var(--text2)">/ meta ${target}%</span></span></div>
+        <div class="rule-bar"><div class="rule-bar-fill" style="width:${fillW}%;background:${over?'var(--neg)':color}"></div><div class="rule-target" style="left:${targetPx}%"></div></div>
+        <div class="rule-note">${over?'⚠️ Acima do limite':'✓ Dentro do limite'}</div>
+      </div>`;
+    };
+    block5020=`<div class="card">
+      <div class="section-head" style="margin-top:0"><span class="section-title">Regra 50/30/20</span><span class="muted" style="font-size:11px">Base: ${brl(income)}</span></div>
+      ${mkBar('Essencial (fixas + parcelas)',essencial,50,'var(--accent)')}
+      ${mkBar('Estilo de vida (gastos avulsos)',estilo,30,'#3B82F6')}
+      ${mkBar('Poupança',poupanca,20,'var(--pos)')}
+    </div>`;
+  } else {
+    block5020=`<div class="card"><p style="font-size:13px;color:var(--text2)">Cadastre a entrada mensal em <b>Análise → Resumo</b> para ver a Regra 50/30/20.</p></div>`;
+  }
 
   el.innerHTML=`
     ${cycleSelectorHTML()}
-    <div class="hero hero-gauge">
-      <div class="gauge-wrap">
-        <svg viewBox="0 0 120 120" aria-hidden="true">
-          <circle class="gauge-bg" cx="60" cy="60" r="52"></circle>
-          <circle class="gauge-fg" cx="60" cy="60" r="52" style="stroke:${gcolor};stroke-dasharray:${C.toFixed(1)};stroke-dashoffset:${off}"></circle>
-        </svg>
-        <div class="gauge-center"><div class="gauge-pct">${pct}%</div><div class="gauge-cap">usado hoje</div></div>
+    <div class="dash-grid">
+      <div class="hero-card">
+        <div class="gauge-wrap">
+          <svg viewBox="0 0 112 112"><circle class="gauge-bg" cx="56" cy="56" r="48"></circle><circle class="gauge-fg" cx="56" cy="56" r="48" style="stroke:${gcolor};stroke-dasharray:${C.toFixed(1)};stroke-dashoffset:${off}"></circle></svg>
+          <div class="gauge-center"><div class="gauge-pct">${pct}%</div><div class="gauge-cap">hoje</div></div>
+        </div>
+        <div class="hero-text">
+          <div class="ht-label">Posso gastar hoje</div>
+          <div class="ht-val" style="color:${possoGastar>=0?'var(--pos)':'var(--neg)'}">${brl(possoGastar)}</div>
+          <div class="ht-sub">Gasto hoje ${brl(gastoHoje)} · ${dias} dia${dias!==1?'s':''} restante${dias!==1?'s':''}</div>
+        </div>
       </div>
-      <div class="hero-text">
-        <div class="label">Posso gastar hoje</div>
-        <div class="big ${possoGastar>=0?'pos':'neg'}">${brl(possoGastar)}</div>
-        <div class="sub">Gasto hoje ${brl(gastoHoje)} · ${dias} dia${dias!==1?'s':''} restante${dias!==1?'s':''}</div>
+      <div>
+        <div class="stat-card" style="margin-bottom:8px"><div class="sc-label">Saldo do ciclo</div><div class="sc-val ${saldo>=0?'pos':'neg'}">${brl(saldo)}</div></div>
+        <div class="stat-card"><div class="sc-label">Projeção fim do ciclo</div><div class="sc-val ${projecao>=0?'pos':'neg'}">${brl(projecao)}</div><div class="sc-sub">no ritmo atual</div></div>
       </div>
     </div>
-    <div class="card row-between"><span class="cap">Projeção fim do ciclo (no ritmo atual)</span><span class="big-num ${projecao>=0?'pos':'neg'}">${brl(projecao)}</span></div>
-    <div class="stats">
-      <div class="stat"><div class="v ${saldo>=0?'pos':'neg'}">${brl(saldo)}</div><div class="l">Saldo do ciclo</div></div>
-      <div class="stat"><div class="v">${brl(gastoHoje)}</div><div class="l">Gasto hoje</div></div>
-      <div class="stat"><div class="v">${dias}</div><div class="l">Dias restantes</div></div>
-    </div>
-    <button class="btn btn-green" onclick="openTxModal()">+ Lançar Gasto</button>
+    ${block5020}
+    <button class="btn-add" onclick="openTxModal()">+ Lançar Gasto</button>
   `;
 }
 
-// Estado de busca/filtro dos Lançamentos (preservado entre re-renders)
+/* ============ RENDER: LANÇAMENTOS ============ */
 let lancFilter={q:'',tipo:'',forma:'',cat:''};
-function setLancFilter(field,val){ lancFilter[field]=val; renderLancList(); } // atualiza só a lista (mantém o foco da busca)
+function setLancFilter(field,val){ lancFilter[field]=val; renderLancList(); }
 
 function renderLancamentos(){
   const el=document.getElementById('tab-lancamentos');
   const cats=getCategorias();
-  // "Cromo" da aba (selector + busca + filtros) é montado uma vez; a lista é separada.
   el.innerHTML=`
-    <h2 class="page-title">Lançamentos</h2>
-    ${cycleSelectorHTML()}
+    <div class="section-head" style="margin-top:0"><span class="section-title">Lançamentos</span>${cycleSelectorHTML().replace('<div style="margin-bottom:14px">','<div>').replace('</div>','</div>')}</div>
     <div class="card">
       <input id="lanc-q" class="search-input" type="text" placeholder="🔎 Buscar descrição ou categoria" value="${escapeHtml(lancFilter.q)}" oninput="setLancFilter('q',this.value)">
       <div class="filters">
@@ -660,13 +614,13 @@ function renderLancamentos(){
           <option value="cartao"${lancFilter.forma==='cartao'?' selected':''}>Cartão</option>
         </select>
         <select onchange="setLancFilter('cat',this.value)">
-          <option value=""${lancFilter.cat===''?' selected':''}>Categoria: todas</option>
+          <option value=""${lancFilter.cat===''?' selected':''}>Cat: todas</option>
           ${cats.map(c=>`<option value="${escapeHtml(c.nome)}"${lancFilter.cat===c.nome?' selected':''}>${c.icone} ${escapeHtml(c.nome)}</option>`).join('')}
         </select>
       </div>
     </div>
     <div id="lanc-list"></div>
-    <button class="btn btn-blue" onclick="openTxModal()">+ Lançar Gasto</button>
+    <button class="btn-add" onclick="openTxModal()">+ Lançar Gasto</button>
   `;
   renderLancList();
 }
@@ -674,13 +628,12 @@ function renderLancamentos(){
 function renderLancList(){
   const {first,last}=selectedCycleRange();
   const q=lancFilter.q.trim().toLowerCase();
-  let tx=getTransacoes().filter(t=>t.data>=first && t.data<=last);
-  if(lancFilter.tipo)  tx=tx.filter(t=>t.tipo===lancFilter.tipo);
+  let tx=getTransacoes().filter(t=>t.data>=first&&t.data<=last);
+  if(lancFilter.tipo) tx=tx.filter(t=>t.tipo===lancFilter.tipo);
   if(lancFilter.forma) tx=tx.filter(t=>t.forma_pagamento===lancFilter.forma);
-  if(lancFilter.cat)   tx=tx.filter(t=>(t.categoria||'')===lancFilter.cat);
+  if(lancFilter.cat) tx=tx.filter(t=>(t.categoria||'')===lancFilter.cat);
   if(q) tx=tx.filter(t=>((t.descricao||'')+' '+(t.categoria||'')).toLowerCase().includes(q));
   tx=tx.slice().sort((a,b)=>b.data.localeCompare(a.data));
-
   const entradas=tx.filter(t=>t.tipo==='entrada').reduce((s,t)=>s+t.valor,0);
   const saidas=tx.filter(t=>t.tipo==='saida').reduce((s,t)=>s+t.valor,0);
   let rows=tx.map(t=>{
@@ -688,64 +641,56 @@ function renderLancList(){
     const icon=t.forma_pagamento==='cartao'?'💳':'💵';
     const desc=t.descricao?escapeHtml(t.descricao):'<span class="muted">Sem descrição</span>';
     return `<div class="row${flashCls(t.id)}" onclick="openTxModal('${t.id}')">
-      <div class="main">
-        <div class="name">${dd} · ${desc}</div>
-        <div class="subt"><span class="badge">${escapeHtml(t.categoria||'—')}</span> ${icon}</div>
-      </div>
-      <div class="val ${t.tipo==='entrada'?'pos':'neg'}">${t.tipo==='entrada'?'+':'-'}${brl(t.valor)}</div>
+      <div class="rm"><div class="rname">${dd} · ${desc}</div>
+        <div class="rsub"><span class="tag tag-gray">${escapeHtml(t.categoria||'—')}</span> ${icon}</div></div>
+      <div class="rval ${t.tipo==='entrada'?'pos':'neg'}">${t.tipo==='entrada'?'+':'−'}${brl(t.valor)}</div>
       <button class="del" onclick="event.stopPropagation();delTx('${t.id}',event)">🗑</button>
     </div>`;
   }).join('');
   if(!tx.length) rows='<div class="empty">Nenhum lançamento encontrado.</div>';
   document.getElementById('lanc-list').innerHTML=`
-    <div class="card"><div class="totals"><span class="pos">Entradas: ${brl(entradas)}</span><span class="neg">Saídas: ${brl(saidas)}</span></div></div>
+    <div class="card"><div class="row-between" style="font-size:13px;font-weight:600"><span class="pos">Entradas: ${brl(entradas)}</span><span class="neg">Saídas: ${brl(saidas)}</span></div></div>
     <div class="card">${rows}</div>
   `;
 }
 
+/* ============ RENDER: FIXAS ============ */
 function renderFixas(){
   const fx=getFixas().filter(f=>f.ativo);
-  const totalSaidas=fx.reduce((s,f)=>s+f.valor,0);
   const ef=getEntradasFixas().filter(f=>f.ativo);
-  const totalEntradas=ef.reduce((s,f)=>s+f.valor,0);
-
+  const totalS=fx.reduce((s,f)=>s+f.valor,0), totalE=ef.reduce((s,f)=>s+f.valor,0);
   const el=document.getElementById('sub-fixas');
-
-  let rowsSaidas=fx.slice().sort((a,b)=>a.dia_vencimento-b.dia_vencimento).map(f=>`
+  let rowsS=fx.slice().sort((a,b)=>a.dia_vencimento-b.dia_vencimento).map(f=>`
     <div class="row${flashCls(f.id)}" onclick="openFixaModal('${f.id}')">
-      <div class="main"><div class="name">${escapeHtml(f.nome)}</div><div class="subt">Vence dia ${f.dia_vencimento}</div></div>
-      <div class="val neg">${brl(f.valor)}</div>
+      <div class="rm"><div class="rname">${escapeHtml(f.nome)}</div><div class="rsub">Vence dia ${f.dia_vencimento}</div></div>
+      <div class="rval neg">−${brl(f.valor)}</div>
       <button class="del" onclick="event.stopPropagation();delFixa('${f.id}',event)">🗑</button>
     </div>`).join('');
-  if(!fx.length) rowsSaidas='<div class="empty">Nenhuma conta fixa de saída.</div>';
-
-  let rowsEntradas=ef.slice().sort((a,b)=>a.dia_recebimento-b.dia_recebimento).map(f=>`
+  if(!fx.length) rowsS='<div class="empty">Nenhuma saída fixa.</div>';
+  let rowsE=ef.slice().sort((a,b)=>a.dia_recebimento-b.dia_recebimento).map(f=>`
     <div class="row${flashCls(f.id)}" onclick="openEntradaFixaModal('${f.id}')">
-      <div class="main"><div class="name">${escapeHtml(f.nome)}</div><div class="subt">Recebe dia ${f.dia_recebimento}</div></div>
-      <div class="val pos">${brl(f.valor)}</div>
+      <div class="rm"><div class="rname">${escapeHtml(f.nome)}</div><div class="rsub">Recebe dia ${f.dia_recebimento}</div></div>
+      <div class="rval pos">+${brl(f.valor)}</div>
       <button class="del" onclick="event.stopPropagation();delEntradaFixa('${f.id}',event)">🗑</button>
     </div>`).join('');
-  if(!ef.length) rowsEntradas='<div class="empty">Nenhuma entrada fixa cadastrada.</div>';
-
-  const saldo=totalEntradas-totalSaidas;
+  if(!ef.length) rowsE='<div class="empty">Nenhuma entrada fixa.</div>';
+  const saldo=totalE-totalS;
   el.innerHTML=`
-    <h2 class="page-title">Fixas</h2>
-    <div class="stats">
-      <div class="stat"><div class="v pos">${brl(totalEntradas)}</div><div class="l">Entradas fixas</div></div>
-      <div class="stat"><div class="v neg">${brl(totalSaidas)}</div><div class="l">Saídas fixas</div></div>
-      <div class="stat"><div class="v ${saldo>=0?'pos':'neg'}">${brl(saldo)}</div><div class="l">Saldo fixo</div></div>
+    <div class="dash-grid3" style="margin-bottom:14px">
+      <div class="stat-card"><div class="sc-label">Entradas fixas</div><div class="sc-val pos">${brl(totalE)}</div></div>
+      <div class="stat-card"><div class="sc-label">Saídas fixas</div><div class="sc-val neg">${brl(totalS)}</div></div>
+      <div class="stat-card"><div class="sc-label">Saldo fixo</div><div class="sc-val ${saldo>=0?'pos':'neg'}">${brl(saldo)}</div></div>
     </div>
-
-    <div class="section-title">Entradas Fixas</div>
-    <div class="card">${rowsEntradas}</div>
-    <button class="btn-add" style="background:#16A34A;margin-bottom:18px" onclick="openEntradaFixaModal()">+ Adicionar entrada fixa</button>
-
-    <div class="section-title">Saídas Fixas</div>
-    <div class="card">${rowsSaidas}</div>
+    <div class="section-title" style="margin-bottom:8px">Entradas Fixas</div>
+    <div class="card">${rowsE}</div>
+    <button class="btn-add" style="background:var(--pos);margin-bottom:16px" onclick="openEntradaFixaModal()">+ Adicionar entrada fixa</button>
+    <div class="section-title" style="margin-bottom:8px">Saídas Fixas</div>
+    <div class="card">${rowsS}</div>
     <button class="btn-add" onclick="openFixaModal()">+ Adicionar saída fixa</button>
   `;
 }
 
+/* ============ RENDER: PARCELADAS ============ */
 function renderParceladas(){
   const ps=getParceladas().filter(p=>p.ativo);
   const total=ps.reduce((s,p)=>s+p.valor_parcela,0);
@@ -753,225 +698,59 @@ function renderParceladas(){
   let rows=ps.map(p=>{
     const pct=Math.min(100,Math.round(p.parcela_atual/p.total_parcelas*100));
     return `<div class="row${flashCls(p.id)}" onclick="openParcelaModal('${p.id}')">
-      <div class="main">
-        <div class="name">${escapeHtml(p.nome)} <span class="badge blue">Parcela ${p.parcela_atual}/${p.total_parcelas}</span></div>
-        <div class="prog"><div style="width:${pct}%"></div></div>
+      <div class="rm">
+        <div class="rname">${escapeHtml(p.nome)} <span class="tag tag-blue">Parcela ${p.parcela_atual}/${p.total_parcelas}</span></div>
+        <div class="prog" style="margin-top:6px"><div style="width:${pct}%;background:var(--accent)"></div></div>
       </div>
-      <div class="val">${brl(p.valor_parcela)}</div>
+      <div class="rval">${brl(p.valor_parcela)}</div>
       <button class="del" onclick="event.stopPropagation();delParcela('${p.id}',event)">🗑</button>
     </div>`;
   }).join('');
   if(!ps.length) rows='<div class="empty">Nenhuma compra parcelada.</div>';
   el.innerHTML=`
-    <h2 class="page-title">Compras Parceladas</h2>
-    <div class="card summary-card"><span class="muted">Total/mês</span><span class="v">${brl(total)}</span></div>
+    <div class="card row-between" style="margin-bottom:14px"><span class="muted" style="font-size:13px">Total/mês em parcelas</span><span style="font-size:18px;font-weight:800">${brl(total)}</span></div>
     <div class="card">${rows}</div>
-    <button class="btn-add" onclick="openParcelaModal()">+ Adicionar</button>
+    <button class="btn-add" onclick="openParcelaModal()">+ Adicionar parcelamento</button>
   `;
 }
 
-let patrChart=null;
-function renderPatrimonio(){
-  const sav=getSavings().slice().sort((a,b)=>a.data.localeCompare(b.data));
-  const totalGuardado=sav.reduce((s,m)=>s+(m.tipo==='aporte'?m.valor:-m.valor),0);
-  const el=document.getElementById('tab-patrimonio');
-  let rows=sav.slice().reverse().map(m=>`
-    <div class="row${flashCls(m.id)}" onclick="openSavingModal('${m.id}')">
-      <div class="main">
-        <div class="name">${m.descricao?escapeHtml(m.descricao):'<span class="muted">Sem descrição</span>'}</div>
-        <div class="subt">${fdate(m.data)} <span class="badge ${m.tipo==='aporte'?'green':'red'}">${m.tipo==='aporte'?'Aporte':'Resgate'}</span></div>
-      </div>
-      <div class="val ${m.tipo==='aporte'?'pos':'neg'}">${m.tipo==='aporte'?'+':'-'}${brl(m.valor)}</div>
-      <button class="del" onclick="event.stopPropagation();delSaving('${m.id}',event)">🗑</button>
-    </div>`).join('');
-  if(!sav.length) rows='<div class="empty">Nenhuma movimentação.</div>';
-  el.innerHTML=`
-    <h2 class="page-title">Patrimônio</h2>
-    <div class="hero"><div class="label">Total Guardado</div><div class="big pos">${brl(totalGuardado)}</div></div>
-    ${metaHTML(totalGuardado)}
-    <div class="card"><div class="chart-box"><canvas id="patrChart"></canvas></div></div>
-    <div class="card">${rows}</div>
-    <button class="btn-add" onclick="openSavingModal()">+ Registrar</button>
-  `;
-  // cumulative line chart
-  let cum=0; const labels=[], data=[];
-  sav.forEach(m=>{ cum+=(m.tipo==='aporte'?m.valor:-m.valor); labels.push(fdate(m.data).slice(0,5)); data.push(cum); });
-  if(window.Chart){
-    if(patrChart) patrChart.destroy();
-    const ctx=document.getElementById('patrChart');
-    if(ctx) patrChart=new Chart(ctx,{type:'line',data:{labels,datasets:[{label:'Patrimônio acumulado',data,borderColor:'#16A34A',backgroundColor:'rgba(22,163,74,.12)',fill:true,tension:.3,pointRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>'R$'+(v/1000)+'k'}}}}});
-  }
-}
-
-// Meta de poupança (Patrimônio): barra de progresso até o alvo.
-function metaHTML(total){
-  const meta=DB.metaPoupanca;
-  if(!meta) return `<button class="btn-add" style="margin-bottom:14px" onclick="openMetaModal()">🎯 Definir meta de poupança</button>`;
-  const pct=Math.min(100,Math.round(total/meta*100));
-  const falta=Math.max(0,meta-total);
-  return `<div class="card" onclick="openMetaModal()" style="cursor:pointer">
-    <div class="row-between"><span class="cap">🎯 Meta de poupança</span><span class="cap">${brl(total)} / ${brl(meta)}</span></div>
-    <div class="prog" style="margin-top:8px;height:10px"><div style="width:${pct}%;background:${pct>=100?'var(--green)':'var(--blue)'}"></div></div>
-    <div class="cap" style="margin-top:6px">${pct>=100?'Meta atingida! 🎉':'Faltam '+brl(falta)+' ('+pct+'%)'}</div>
-  </div>`;
-}
-function openMetaModal(){
-  openModal(`
-    <h3>Meta de poupança</h3>
-    <div class="field"><label>Valor alvo (R$)</label><input id="meta-valor" type="text" inputmode="decimal" placeholder="0,00" oninput="moneyMaskInput(this)" value="${DB.metaPoupanca?moedaToInput(DB.metaPoupanca):''}"></div>
-    <div class="modal-actions">
-      ${DB.metaPoupanca?'<button class="btn-cancel" onclick="clearMeta()">Remover</button>':'<button class="btn-cancel" onclick="closeModal()">Cancelar</button>'}
-      <button class="btn-blue" style="color:#fff" onclick="saveMeta()">Salvar</button>
-    </div>
-  `);
-}
-function saveMeta(){ const v=parseMoeda(document.getElementById('meta-valor').value); if(!(v>0)){ toast('Informe um valor válido'); return; } DB.metaPoupanca=v; saveDB(); closeModal(); refresh('patrimonio'); toast('Meta salva'); }
-function clearMeta(){ DB.metaPoupanca=null; saveDB(); closeModal(); refresh('patrimonio'); toast('Meta removida'); }
-
-let resumoChart=null;
-function renderResumo(){
-  const nomes=['','Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-  const nomesC=['','Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-
-  // Todos os 12 meses do ano corrente para a tabela (preenche ausentes com —)
-  const ano=new Date().getFullYear();
-  const allMonths=Array.from({length:12},(_,i)=>{
-    const mes=i+1;
-    return getSummary().find(m=>m.mes===mes && m.ano===ano) || {id:null,mes,ano,entrada_total:null,economizado:null,imposto_pago:null,fatura_cartao:null};
-  });
-
-  const ms=getSummary().filter(m=>m.entrada_total).sort((a,b)=>a.ano-b.ano||a.mes-b.mes);
-  const el=document.getElementById('sub-resumo');
-
-  let trs=allMonths.slice().reverse().map(m=>{
-    const pct=(m.entrada_total&&m.economizado)?(m.economizado/m.entrada_total*100):null;
-    const col=pct===null?'var(--muted)':(pct>25?'var(--green)':(pct>=15?'#CA8A04':'var(--red)'));
-    const pctStr=pct!==null?pct.toFixed(0)+'%':'—';
-    const vazio=!m.entrada_total;
-    return `<tr onclick="openResumoModal(${m.mes},${m.ano})" style="cursor:pointer" title="Clique para editar">
-      <td><b>${nomesC[m.mes]}/${m.ano}</b>${vazio?' <span class="badge" style="font-size:9px">+</span>':''}</td>
-      <td>${brl(m.entrada_total)}</td>
-      <td>${brl(m.economizado)}</td>
-      <td style="color:${col};font-weight:700">${pctStr}</td>
-    </tr>`;
-  }).join('');
-
-  el.innerHTML=`
-    <h2 class="page-title">Resumo</h2>
-    <div class="section-title">Evolução Mensal</div>
-    <div class="card"><div class="chart-box"><canvas id="resumoChart"></canvas></div></div>
-    <div style="display:flex;align-items:center;justify-content:space-between;margin:18px 0 10px">
-      <span class="section-title" style="margin:0">Histórico</span>
-      <button class="btn-add" style="width:auto;padding:8px 14px;font-size:13px" onclick="openResumoModal(${new Date().getMonth()+1},${new Date().getFullYear()})">+ Cadastrar mês</button>
-    </div>
-    <p style="font-size:12px;color:var(--muted);margin-bottom:10px">Toque em qualquer linha para editar</p>
-    <div class="card" style="overflow-x:auto">
-      <table>
-        <thead><tr><th>Mês</th><th>Entrada</th><th>Economizado</th><th>% Guard.</th></tr></thead>
-        <tbody>${trs||'<tr><td colspan="4" class="empty">Sem dados.</td></tr>'}</tbody>
-      </table>
-    </div>
-  `;
-  if(window.Chart){
-    if(resumoChart) resumoChart.destroy();
-    const ctx=document.getElementById('resumoChart');
-    const labels=ms.map(m=>nomesC[m.mes]+'/'+String(m.ano).slice(2));
-    const ink=getComputedStyle(document.documentElement).getPropertyValue('--text').trim()||'#0F1623';
-    if(ctx) resumoChart=new Chart(ctx,{
-      data:{labels,datasets:[
-        {type:'bar',label:'Entrada',data:ms.map(m=>m.entrada_total),backgroundColor:'#2563EB',yAxisID:'y'},
-        {type:'bar',label:'Economizado',data:ms.map(m=>m.economizado),backgroundColor:'#16A34A',yAxisID:'y'},
-        {type:'line',label:'% Guardada',data:ms.map(m=>m.entrada_total?+(m.economizado/m.entrada_total*100).toFixed(1):0),borderColor:ink,backgroundColor:ink,yAxisID:'y1',tension:.3,pointRadius:3}
-      ]},
-      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{boxWidth:12,font:{size:11}}}},
-        scales:{
-          y:{position:'left',ticks:{callback:v=>'R$'+(v/1000)+'k'}},
-          y1:{position:'right',grid:{drawOnChartArea:false},ticks:{callback:v=>v+'%'},min:0,max:100}
-        }}
-    });
-  }
-}
-
-function openResumoModal(mes,ano){
-  const nomes=['','Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-  const ex=getSummary().find(m=>m.mes===mes && m.ano===ano);
-  const mv=(field)=>{ const x=ex&&ex[field]!=null?ex[field]:null; return x==null?'':moedaToInput(x); };
-  openModal(`
-    <h3>${nomes[mes]} ${ano}</h3>
-    <div class="field"><label>Entrada total (R$)</label><input id="rs-entrada" type="text" inputmode="decimal" placeholder="0,00" oninput="moneyMaskInput(this)" value="${mv('entrada_total')}"></div>
-    <div class="field"><label>Dinheiro guardado (R$)</label><input id="rs-eco" type="text" inputmode="decimal" placeholder="0,00" oninput="moneyMaskInput(this)" value="${mv('economizado')}"></div>
-    <div class="field"><label>Imposto pago (R$)</label><input id="rs-imp" type="text" inputmode="decimal" placeholder="0,00" oninput="moneyMaskInput(this)" value="${mv('imposto_pago')}"></div>
-    <div class="field"><label>Fatura cartão (R$)</label><input id="rs-fat" type="text" inputmode="decimal" placeholder="0,00" oninput="moneyMaskInput(this)" value="${mv('fatura_cartao')}"></div>
-    <div class="modal-actions">
-      <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
-      <button class="btn-green" style="color:#fff" onclick="saveResumo(${mes},${ano})">Salvar</button>
-    </div>
-  `);
-}
-
-function saveResumo(mes,ano){
-  const parse=id=>{ const v=parseMoeda(document.getElementById(id).value); return isNaN(v)?null:v; };
-  const entrada_total=parse('rs-entrada');
-  const economizado=parse('rs-eco');
-  const imposto_pago=parse('rs-imp');
-  const fatura_cartao=parse('rs-fat');
-  const idx=DB.monthly_summary.findIndex(m=>m.mes===mes && m.ano===ano);
-  if(idx>=0){
-    DB.monthly_summary[idx]={...DB.monthly_summary[idx],entrada_total,economizado,imposto_pago,fatura_cartao};
-  } else {
-    DB.monthly_summary.push({id:uid(),mes,ano,entrada_total,economizado,imposto_pago,fatura_cartao});
-  }
-  saveDB(); closeModal(); refresh('resumo'); toast('Resumo salvo!');
-}
-
-function escapeHtml(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-
-/* ============ CATEGORIAS (com orçamento/teto mensal) ============ */
+/* ============ RENDER: CATEGORIAS ============ */
 function renderCategorias(){
   const el=document.getElementById('sub-categorias');
   const cats=getCategorias();
-  const {first,last}=currentCycleRange(); // orçamento é por ciclo atual
-  const saidas=getTransacoes().filter(t=>t.tipo==='saida' && t.data>=first && t.data<=last);
+  const {first,last}=currentCycleRange();
+  const saidas=getTransacoes().filter(t=>t.tipo==='saida'&&t.data>=first&&t.data<=last);
   const gastoDe=nome=>saidas.filter(t=>(t.categoria||'')===nome).reduce((s,t)=>s+t.valor,0);
-
   let rows=cats.map(c=>{
     const gasto=gastoDe(c.nome);
     let info;
     if(c.orcamento){
-      const pct=Math.min(100,Math.round(gasto/c.orcamento*100));
-      const over=gasto>c.orcamento;
-      info=`<div class="prog" style="margin-top:8px;height:8px"><div style="width:${pct}%;background:${over?'var(--red)':c.cor}"></div></div>
-        <div class="cap" style="margin-top:5px">${brl(gasto)} de ${brl(c.orcamento)}${over?' · estourou ⚠️':' ('+pct+'%)'}</div>`;
+      const pct=Math.min(100,Math.round(gasto/c.orcamento*100)), over=gasto>c.orcamento;
+      info=`<div class="prog" style="margin-top:6px"><div style="width:${pct}%;background:${over?'var(--neg)':c.cor}"></div></div>
+        <div style="font-size:11px;color:var(--text2);margin-top:3px">${brl(gasto)} de ${brl(c.orcamento)}${over?' · ⚠️ Estourou':' ('+pct+'%)'}</div>`;
     } else {
-      info=`<div class="cap" style="margin-top:5px">Gasto no ciclo: ${brl(gasto)} · sem teto</div>`;
+      info=`<div style="font-size:11px;color:var(--text2);margin-top:3px">Ciclo: ${brl(gasto)} · sem teto</div>`;
     }
-    return `<div class="card cat-row" onclick="openCatModal('${c.id}')" style="cursor:pointer">
+    return `<div class="card" onclick="openCatModal('${c.id}')" style="cursor:pointer;padding:12px 16px">
       <div class="row-between">
-        <div class="name"><span class="cat-ic" style="background:${c.cor}22;color:${c.cor}">${c.icone}</span> ${escapeHtml(c.nome)}</div>
+        <div style="display:flex;align-items:center"><span class="cat-ic" style="background:${c.cor}22;color:${c.cor}">${c.icone}</span> <b>${escapeHtml(c.nome)}</b></div>
         <button class="del" onclick="event.stopPropagation();delCategoria('${c.id}')">🗑</button>
-      </div>
-      ${info}
+      </div>${info}
     </div>`;
   }).join('');
   if(!cats.length) rows='<div class="empty">Nenhuma categoria.</div>';
-
-  el.innerHTML=`
-    <p class="muted-note">Defina um teto mensal por categoria e acompanhe o gasto no ciclo atual.</p>
-    ${rows}
-    <button class="btn-add" onclick="openCatModal()">+ Adicionar categoria</button>
-  `;
+  el.innerHTML=`<p style="font-size:12px;color:var(--text2);margin-bottom:12px">Defina um teto por categoria e acompanhe o gasto no ciclo atual.</p>${rows}
+    <button class="btn-add" onclick="openCatModal()">+ Adicionar categoria</button>`;
 }
 function delCategoria(id){ softDelete('categorias',id,['categorias','lancamentos'],'Categoria'); }
 function openCatModal(id){
   const ex=id?getCategorias().find(c=>c.id===id):null;
-  openModal(`
-    <h3>${ex?'Editar categoria':'Nova categoria'}</h3>
+  openModal(`<h3>${ex?'Editar categoria':'Nova categoria'}</h3>
     <div class="field"><label>Nome</label><input id="c-nome" type="text" placeholder="Ex: Alimentação" value="${ex?escapeHtml(ex.nome):''}"></div>
     <div class="field"><label>Ícone (emoji)</label><input id="c-ic" type="text" maxlength="2" placeholder="🍔" value="${ex?escapeHtml(ex.icone||''):''}"></div>
     <div class="field"><label>Cor</label><input id="c-cor" type="color" value="${ex?ex.cor:'#2563EB'}" style="height:46px;padding:4px"></div>
     <div class="field"><label>Teto mensal (R$, opcional)</label><input id="c-orc" type="text" inputmode="decimal" placeholder="0,00" oninput="moneyMaskInput(this)" value="${ex&&ex.orcamento?moedaToInput(ex.orcamento):''}"></div>
-    <div class="modal-actions"><button class="btn-cancel" onclick="closeModal()">Cancelar</button><button class="btn-blue" style="color:#fff" onclick="saveCat(${id?`'${id}'`:''})">Salvar</button></div>
-  `);
+    <div class="modal-actions"><button class="btn-cancel" onclick="closeModal()">Cancelar</button><button class="btn-accent" onclick="saveCat(${id?`'${id}'`:''})">Salvar</button></div>`);
 }
 function saveCat(id){
   const nome=document.getElementById('c-nome').value.trim();
@@ -985,19 +764,242 @@ function saveCat(id){
   saveDB(); closeModal(); refresh('categorias','lancamentos'); toast(id?'Categoria atualizada':'Categoria criada');
 }
 
-/* ============ DELETES (exclusão suave + "Desfazer", sem confirm nativo) ============ */
-// Remove o item na hora, guarda-o e oferece "Desfazer" no toast por alguns segundos.
-function softDelete(coll, id, views, label){
+/* ============ RENDER: PATRIMÔNIO ============ */
+let patrChart=null;
+function renderPatrimonio(){
+  const sav=getSavings().slice().sort((a,b)=>a.data.localeCompare(b.data));
+  const total=sav.reduce((s,m)=>s+(m.tipo==='aporte'?m.valor:-m.valor),0);
+  const el=document.getElementById('tab-patrimonio');
+
+  // Runway
+  const rw=calcRunway();
+  const rwMonths=rw?rw.months:0;
+  const rwColor=rwMonths>=6?'var(--pos)':(rwMonths>=3?'var(--accent)':'var(--neg)');
+  const rwLabel=rwMonths>=6?'✓ Reserva sólida':(rwMonths>=3?'⚠️ Em construção':'⚠️ Reserva baixa');
+
+  // Allocation breakdown
+  const alocs={reserva:0,investimentos:0,previdencia:0,outros:0};
+  sav.forEach(s=>{ const k=s.alocacao||'reserva'; const v=(s.tipo==='aporte'?s.valor:-s.valor); alocs[k]=(alocs[k]||0)+v; });
+  const alLabels={reserva:'Reserva Emergência',investimentos:'Investimentos',previdencia:'Previdência',outros:'Outros'};
+  const alColors={reserva:'#22C55E',investimentos:'#F0B429',previdencia:'#3B82F6',outros:'#94A3B8'};
+  const allocBlock=Object.entries(alocs).filter(([,v])=>v>0).map(([k,v])=>{
+    const pct=total>0?Math.round(v/total*100):0;
+    return `<div class="alloc-row">
+      <div class="alloc-dot" style="background:${alColors[k]}"></div>
+      <div class="alloc-name">${alLabels[k]}</div>
+      <div class="alloc-pct">${pct}%</div>
+      <div class="alloc-val">${brl(v)}</div>
+    </div>
+    <div class="prog" style="margin-bottom:8px"><div style="width:${pct}%;background:${alColors[k]}"></div></div>`;
+  }).join('');
+
+  let rows=sav.slice().reverse().map(m=>`
+    <div class="row${flashCls(m.id)}" onclick="openSavingModal('${m.id}')">
+      <div class="rm"><div class="rname">${m.descricao?escapeHtml(m.descricao):'<span class="muted">Sem descrição</span>'}</div>
+        <div class="rsub">${fdate(m.data)} <span class="tag ${m.tipo==='aporte'?'tag-green':'tag-red'}">${m.tipo==='aporte'?'Aporte':'Resgate'}</span> <span class="tag tag-gray">${alLabels[m.alocacao||'reserva']||m.alocacao}</span></div></div>
+      <div class="rval ${m.tipo==='aporte'?'pos':'neg'}">${m.tipo==='aporte'?'+':'−'}${brl(m.valor)}</div>
+      <button class="del" onclick="event.stopPropagation();delSaving('${m.id}',event)">🗑</button>
+    </div>`).join('');
+  if(!sav.length) rows='<div class="empty">Nenhuma movimentação.</div>';
+
+  el.innerHTML=`
+    <div class="dash-grid">
+      <div class="card-dark">
+        <div style="font-size:11px;opacity:.6;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px">Total guardado</div>
+        <div style="font-size:44px;font-weight:800;color:var(--pos)">${brl(total)}</div>
+        ${metaHTML(total)}
+      </div>
+      <div class="card">
+        <div class="section-title" style="margin-bottom:10px">Runway (reserva)</div>
+        <div class="runway-big" style="color:${rwColor}">${rw?rw.months.toFixed(1):'—'}<span style="font-size:18px;font-weight:400"> meses</span></div>
+        <div style="font-size:12px;color:var(--text2);margin-top:4px">${rw?`${brl(rw.monthly)}/mês de despesas · ${rwLabel}`:'Cadastre despesas para calcular'}</div>
+        <div style="font-size:11px;color:var(--text2);margin-top:8px">Recomendação: 6 meses de despesas fixas</div>
+      </div>
+    </div>
+    <div class="dash-grid">
+      <div class="card">
+        <div class="section-title" style="margin-bottom:12px">Alocação do patrimônio</div>
+        ${allocBlock||'<div class="empty">Sem movimentações.</div>'}
+      </div>
+      <div class="card"><div class="chart-box"><canvas id="patrChart"></canvas></div></div>
+    </div>
+    <div class="card">${rows}</div>
+    <button class="btn-add" onclick="openSavingModal()">+ Registrar movimentação</button>
+  `;
+
+  let cum=0; const labels=[], data=[];
+  sav.forEach(m=>{ cum+=(m.tipo==='aporte'?m.valor:-m.valor); labels.push(fdate(m.data).slice(0,5)); data.push(cum); });
+  if(window.Chart){
+    if(patrChart) patrChart.destroy();
+    const ctx=document.getElementById('patrChart');
+    if(ctx) patrChart=new Chart(ctx,{type:'line',data:{labels,datasets:[{label:'Patrimônio',data,borderColor:'#22C55E',backgroundColor:'rgba(34,197,94,.1)',fill:true,tension:.3,pointRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>'R$'+(v/1000).toFixed(0)+'k'}}}}});
+  }
+}
+
+function metaHTML(total){
+  const meta=DB.metaPoupanca;
+  if(!meta) return `<button class="btn-ghost" style="margin-top:12px;font-size:12px" onclick="openMetaModal()">🎯 Definir meta</button>`;
+  const pct=Math.min(100,Math.round(total/meta*100)), falta=Math.max(0,meta-total);
+  return `<div onclick="openMetaModal()" style="cursor:pointer;margin-top:10px">
+    <div style="display:flex;justify-content:space-between;font-size:11px;opacity:.7;margin-bottom:4px"><span>🎯 Meta</span><span>${brl(total)} / ${brl(meta)}</span></div>
+    <div class="prog" style="height:8px"><div style="width:${pct}%;background:${pct>=100?'var(--pos)':'var(--accent)'}"></div></div>
+    <div style="font-size:11px;opacity:.6;margin-top:4px">${pct>=100?'Meta atingida! 🎉':'Faltam '+brl(falta)+' ('+pct+'%)'}</div>
+  </div>`;
+}
+function openMetaModal(){
+  openModal(`<h3>Meta de poupança</h3>
+    <div class="field"><label>Valor alvo (R$)</label><input id="meta-valor" type="text" inputmode="decimal" placeholder="0,00" oninput="moneyMaskInput(this)" value="${DB.metaPoupanca?moedaToInput(DB.metaPoupanca):''}"></div>
+    <div class="modal-actions">
+      ${DB.metaPoupanca?'<button class="btn-cancel" onclick="clearMeta()">Remover</button>':'<button class="btn-cancel" onclick="closeModal()">Cancelar</button>'}
+      <button class="btn-accent" onclick="saveMeta()">Salvar</button>
+    </div>`);
+}
+function saveMeta(){ const v=parseMoeda(document.getElementById('meta-valor').value); if(!(v>0)){ toast('Informe um valor válido'); return; } DB.metaPoupanca=v; saveDB(); closeModal(); refresh('patrimonio'); toast('Meta salva'); }
+function clearMeta(){ DB.metaPoupanca=null; saveDB(); closeModal(); refresh('patrimonio'); toast('Meta removida'); }
+
+/* ============ RENDER: RESUMO ============ */
+let resumoChart=null;
+function renderResumo(){
+  const nomes=['','Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  const nomesC=['','Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  const ano=new Date().getFullYear();
+  const allMonths=Array.from({length:12},(_,i)=>{
+    const mes=i+1;
+    return getSummary().find(m=>m.mes===mes&&m.ano===ano)||{id:null,mes,ano,entrada_total:null,economizado:null,imposto_pago:null,fatura_cartao:null};
+  });
+  const ms=getSummary().filter(m=>m.entrada_total).sort((a,b)=>a.ano-b.ano||a.mes-b.mes);
+
+  // Taxa de poupança média
+  const withRate=ms.filter(m=>m.entrada_total&&m.economizado!=null);
+  const avgRate=withRate.length?withRate.reduce((s,m)=>s+(m.economizado/m.entrada_total*100),0)/withRate.length:null;
+  const totalEco=withRate.reduce((s,m)=>s+(m.economizado||0),0);
+
+  const el=document.getElementById('sub-resumo');
+  let trs=allMonths.slice().reverse().map(m=>{
+    const pct=(m.entrada_total&&m.economizado!=null)?(m.economizado/m.entrada_total*100):null;
+    const col=pct===null?'var(--text2)':(pct>25?'var(--pos)':(pct>=15?'var(--accent)':'var(--neg)'));
+    return `<tr onclick="openResumoModal(${m.mes},${m.ano})" title="Clique para editar">
+      <td><b>${nomesC[m.mes]}/${m.ano}</b>${!m.entrada_total?' <span class="tag tag-gray" style="font-size:9px">+</span>':''}</td>
+      <td>${brl(m.entrada_total)}</td><td>${brl(m.economizado)}</td>
+      <td style="color:${col};font-weight:700">${pct!==null?pct.toFixed(0)+'%':'—'}</td>
+    </tr>`;
+  }).join('');
+
+  el.innerHTML=`
+    ${avgRate!==null?`<div class="dash-grid3" style="margin-bottom:14px">
+      <div class="stat-card"><div class="sc-label">Taxa de poupança média</div><div class="sc-val" style="color:${avgRate>=20?'var(--pos)':(avgRate>=10?'var(--accent)':'var(--neg)')}">${avgRate.toFixed(1)}%</div><div class="sc-sub">meta: 20%</div></div>
+      <div class="stat-card"><div class="sc-label">Total economizado</div><div class="sc-val pos">${brl(totalEco)}</div></div>
+      <div class="stat-card"><div class="sc-label">Meses registrados</div><div class="sc-val">${withRate.length}</div></div>
+    </div>`:''}
+    <div class="card"><div class="chart-box"><canvas id="resumoChart"></canvas></div></div>
+    <div class="section-head">
+      <span class="section-title">Histórico mensal</span>
+      <button class="btn-accent" style="font-size:12px;padding:6px 12px" onclick="openResumoModal(${new Date().getMonth()+1},${new Date().getFullYear()})">+ Cadastrar mês</button>
+    </div>
+    <p style="font-size:11px;color:var(--text2);margin-bottom:8px">Toque em qualquer linha para editar</p>
+    <div class="card" style="overflow-x:auto">
+      <table><thead><tr><th>Mês</th><th>Entrada</th><th>Economizado</th><th>% Guard.</th></tr></thead>
+        <tbody>${trs||'<tr><td colspan="4" class="empty">Sem dados.</td></tr>'}</tbody>
+      </table>
+    </div>
+  `;
+  if(window.Chart){
+    if(resumoChart) resumoChart.destroy();
+    const ctx=document.getElementById('resumoChart');
+    const ink=getComputedStyle(document.documentElement).getPropertyValue('--text').trim()||'#0A0A0A';
+    if(ctx) resumoChart=new Chart(ctx,{
+      data:{labels:ms.map(m=>nomesC[m.mes]+'/'+String(m.ano).slice(2)),datasets:[
+        {type:'bar',label:'Entrada',data:ms.map(m=>m.entrada_total),backgroundColor:'#2563EB33',borderColor:'#2563EB',borderWidth:1,yAxisID:'y'},
+        {type:'bar',label:'Economizado',data:ms.map(m=>m.economizado),backgroundColor:'#22C55E44',borderColor:'#22C55E',borderWidth:1,yAxisID:'y'},
+        {type:'line',label:'% Guardada',data:ms.map(m=>m.entrada_total?+(m.economizado/m.entrada_total*100).toFixed(1):0),borderColor:'#F0B429',backgroundColor:'transparent',yAxisID:'y1',tension:.3,pointRadius:4,borderWidth:2}
+      ]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{boxWidth:10,font:{size:11}}}},
+        scales:{y:{position:'left',ticks:{callback:v=>'R$'+(v/1000)+'k'}},y1:{position:'right',grid:{drawOnChartArea:false},ticks:{callback:v=>v+'%'},min:0,max:100}}}
+    });
+  }
+}
+
+function openResumoModal(mes,ano){
+  const nomes=['','Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  const ex=getSummary().find(m=>m.mes===mes&&m.ano===ano);
+  const mv=f=>{ const x=ex&&ex[f]!=null?ex[f]:null; return x==null?'':moedaToInput(x); };
+  openModal(`<h3>${nomes[mes]} ${ano}</h3>
+    <div class="field"><label>Entrada total (R$)</label><input id="rs-entrada" type="text" inputmode="decimal" placeholder="0,00" oninput="moneyMaskInput(this)" value="${mv('entrada_total')}"></div>
+    <div class="field"><label>Dinheiro guardado (R$)</label><input id="rs-eco" type="text" inputmode="decimal" placeholder="0,00" oninput="moneyMaskInput(this)" value="${mv('economizado')}"></div>
+    <div class="field"><label>Imposto pago (R$)</label><input id="rs-imp" type="text" inputmode="decimal" placeholder="0,00" oninput="moneyMaskInput(this)" value="${mv('imposto_pago')}"></div>
+    <div class="field"><label>Fatura cartão (R$)</label><input id="rs-fat" type="text" inputmode="decimal" placeholder="0,00" oninput="moneyMaskInput(this)" value="${mv('fatura_cartao')}"></div>
+    <div class="modal-actions"><button class="btn-cancel" onclick="closeModal()">Cancelar</button><button class="btn-accent" onclick="saveResumo(${mes},${ano})">Salvar</button></div>`);
+}
+function saveResumo(mes,ano){
+  const parse=id=>{ const v=parseMoeda(document.getElementById(id).value); return isNaN(v)?null:v; };
+  const rec={entrada_total:parse('rs-entrada'),economizado:parse('rs-eco'),imposto_pago:parse('rs-imp'),fatura_cartao:parse('rs-fat')};
+  const idx=DB.monthly_summary.findIndex(m=>m.mes===mes&&m.ano===ano);
+  if(idx>=0) DB.monthly_summary[idx]={...DB.monthly_summary[idx],...rec};
+  else DB.monthly_summary.push({id:uid(),mes,ano,...rec});
+  saveDB(); closeModal(); refresh('resumo'); toast('Resumo salvo!');
+}
+
+/* ============ RENDER: VISÃO GERAL ============ */
+function renderVisao(){
+  const el=document.getElementById('sub-visao');
+  const {first,last}=selectedCycleRange(), today_=todayISO();
+  const days=[]; let d=new Date(first+'T12:00:00'); const endD=new Date(last+'T12:00:00');
+  while(d<=endD){ days.push(iso(d.getFullYear(),d.getMonth()+1,d.getDate())); d=new Date(d.getTime()+86400000); }
+  const txs=getTransacoes().filter(t=>t.data>=first&&t.data<=last);
+  const evs=recurringEvents(cycleOffset);
+  const MESES=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  const fmtDay=iso_=>{ const dt=new Date(iso_+'T12:00:00'); return String(dt.getDate()).padStart(2,'0')+' '+MESES[dt.getMonth()]; };
+  let totalIn=0, totalOut=0;
+  const byDay=days.map(isoDay=>{
+    const inTx=txs.filter(t=>t.data===isoDay&&t.tipo==='entrada');
+    const outTx=txs.filter(t=>t.data===isoDay&&t.tipo==='saida');
+    const evDay=evs.filter(e=>e.data===isoDay);
+    return {isoDay,inTx,outTx,evIn:evDay.filter(e=>e.tipo==='entrada'),evOut:evDay.filter(e=>e.tipo==='saida')};
+  }).filter(x=>x.inTx.length||x.outTx.length||x.evIn.length||x.evOut.length);
+  const rows=byDay.map(x=>{
+    const sumIn=x.inTx.reduce((s,t)=>s+t.valor,0)+x.evIn.reduce((s,e)=>s+e.valor,0);
+    const sumOut=x.outTx.reduce((s,t)=>s+t.valor,0)+x.evOut.reduce((s,e)=>s+e.valor,0);
+    totalIn+=sumIn; totalOut+=sumOut;
+    const isToday=x.isoDay===today_;
+    const inLines=[
+      ...x.inTx.map(t=>`<div class="vg-item pos">↑ ${escapeHtml(t.descricao||'Entrada')} <b>${brl(t.valor)}</b></div>`),
+      ...x.evIn.map(e=>`<div class="vg-item pos">💰 ${escapeHtml(e.nome)} (fixa) <b>${brl(e.valor)}</b></div>`)
+    ].join('');
+    const outLines=[
+      ...x.outTx.map(t=>`<div class="vg-item neg">↓ ${escapeHtml(t.descricao||t.categoria||'Gasto')} ${t.forma_pagamento==='cartao'?'💳':'💵'} <b>${brl(t.valor)}</b></div>`),
+      ...x.evOut.map(e=>e.origem==='parcela'
+        ?`<div class="vg-item neg">💳 ${escapeHtml(e.nome)} <span class="tag tag-blue">${e.parcelaNum}/${e.total}</span> <b>${brl(e.valor)}</b></div>`
+        :`<div class="vg-item neg">📌 ${escapeHtml(e.nome)} <b>${brl(e.valor)}</b></div>`)
+    ].join('');
+    return `<div class="vg-day${isToday?' vg-today':''}">
+      <div class="vg-header">
+        <span class="vg-date">${fmtDay(x.isoDay)}${isToday?' <span class="tag tag-accent">Hoje</span>':''}</span>
+        <span class="vg-totals">${sumIn?`<span class="pos">+${brl(sumIn)}</span>`:''}${sumOut?`<span class="neg">−${brl(sumOut)}</span>`:''}</span>
+      </div>
+      <div class="vg-body">${inLines}${outLines}</div>
+    </div>`;
+  }).join('');
+  el.innerHTML=`${cycleSelectorHTML()}
+    <div class="card" style="margin-bottom:14px">
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center">
+        <div><div style="font-size:11px;color:var(--text2)">Entradas</div><div style="font-weight:800;font-size:16px" class="pos">${brl(totalIn)}</div></div>
+        <div><div style="font-size:11px;color:var(--text2)">Saídas</div><div style="font-weight:800;font-size:16px" class="neg">${brl(totalOut)}</div></div>
+        <div><div style="font-size:11px;color:var(--text2)">Saldo</div><div style="font-weight:800;font-size:16px" class="${totalIn-totalOut>=0?'pos':'neg'}">${brl(totalIn-totalOut)}</div></div>
+      </div>
+    </div>
+    ${byDay.length===0?'<div class="empty">Nenhum evento neste ciclo.</div>':rows}`;
+}
+
+/* ============ SOFT DELETE ============ */
+function softDelete(coll,id,views,label){
   const arr=DB[coll]; const idx=arr.findIndex(x=>x.id===id);
   if(idx<0) return;
-  const item=arr[idx];
-  arr.splice(idx,1); saveDB(); refresh(...views);
-  showUndo(label+' excluído', ()=>{ DB[coll].splice(Math.min(idx,DB[coll].length),0,item); saveDB(); refresh(...views); });
+  const item=arr[idx]; arr.splice(idx,1); saveDB(); refresh(...views);
+  showUndo(label+' excluído',()=>{ DB[coll].splice(Math.min(idx,DB[coll].length),0,item); saveDB(); refresh(...views); });
 }
-// Toca a animação de saída na linha tocada e só então remove de fato.
-function animThenDelete(ev, fn){
-  const row=ev&&ev.target&&ev.target.closest?ev.target.closest('.row'):null;
-  if(row){ row.classList.add('leaving'); setTimeout(fn,200); } else fn();
+function animThenDelete(ev,fn){
+  const row=ev?.target?.closest?.('.row');
+  if(row){ row.classList.add('leaving'); setTimeout(fn,180); } else fn();
 }
 function delTx(id,ev){ animThenDelete(ev,()=>softDelete('transacoes',id,['inicio','lancamentos','visao'],'Lançamento')); }
 function delFixa(id,ev){ animThenDelete(ev,()=>softDelete('fixas',id,['inicio','fixas','visao'],'Conta')); }
@@ -1010,57 +1012,48 @@ const modal=document.getElementById('modal'), backdrop=document.getElementById('
 function openModal(html){ modal.innerHTML=html; backdrop.classList.add('open'); modal.classList.add('open'); }
 function closeModal(){ backdrop.classList.remove('open'); modal.classList.remove('open'); }
 
-// transaction modal — abre vazio (novo) ou pré-preenchido (edição, quando recebe id)
 let txTipo='saida';
 function openTxModal(id){
   const ex=id?getTransacoes().find(t=>t.id===id):null;
   txTipo=ex?ex.tipo:'saida';
-  openModal(`
-    <h3>${ex?'Editar lançamento':'Lançar Gasto'}</h3>
+  openModal(`<h3>${ex?'Editar lançamento':'Novo lançamento'}</h3>
     <div class="field"><label>Valor</label><input id="m-valor" type="text" inputmode="decimal" placeholder="0,00" oninput="moneyMaskInput(this)" value="${ex?moedaToInput(ex.valor):''}"></div>
-    <div class="field"><label>Tipo</label>
-      <div class="toggle">
-        <button id="tg-out" class="${txTipo==='saida'?'on-out':''}" onclick="setTxTipo('saida')">Saída</button>
-        <button id="tg-in" class="${txTipo==='entrada'?'on-in':''}" onclick="setTxTipo('entrada')">Entrada</button>
-      </div>
-    </div>
+    <div class="field"><label>Tipo</label><div class="toggle">
+      <button id="tg-out" class="${txTipo==='saida'?'on-out':''}" onclick="setTxTipo('saida')">Saída</button>
+      <button id="tg-in" class="${txTipo==='entrada'?'on-in':''}" onclick="setTxTipo('entrada')">Entrada</button>
+    </div></div>
     <div class="field"><label>Descrição</label><input id="m-desc" type="text" placeholder="Ex: Mercado" value="${ex?escapeHtml(ex.descricao||''):''}"></div>
-    <div class="field"><label>Categoria</label>
-      <select id="m-cat">
-        <option value=""${!ex||!ex.categoria?' selected':''}>— Categoria —</option>
-        ${getCategorias().map(c=>`<option value="${escapeHtml(c.nome)}"${ex&&ex.categoria===c.nome?' selected':''}>${c.icone} ${escapeHtml(c.nome)}</option>`).join('')}
-        ${ex&&ex.categoria&&!getCategorias().some(c=>c.nome===ex.categoria)?`<option value="${escapeHtml(ex.categoria)}" selected>${escapeHtml(ex.categoria)}</option>`:''}
-      </select></div>
-    <div class="field"><label>Forma de pagamento</label>
-      <select id="m-forma">
-        <option value="dinheiro_pix"${ex&&ex.forma_pagamento==='dinheiro_pix'?' selected':''}>Dinheiro / Pix</option>
-        <option value="cartao"${ex&&ex.forma_pagamento==='cartao'?' selected':''}>Cartão</option>
-      </select></div>
+    <div class="field"><label>Categoria</label><select id="m-cat">
+      <option value=""${!ex||!ex.categoria?' selected':''}>— Categoria —</option>
+      ${getCategorias().map(c=>`<option value="${escapeHtml(c.nome)}"${ex&&ex.categoria===c.nome?' selected':''}>${c.icone} ${escapeHtml(c.nome)}</option>`).join('')}
+      ${ex&&ex.categoria&&!getCategorias().some(c=>c.nome===ex.categoria)?`<option value="${escapeHtml(ex.categoria)}" selected>${escapeHtml(ex.categoria)}</option>`:''}
+    </select></div>
+    <div class="field"><label>Pagamento</label><select id="m-forma">
+      <option value="dinheiro_pix"${ex&&ex.forma_pagamento==='dinheiro_pix'?' selected':''}>Dinheiro / Pix</option>
+      <option value="cartao"${ex&&ex.forma_pagamento==='cartao'?' selected':''}>Cartão</option>
+    </select></div>
     <div class="field"><label>Data</label><input id="m-data" type="date" value="${ex?ex.data:todayISO()}"></div>
-    <div class="modal-actions"><button class="btn-cancel" onclick="closeModal()">Cancelar</button><button class="btn-green" style="color:#fff" onclick="saveTx(${id?`'${id}'`:''})">Salvar</button></div>
-  `);
+    <div class="modal-actions"><button class="btn-cancel" onclick="closeModal()">Cancelar</button><button class="btn-accent" onclick="saveTx(${id?`'${id}'`:''})">Salvar</button></div>`);
 }
 function setTxTipo(t){ txTipo=t; document.getElementById('tg-out').className=t==='saida'?'on-out':''; document.getElementById('tg-in').className=t==='entrada'?'on-in':''; }
 function saveTx(id){
   const valor=parseMoeda(document.getElementById('m-valor').value);
   if(!(valor>0)){ toast('Informe um valor válido'); return; }
-  const rec={ data:document.getElementById('m-data').value||todayISO(), tipo:txTipo, valor,
-    descricao:document.getElementById('m-desc').value.trim(), categoria:document.getElementById('m-cat').value.trim(),
-    forma_pagamento:document.getElementById('m-forma').value };
+  const rec={data:document.getElementById('m-data').value||todayISO(),tipo:txTipo,valor,
+    descricao:document.getElementById('m-desc').value.trim(),categoria:document.getElementById('m-cat').value.trim(),
+    forma_pagamento:document.getElementById('m-forma').value};
   if(id){ const i=DB.transacoes.findIndex(t=>t.id===id); if(i>=0) DB.transacoes[i]={...DB.transacoes[i],...rec}; flashId=id; }
   else { const nid=uid(); DB.transacoes.push({id:nid,...rec}); flashId=nid; }
-  saveDB(); closeModal(); refresh('inicio','lancamentos','visao'); clearFlash(); toast(id?'Lançamento atualizado':'Lançamento salvo');
+  saveDB(); closeModal(); refresh('inicio','lancamentos','visao'); clearFlash(); toast(id?'Atualizado':'Lançamento salvo');
 }
 
 function openEntradaFixaModal(id){
   const ex=id?getEntradasFixas().find(f=>f.id===id):null;
-  openModal(`
-    <h3>${ex?'Editar entrada fixa':'Adicionar Entrada Fixa'}</h3>
-    <div class="field"><label>Nome</label><input id="ef-nome" type="text" placeholder="Ex: Salário, Freelance" value="${ex?escapeHtml(ex.nome):''}"></div>
+  openModal(`<h3>${ex?'Editar entrada fixa':'Adicionar Entrada Fixa'}</h3>
+    <div class="field"><label>Nome</label><input id="ef-nome" type="text" placeholder="Ex: Salário" value="${ex?escapeHtml(ex.nome):''}"></div>
     <div class="field"><label>Valor (R$)</label><input id="ef-valor" type="text" inputmode="decimal" placeholder="0,00" oninput="moneyMaskInput(this)" value="${ex?moedaToInput(ex.valor):''}"></div>
     <div class="field"><label>Dia de recebimento</label><input id="ef-dia" type="number" min="1" max="31" value="${ex?ex.dia_recebimento:5}"></div>
-    <div class="modal-actions"><button class="btn-cancel" onclick="closeModal()">Cancelar</button><button style="background:var(--green);color:#fff" onclick="saveEntradaFixa(${id?`'${id}'`:''})">Salvar</button></div>
-  `);
+    <div class="modal-actions"><button class="btn-cancel" onclick="closeModal()">Cancelar</button><button class="btn-accent" style="background:var(--pos);color:#fff" onclick="saveEntradaFixa(${id?`'${id}'`:''})">Salvar</button></div>`);
 }
 function saveEntradaFixa(id){
   const nome=document.getElementById('ef-nome').value.trim();
@@ -1071,17 +1064,16 @@ function saveEntradaFixa(id){
   if(!DB.entradas_fixas) DB.entradas_fixas=[];
   if(id){ const i=DB.entradas_fixas.findIndex(f=>f.id===id); if(i>=0) DB.entradas_fixas[i]={...DB.entradas_fixas[i],nome,valor,dia_recebimento:dia}; flashId=id; }
   else { const nid=uid(); DB.entradas_fixas.push({id:nid,nome,valor,dia_recebimento:dia,ativo:true}); flashId=nid; }
-  saveDB(); closeModal(); refresh('inicio','fixas','visao'); clearFlash(); toast(id?'Entrada fixa atualizada':'Entrada fixa adicionada!');
+  saveDB(); closeModal(); refresh('inicio','fixas','visao'); clearFlash(); toast(id?'Atualizado':'Entrada fixa adicionada!');
 }
+
 function openFixaModal(id){
   const ex=id?getFixas().find(f=>f.id===id):null;
-  openModal(`
-    <h3>${ex?'Editar conta fixa':'Adicionar Conta Fixa'}</h3>
+  openModal(`<h3>${ex?'Editar conta fixa':'Adicionar Conta Fixa'}</h3>
     <div class="field"><label>Nome</label><input id="f-nome" type="text" placeholder="Ex: Internet" value="${ex?escapeHtml(ex.nome):''}"></div>
     <div class="field"><label>Valor</label><input id="f-valor" type="text" inputmode="decimal" placeholder="0,00" oninput="moneyMaskInput(this)" value="${ex?moedaToInput(ex.valor):''}"></div>
     <div class="field"><label>Dia de vencimento</label><input id="f-dia" type="number" min="1" max="31" value="${ex?ex.dia_vencimento:1}"></div>
-    <div class="modal-actions"><button class="btn-cancel" onclick="closeModal()">Cancelar</button><button class="btn-blue" style="color:#fff" onclick="saveFixa(${id?`'${id}'`:''})">Salvar</button></div>
-  `);
+    <div class="modal-actions"><button class="btn-cancel" onclick="closeModal()">Cancelar</button><button class="btn-accent" onclick="saveFixa(${id?`'${id}'`:''})">Salvar</button></div>`);
 }
 function saveFixa(id){
   const nome=document.getElementById('f-nome').value.trim();
@@ -1090,19 +1082,17 @@ function saveFixa(id){
   if(!nome||!(valor>0)){ toast('Preencha nome e valor'); return; }
   if(id){ const i=DB.fixas.findIndex(f=>f.id===id); if(i>=0) DB.fixas[i]={...DB.fixas[i],nome,valor,dia_vencimento:dia}; flashId=id; }
   else { const nid=uid(); DB.fixas.push({id:nid,nome,valor,dia_vencimento:dia,ativo:true}); flashId=nid; }
-  saveDB(); closeModal(); refresh('inicio','fixas','visao'); clearFlash(); toast(id?'Conta atualizada':'Conta adicionada');
+  saveDB(); closeModal(); refresh('inicio','fixas','visao'); clearFlash(); toast(id?'Atualizado':'Conta adicionada');
 }
 
 function openParcelaModal(id){
   const ex=id?getParceladas().find(p=>p.id===id):null;
-  openModal(`
-    <h3>${ex?'Editar parcelamento':'Adicionar Parcelamento'}</h3>
+  openModal(`<h3>${ex?'Editar parcelamento':'Adicionar Parcelamento'}</h3>
     <div class="field"><label>Nome</label><input id="p-nome" type="text" placeholder="Ex: Notebook" value="${ex?escapeHtml(ex.nome):''}"></div>
     <div class="field"><label>Valor da parcela</label><input id="p-valor" type="text" inputmode="decimal" placeholder="0,00" oninput="moneyMaskInput(this)" value="${ex?moedaToInput(ex.valor_parcela):''}"></div>
     <div class="field"><label>Parcela atual</label><input id="p-atual" type="number" min="1" value="${ex?ex.parcela_atual:1}"></div>
     <div class="field"><label>Total de parcelas</label><input id="p-total" type="number" min="1" value="${ex?ex.total_parcelas:1}"></div>
-    <div class="modal-actions"><button class="btn-cancel" onclick="closeModal()">Cancelar</button><button class="btn-blue" style="color:#fff" onclick="saveParcela(${id?`'${id}'`:''})">Salvar</button></div>
-  `);
+    <div class="modal-actions"><button class="btn-cancel" onclick="closeModal()">Cancelar</button><button class="btn-accent" onclick="saveParcela(${id?`'${id}'`:''})">Salvar</button></div>`);
 }
 function saveParcela(id){
   const nome=document.getElementById('p-nome').value.trim();
@@ -1112,180 +1102,132 @@ function saveParcela(id){
   if(!nome||!(vp>0)){ toast('Preencha nome e valor'); return; }
   if(id){ const i=DB.parceladas.findIndex(p=>p.id===id); if(i>=0) DB.parceladas[i]={...DB.parceladas[i],nome,valor_parcela:vp,parcela_atual:pa,total_parcelas:tp}; flashId=id; }
   else { const nid=uid(); DB.parceladas.push({id:nid,nome,valor_parcela:vp,parcela_atual:pa,total_parcelas:tp,ativo:true}); flashId=nid; }
-  saveDB(); closeModal(); refresh('inicio','parceladas','visao'); clearFlash(); toast(id?'Parcelamento atualizado':'Parcelamento adicionado');
+  saveDB(); closeModal(); refresh('inicio','parceladas','visao'); clearFlash(); toast(id?'Atualizado':'Parcelamento adicionado');
 }
 
 let savTipo='aporte';
 function openSavingModal(id){
   const ex=id?getSavings().find(s=>s.id===id):null;
   savTipo=ex?ex.tipo:'aporte';
-  openModal(`
-    <h3>${ex?'Editar movimentação':'Registrar Movimentação'}</h3>
-    <div class="field"><label>Tipo</label>
-      <div class="toggle">
-        <button id="sv-ap" class="${savTipo==='aporte'?'on-blue':''}" onclick="setSavTipo('aporte')">Aporte</button>
-        <button id="sv-rg" class="${savTipo==='resgate'?'on-blue':''}" onclick="setSavTipo('resgate')">Resgate</button>
-      </div>
-    </div>
+  const aloc=ex?.alocacao||'reserva';
+  openModal(`<h3>${ex?'Editar movimentação':'Registrar Movimentação'}</h3>
+    <div class="field"><label>Tipo</label><div class="toggle">
+      <button id="sv-ap" class="${savTipo==='aporte'?'on-blue':''}" onclick="setSavTipo('aporte')">Aporte</button>
+      <button id="sv-rg" class="${savTipo==='resgate'?'on-blue':''}" onclick="setSavTipo('resgate')">Resgate</button>
+    </div></div>
     <div class="field"><label>Valor</label><input id="s-valor" type="text" inputmode="decimal" placeholder="0,00" oninput="moneyMaskInput(this)" value="${ex?moedaToInput(ex.valor):''}"></div>
+    <div class="field"><label>Alocação</label><select id="s-aloc">
+      <option value="reserva"${aloc==='reserva'?' selected':''}>Reserva de emergência</option>
+      <option value="investimentos"${aloc==='investimentos'?' selected':''}>Investimentos</option>
+      <option value="previdencia"${aloc==='previdencia'?' selected':''}>Previdência</option>
+      <option value="outros"${aloc==='outros'?' selected':''}>Outros</option>
+    </select></div>
     <div class="field"><label>Data</label><input id="s-data" type="date" value="${ex?ex.data:todayISO()}"></div>
-    <div class="field"><label>Descrição</label><input id="s-desc" type="text" placeholder="Ex: Reserva" value="${ex?escapeHtml(ex.descricao||''):''}"></div>
-    <div class="modal-actions"><button class="btn-cancel" onclick="closeModal()">Cancelar</button><button class="btn-blue" style="color:#fff" onclick="saveSaving(${id?`'${id}'`:''})">Salvar</button></div>
-  `);
+    <div class="field"><label>Descrição</label><input id="s-desc" type="text" placeholder="Ex: Reserva emergência" value="${ex?escapeHtml(ex.descricao||''):''}"></div>
+    <div class="modal-actions"><button class="btn-cancel" onclick="closeModal()">Cancelar</button><button class="btn-accent" onclick="saveSaving(${id?`'${id}'`:''})">Salvar</button></div>`);
 }
 function setSavTipo(t){ savTipo=t; document.getElementById('sv-ap').className=t==='aporte'?'on-blue':''; document.getElementById('sv-rg').className=t==='resgate'?'on-blue':''; }
 function saveSaving(id){
   const valor=parseMoeda(document.getElementById('s-valor').value);
   if(!(valor>0)){ toast('Informe um valor válido'); return; }
-  const rec={ data:document.getElementById('s-data').value||todayISO(), tipo:savTipo, valor, descricao:document.getElementById('s-desc').value.trim() };
+  const rec={data:document.getElementById('s-data').value||todayISO(),tipo:savTipo,valor,
+    alocacao:document.getElementById('s-aloc').value,
+    descricao:document.getElementById('s-desc').value.trim()};
   if(id){ const i=DB.savings.findIndex(s=>s.id===id); if(i>=0) DB.savings[i]={...DB.savings[i],...rec}; flashId=id; }
   else { const nid=uid(); DB.savings.push({id:nid,...rec}); flashId=nid; }
-  saveDB(); closeModal(); refresh('patrimonio'); clearFlash(); toast(id?'Movimentação atualizada':'Movimentação registrada');
+  saveDB(); closeModal(); refresh('patrimonio'); clearFlash(); toast(id?'Atualizado':'Movimentação registrada');
 }
 
 /* ============ TOAST ============ */
 let toastTimer=null;
 function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove('show'),2600); }
-// Toast com botão "Desfazer" (substitui os confirm() de exclusão).
-function showUndo(msg, undoFn){
+function showUndo(msg,undoFn){
   const t=document.getElementById('toast');
-  t.innerHTML='<span>'+escapeHtml(msg)+'</span><button class="toast-undo">Desfazer</button>';
+  t.innerHTML='<span>'+escapeHtml(msg)+'</span><button class="toast-undo" onclick="this.closest(\'#toast\').classList.remove(\'show\')">Desfazer</button>';
   t.classList.add('show');
   t.querySelector('.toast-undo').onclick=()=>{ t.classList.remove('show'); undoFn(); setTimeout(()=>toast('Restaurado'),220); };
   clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove('show'),5000);
 }
 
-/* ============ TABS ============ */
-document.querySelectorAll('.nav-in button').forEach(b=>{
-  b.addEventListener('click',()=>showTab(b.dataset.tab));
-});
-
-/* ============ TEMA (claro / escuro) ============ */
-function currentTheme(){
-  const saved=localStorage.getItem('theme');
-  if(saved) return saved;
-  return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
-}
-function applyChartTheme(t){
-  if(!window.Chart) return;
-  Chart.defaults.color = t==='dark' ? '#94A3B8' : '#64748B';
-  Chart.defaults.borderColor = t==='dark' ? '#26303D' : '#E2E8F0';
-}
+/* ============ TEMA ============ */
+function currentTheme(){ const s=localStorage.getItem('theme'); if(s) return s; return window.matchMedia?.('(prefers-color-scheme:dark)').matches?'dark':'light'; }
+function applyChartTheme(t){ if(!window.Chart) return; Chart.defaults.color=t==='dark'?'#888':'#555'; Chart.defaults.borderColor=t==='dark'?'#2A2A2A':'#E0E0E0'; }
 function applyTheme(){
   const t=currentTheme();
-  // Só fixa o atributo quando o usuário escolheu manualmente; senão segue o sistema.
   if(localStorage.getItem('theme')) document.documentElement.setAttribute('data-theme',t);
   else document.documentElement.removeAttribute('data-theme');
-  const btn=document.getElementById('btn-theme');
-  if(btn) btn.textContent = t==='dark' ? '☀️' : '🌙';
+  const icon=t==='dark'?'☀️ Tema':'🌙 Tema';
+  document.querySelectorAll('#btn-theme,#btn-theme-mob').forEach(b=>{ if(b) b.textContent=t==='dark'?'☀️':'🌙'; });
+  const sb=document.getElementById('btn-theme'); if(sb) sb.textContent=icon;
   applyChartTheme(t);
 }
-function toggleTheme(){
-  localStorage.setItem('theme', currentTheme()==='dark' ? 'light' : 'dark');
-  applyTheme();
-  refresh('patrimonio','resumo'); // gráficos visíveis re-desenham com as novas cores
-}
+function toggleTheme(){ localStorage.setItem('theme',currentTheme()==='dark'?'light':'dark'); applyTheme(); refresh('patrimonio','resumo'); }
 
 /* ============ AUDIO + BANNER ============ */
 function playAudio(){ const a=document.getElementById('sccp-audio'); if(a) a.play().catch(()=>{}); }
 function initBannerAudio(){
   const banner=document.getElementById('banner');
-  // Banner/áudio alvinegro: aparece só uma vez por sessão e é dispensável (sem autoplay insistente)
   if(sessionStorage.getItem('banner_shown')){ if(banner) banner.style.display='none'; return; }
   sessionStorage.setItem('banner_shown','1');
   playAudio();
   setTimeout(()=>{ banner.style.opacity='0'; setTimeout(()=>banner.style.display='none',900); },3000);
-  // toque no banner também dispensa na hora
   if(banner) banner.addEventListener('click',()=>{ banner.style.opacity='0'; setTimeout(()=>banner.style.display='none',400); });
 }
 
-/* ============ BACKUP: EXPORTAR / IMPORTAR ============ */
-// Baixa um arquivo gerado em memória (sem servidor).
-function downloadFile(filename, content, mime){
+/* ============ BACKUP ============ */
+function downloadFile(filename,content,mime){
   const blob=new Blob([content],{type:mime});
   const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');
-  a.href=url; a.download=filename;
+  const a=document.createElement('a'); a.href=url; a.download=filename;
   document.body.appendChild(a); a.click(); document.body.removeChild(a);
   setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
-
-// Exporta TODO o banco como JSON (backup completo, reimportável).
-function exportJSON(){
-  downloadFile('financas-backup-'+todayISO()+'.json', JSON.stringify(DB,null,2), 'application/json');
-  toast('Backup .json baixado');
-}
-
-// Escapa um campo para CSV (aspas, ponto-e-vírgula, quebra de linha).
-function csvEscape(v){
-  if(v==null) return '';
-  const s=String(v);
-  return /[",\n;]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s;
-}
-// Exporta os lançamentos em CSV (separador ';', vírgula decimal, BOM p/ Excel).
+function exportJSON(){ downloadFile('financas-backup-'+todayISO()+'.json',JSON.stringify(DB,null,2),'application/json'); toast('Backup .json baixado'); }
+function csvEscape(v){ if(v==null) return ''; const s=String(v); return /[",\n;]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s; }
 function exportCSV(){
-  const header=['data','tipo','valor','descricao','categoria','forma_pagamento'];
-  const lines=[header.join(';')];
+  const h=['data','tipo','valor','descricao','categoria','forma_pagamento'];
+  const lines=[h.join(';')];
   getTransacoes().slice().sort((a,b)=>a.data.localeCompare(b.data)).forEach(t=>{
     lines.push([t.data,t.tipo,String(t.valor).replace('.',','),t.descricao,t.categoria,t.forma_pagamento].map(csvEscape).join(';'));
   });
-  downloadFile('lancamentos-'+todayISO()+'.csv', '﻿'+lines.join('\n'), 'text/csv;charset=utf-8');
+  downloadFile('lancamentos-'+todayISO()+'.csv','﻿'+lines.join('\n'),'text/csv;charset=utf-8');
   toast('Lançamentos .csv baixados');
 }
-
-// Importa um backup .json — valida, confirma e SÓ ENTÃO substitui (nunca apaga silenciosamente).
 function importJSON(){
-  const input=document.createElement('input');
-  input.type='file'; input.accept='application/json,.json';
+  const input=document.createElement('input'); input.type='file'; input.accept='application/json,.json';
   input.onchange=()=>{
-    const file=input.files && input.files[0];
-    if(!file) return;
+    const file=input.files&&input.files[0]; if(!file) return;
     const reader=new FileReader();
     reader.onload=()=>{
-      let data;
-      try{ data=JSON.parse(reader.result); }
-      catch(e){ alert('Arquivo inválido: não é um JSON legível.'); return; }
-      // Validação básica: objeto com ao menos uma das coleções esperadas
+      let data; try{ data=JSON.parse(reader.result); }catch(e){ alert('Arquivo inválido.'); return; }
       const cols=['fixas','parceladas','transacoes','monthly_summary','savings','entradas_fixas'];
-      if(typeof data!=='object' || data===null || !cols.some(k=>Array.isArray(data[k]))){
-        alert('Arquivo inválido: não parece um backup do Finanças.'); return;
-      }
-      const resumo='Importar este backup vai SUBSTITUIR seus dados atuais.\n\n'+
-        '• '+((data.transacoes||[]).length)+' lançamentos\n'+
-        '• '+((data.fixas||[]).length)+' contas fixas\n'+
-        '• '+((data.entradas_fixas||[]).length)+' entradas fixas\n'+
-        '• '+((data.parceladas||[]).length)+' parceladas\n'+
-        '• '+((data.savings||[]).length)+' movimentações de patrimônio\n\n'+
-        'Deseja continuar?';
-      if(!confirm(resumo)) return;
-      // Reconstrói garantindo todas as coleções; migrateDB preenche campos novos.
-      DB={
-        fixas:data.fixas||[], parceladas:data.parceladas||[], transacoes:data.transacoes||[],
-        monthly_summary:data.monthly_summary||[], savings:data.savings||[], entradas_fixas:data.entradas_fixas||[],
-        categorias:data.categorias||defaultCategorias(),
-        metaPoupanca:(data.metaPoupanca!==undefined?data.metaPoupanca:null)
-      };
+      if(typeof data!=='object'||data===null||!cols.some(k=>Array.isArray(data[k]))){ alert('Não parece um backup do Finanças.'); return; }
+      const res='Importar substituirá seus dados.\n\n• '+((data.transacoes||[]).length)+' lançamentos\n• '+((data.fixas||[]).length)+' contas fixas\n\nContinuar?';
+      if(!confirm(res)) return;
+      DB={fixas:data.fixas||[],parceladas:data.parceladas||[],transacoes:data.transacoes||[],
+        monthly_summary:data.monthly_summary||[],savings:data.savings||[],entradas_fixas:data.entradas_fixas||[],
+        categorias:data.categorias||defaultCategorias(),metaPoupanca:data.metaPoupanca??null};
       if(data.cycleAnchor) DB.cycleAnchor=data.cycleAnchor;
-      migrateDB(); saveDB(); renderAll(); closeModal();
-      toast('Backup importado com sucesso');
+      migrateDB(); saveDB(); renderAll(); closeModal(); toast('Backup importado!');
     };
     reader.readAsText(file);
   };
   input.click();
 }
-
-// Central de dados/backup (acessível pelo botão "⚙️ Dados" no topo).
 function openBackupModal(){
-  openModal(`
-    <h3>Dados & Backup</h3>
-    <p style="font-size:13px;color:var(--muted);margin-bottom:14px">Seus dados ficam só neste navegador. Exporte um backup de tempos em tempos para não perder nada.</p>
-    <button class="btn-add" style="background:var(--green);margin-bottom:8px" onclick="exportJSON()">⬇️ Exportar backup (.json)</button>
+  openModal(`<h3>Dados & Backup</h3>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:14px">Seus dados ficam só neste navegador. Exporte um backup periodicamente.</p>
+    <button class="btn-add" style="background:var(--pos);margin-bottom:8px" onclick="exportJSON()">⬇️ Exportar backup (.json)</button>
     <button class="btn-add" style="margin-bottom:8px" onclick="exportCSV()">📄 Exportar lançamentos (.csv)</button>
-    <button class="btn-add" style="background:#0F1623;margin-bottom:16px" onclick="importJSON()">⬆️ Importar backup (.json)</button>
-    <button class="btn-add" style="background:var(--red)" onclick="closeModal();resetData()">🗑️ Resetar para dados iniciais</button>
-    <div class="modal-actions" style="margin-top:14px"><button class="btn-cancel" onclick="closeModal()">Fechar</button></div>
-  `);
+    <button class="btn-add" style="background:#1A1A1A;margin-bottom:16px" onclick="importJSON()">⬆️ Importar backup (.json)</button>
+    <button class="btn-add" style="background:var(--neg)" onclick="closeModal();resetData()">🗑️ Resetar para dados iniciais</button>
+    <div class="modal-actions" style="margin-top:12px"><button class="btn-cancel" onclick="closeModal()">Fechar</button></div>`);
 }
+
+/* ============ NAV ============ */
+document.querySelectorAll('.sb-nav button').forEach(b=>{
+  b.addEventListener('click',()=>showTab(b.dataset.tab));
+});
 
 /* ============ INIT ============ */
 loadDB();
