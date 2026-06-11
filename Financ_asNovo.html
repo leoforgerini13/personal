@@ -7,10 +7,34 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
 <style>
 :root{
+  /* Cores de marca (fixas nos dois temas) */
   --navy:#0F1623; --green:#16A34A; --red:#DC2626; --blue:#2563EB;
-  --bg:#F1F5F9; --card:#FFFFFF; --text:#0F1623; --muted:#64748B;
-  --border:#E2E8F0; --r-lg:16px; --r-sm:10px; --shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);
+  /* Superfícies / texto (TEMA CLARO) */
+  --bg:#F1F5F9; --card:#FFFFFF; --field-bg:#FFFFFF; --text:#0F1623; --muted:#64748B;
+  --border:#E2E8F0;
+  /* Escala de espaçamento, raios e sombras (design tokens) */
+  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:24px;
+  --r-lg:16px; --r-sm:10px;
+  --shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);
 }
+/* TEMA ESCURO — automático pelo sistema, a menos que o usuário force claro */
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0B1220; --card:#151B26; --field-bg:#1B2330; --text:#E5E9F0; --muted:#94A3B8;
+    --border:#26303D; --shadow:0 1px 3px rgba(0,0,0,.45);
+  }
+}
+/* TEMA ESCURO — forçado manualmente pelo toggle */
+:root[data-theme="dark"]{
+  --bg:#0B1220; --card:#151B26; --field-bg:#1B2330; --text:#E5E9F0; --muted:#94A3B8;
+  --border:#26303D; --shadow:0 1px 3px rgba(0,0,0,.45);
+}
+/* Utilitários (consolidam style="" inline repetidos) */
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s2);text-align:center}
+.cap{font-size:11px;color:var(--muted)}
+.row-between{display:flex;align-items:center;justify-content:space-between;gap:var(--s2)}
+.muted-note{font-size:12px;color:var(--muted);margin-bottom:10px}
+.big-num{font-size:18px;font-weight:800}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);padding-bottom:80px;line-height:1.4}
 .wrap{max-width:640px;margin:0 auto}
@@ -68,7 +92,7 @@ h2.page-title{font-size:20px;margin-bottom:14px}
 .prog{height:6px;background:var(--border);border-radius:999px;overflow:hidden;margin-top:6px}
 .prog>div{height:100%;background:var(--blue)}
 /* nav */
-nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);z-index:60}
+nav{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--border);z-index:60}
 .nav-in{max-width:640px;margin:0 auto;display:flex}
 .nav-in button{flex:1;background:none;border:none;padding:8px 2px 10px;cursor:pointer;color:var(--muted);font-size:10px;display:flex;flex-direction:column;align-items:center;gap:2px}
 .nav-in button .ic{font-size:20px}
@@ -76,14 +100,14 @@ nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid 
 /* modal */
 .backdrop{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:100;display:none}
 .backdrop.open{display:block}
-.modal{position:fixed;left:0;right:0;bottom:0;z-index:101;background:#fff;border-radius:18px 18px 0 0;padding:20px;max-width:640px;margin:0 auto;transform:translateY(100%);transition:transform .3s}
+.modal{position:fixed;left:0;right:0;bottom:0;z-index:101;background:var(--card);color:var(--text);border-radius:18px 18px 0 0;padding:20px;max-width:640px;margin:0 auto;transform:translateY(100%);transition:transform .3s}
 .modal.open{transform:translateY(0)}
 .modal h3{margin-bottom:14px;font-size:18px}
 .field{margin-bottom:12px}
 .field label{display:block;font-size:13px;color:var(--muted);margin-bottom:4px}
-.field input,.field select{width:100%;padding:12px;border:1px solid var(--border);border-radius:var(--r-sm);font-size:16px;background:#fff;font-family:inherit}
+.field input,.field select{width:100%;padding:12px;border:1px solid var(--border);border-radius:var(--r-sm);font-size:16px;background:var(--field-bg);color:var(--text);font-family:inherit}
 .toggle{display:flex;gap:8px}
-.toggle button{flex:1;padding:12px;border:1px solid var(--border);background:#fff;border-radius:var(--r-sm);font-size:14px;font-weight:600;cursor:pointer;color:var(--muted)}
+.toggle button{flex:1;padding:12px;border:1px solid var(--border);background:var(--card);border-radius:var(--r-sm);font-size:14px;font-weight:600;cursor:pointer;color:var(--muted)}
 .toggle button.on-out{background:var(--red);color:#fff;border-color:var(--red)}
 .toggle button.on-in{background:var(--green);color:#fff;border-color:var(--green)}
 .toggle button.on-blue{background:var(--blue);color:#fff;border-color:var(--blue)}
@@ -108,6 +132,21 @@ th{color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase}
 .vg-item b{margin-left:auto;white-space:nowrap}
 .vg-item.green{color:var(--green)}
 .vg-item.red{color:var(--red)}
+/* Sub-navegação (abas agrupadas Planejamento / Análise) */
+.subnav{display:flex;gap:6px;margin-bottom:var(--s4);background:var(--card);padding:4px;border-radius:var(--r-sm);box-shadow:var(--shadow)}
+.subnav button{flex:1;border:none;background:none;padding:9px;border-radius:8px;font-weight:600;font-size:14px;color:var(--muted);cursor:pointer;transition:background .2s,color .2s}
+.subnav button.active{background:var(--blue);color:#fff}
+.subview{display:none}
+.subview.active{display:block}
+/* Toggle de tema no header */
+.btn-theme{background:rgba(255,255,255,.12);color:#fff;border:none;border-radius:8px;padding:6px 9px;font-size:14px;cursor:pointer;line-height:1}
+/* Transição suave ao trocar de aba + entrada sutil de itens de lista */
+.tab-page.active{animation:fadeIn .22s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion: reduce){
+  .tab-page.active{animation:none}
+  .modal{transition:none}
+}
 </style>
 </head>
 <body>
@@ -123,6 +162,7 @@ th{color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase}
       <span>Finanças</span>
     </div>
     <div class="spacer"></div>
+    <button class="btn-theme" id="btn-theme" onclick="toggleTheme()" title="Alternar tema">🌙</button>
     <button class="btn-reset" onclick="openBackupModal()">⚙️ Dados</button>
   </div>
 </header>
@@ -130,22 +170,37 @@ th{color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase}
 <main class="wrap">
   <section id="tab-inicio" class="tab-page active"></section>
   <section id="tab-lancamentos" class="tab-page"></section>
-  <section id="tab-fixas" class="tab-page"></section>
-  <section id="tab-parceladas" class="tab-page"></section>
+
+  <!-- Planejamento agrupa Fixas + Parceladas -->
+  <section id="tab-planejamento" class="tab-page">
+    <div class="subnav">
+      <button data-sub="fixas" class="active" onclick="showSub('planejamento','fixas')">📌 Fixas</button>
+      <button data-sub="parceladas" onclick="showSub('planejamento','parceladas')">💳 Parceladas</button>
+    </div>
+    <div id="sub-fixas" class="subview active"></div>
+    <div id="sub-parceladas" class="subview"></div>
+  </section>
+
   <section id="tab-patrimonio" class="tab-page"></section>
-  <section id="tab-resumo" class="tab-page"></section>
-  <section id="tab-visao" class="tab-page"></section>
+
+  <!-- Análise agrupa Resumo + Visão -->
+  <section id="tab-analise" class="tab-page">
+    <div class="subnav">
+      <button data-sub="resumo" class="active" onclick="showSub('analise','resumo')">📊 Resumo</button>
+      <button data-sub="visao" onclick="showSub('analise','visao')">🗓️ Visão</button>
+    </div>
+    <div id="sub-resumo" class="subview active"></div>
+    <div id="sub-visao" class="subview"></div>
+  </section>
 </main>
 
 <nav>
   <div class="nav-in">
     <button data-tab="inicio" class="active"><span class="ic">🏠</span>Início</button>
-    <button data-tab="lancamentos"><span class="ic">🧾</span>Lançamentos</button>
-    <button data-tab="fixas"><span class="ic">📌</span>Fixas</button>
-    <button data-tab="parceladas"><span class="ic">💳</span>Parceladas</button>
+    <button data-tab="lancamentos"><span class="ic">🧾</span>Lançar</button>
+    <button data-tab="planejamento"><span class="ic">📌</span>Planejar</button>
     <button data-tab="patrimonio"><span class="ic">📈</span>Patrimônio</button>
-    <button data-tab="resumo"><span class="ic">📊</span>Resumo</button>
-    <button data-tab="visao"><span class="ic">🗓️</span>Visão</button>
+    <button data-tab="analise"><span class="ic">📊</span>Análise</button>
   </div>
 </nav>
 
@@ -251,12 +306,61 @@ function calcSaldo(){
   return entradas - saidas - fixasTotal - parcelasTotal + entradasFixasTotal;
 }
 
-/* ============ RENDERING ============ */
-function renderAll(){ renderInicio(); renderLancamentos(); renderFixas(); renderParceladas(); renderPatrimonio(); renderResumo(); renderVisao(); }
+/* ============ RENDERING: estado → render direcionado ============ */
+// Cada "view" sabe em qual aba vive e qual função a desenha. Em vez de
+// reconstruir o app inteiro a cada ação, só re-renderizamos a view afetada
+// que estiver visível; as demais ficam "sujas" e renderizam ao abrir a aba.
+const RENDER={ inicio:renderInicio, lancamentos:renderLancamentos, fixas:renderFixas,
+  parceladas:renderParceladas, patrimonio:renderPatrimonio, resumo:renderResumo, visao:renderVisao };
+const VIEW_TAB={ inicio:'inicio', lancamentos:'lancamentos', fixas:'planejamento',
+  parceladas:'planejamento', patrimonio:'patrimonio', resumo:'analise', visao:'analise' };
+const TAB_VIEWS={ inicio:['inicio'], lancamentos:['lancamentos'], planejamento:['fixas','parceladas'],
+  patrimonio:['patrimonio'], analise:['resumo','visao'] };
+const ALL_VIEWS=Object.keys(RENDER);
+
+let activeTab='inicio';
+let dirty=new Set();        // views que precisam re-renderizar quando ficarem visíveis
+const scrollPos={};         // posição de scroll por aba (para não "pular" ao voltar)
+
+function renderView(name){ RENDER[name](); dirty.delete(name); }
+
+// Atualização direcionada após mudança de estado: re-renderiza só as views
+// afetadas que estão visíveis; o resto fica marcado para render preguiçoso.
+function refresh(...names){
+  names.forEach(n=>{ if(VIEW_TAB[n]===activeTab) renderView(n); else dirty.add(n); });
+}
+
+// Render "completo" lógico (reset/import): marca tudo sujo e desenha só a aba ativa.
+function renderAll(){
+  dirty=new Set(ALL_VIEWS);
+  TAB_VIEWS[activeTab].forEach(renderView);
+}
+
+// Troca de aba preservando o scroll e renderizando o que estiver sujo.
+function showTab(tab){
+  if(tab===activeTab){ window.scrollTo(0,0); return; }
+  scrollPos[activeTab]=window.scrollY;
+  activeTab=tab;
+  document.querySelectorAll('.nav-in button').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
+  document.querySelectorAll('.tab-page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  TAB_VIEWS[tab].forEach(n=>{ if(dirty.has(n)) renderView(n); });
+  window.scrollTo(0, scrollPos[tab]||0);
+}
+
+// Sub-navegação dentro de abas agrupadas (Planejamento / Análise).
+function showSub(tab, sub){
+  const sec=document.getElementById('tab-'+tab);
+  sec.querySelectorAll('.subnav button').forEach(b=>b.classList.toggle('active',b.dataset.sub===sub));
+  sec.querySelectorAll('.subview').forEach(v=>v.classList.remove('active'));
+  document.getElementById('sub-'+sub).classList.add('active');
+  // Resumo tem gráfico → re-render ao exibir garante o dimensionamento correto.
+  if(sub==='resumo' || dirty.has(sub)) renderView(sub);
+}
 
 /* ============ VISÃO GERAL ============ */
 function renderVisao(){
-  const el=document.getElementById('tab-visao');
+  const el=document.getElementById('sub-visao');
   const {first,last}=currentCycleRange();
   const today_=todayISO();
 
@@ -333,12 +437,12 @@ function renderVisao(){
   const cycleEnd=new Date(last+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'});
 
   el.innerHTML=`
-    <div class="card" style="margin-bottom:14px">
-      <div style="font-size:12px;color:var(--muted);margin-bottom:8px">Ciclo ${cycleStart} → ${cycleEnd}</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center">
-        <div><div style="font-size:11px;color:var(--muted)">Entradas</div><div style="font-size:18px;font-weight:800;color:var(--green)">${brl(totalIn)}</div></div>
-        <div><div style="font-size:11px;color:var(--muted)">Saídas</div><div style="font-size:18px;font-weight:800;color:var(--red)">${brl(totalOut)}</div></div>
-        <div><div style="font-size:11px;color:var(--muted)">Saldo</div><div style="font-size:18px;font-weight:800;color:${totalIn-totalOut>=0?'var(--green)':'var(--red)'}">${brl(totalIn-totalOut)}</div></div>
+    <div class="card">
+      <div class="muted-note">Ciclo ${cycleStart} → ${cycleEnd}</div>
+      <div class="grid3">
+        <div><div class="cap">Entradas</div><div class="big-num pos">${brl(totalIn)}</div></div>
+        <div><div class="cap">Saídas</div><div class="big-num neg">${brl(totalOut)}</div></div>
+        <div><div class="cap">Saldo</div><div class="big-num ${totalIn-totalOut>=0?'pos':'neg'}">${brl(totalIn-totalOut)}</div></div>
       </div>
     </div>
     ${byDay.length===0?'<div class="empty">Nenhum evento neste ciclo ainda.</div>':rows}
@@ -401,7 +505,7 @@ function renderFixas(){
   const ef=getEntradasFixas().filter(f=>f.ativo);
   const totalEntradas=ef.reduce((s,f)=>s+f.valor,0);
 
-  const el=document.getElementById('tab-fixas');
+  const el=document.getElementById('sub-fixas');
 
   let rowsSaidas=fx.slice().sort((a,b)=>a.dia_vencimento-b.dia_vencimento).map(f=>`
     <div class="row">
@@ -422,7 +526,7 @@ function renderFixas(){
   const saldo=totalEntradas-totalSaidas;
   el.innerHTML=`
     <h2 class="page-title">Fixas</h2>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px">
+    <div class="stats">
       <div class="stat"><div class="v pos">${brl(totalEntradas)}</div><div class="l">Entradas fixas</div></div>
       <div class="stat"><div class="v neg">${brl(totalSaidas)}</div><div class="l">Saídas fixas</div></div>
       <div class="stat"><div class="v ${saldo>=0?'pos':'neg'}">${brl(saldo)}</div><div class="l">Saldo fixo</div></div>
@@ -441,7 +545,7 @@ function renderFixas(){
 function renderParceladas(){
   const ps=getParceladas().filter(p=>p.ativo);
   const total=ps.reduce((s,p)=>s+p.valor_parcela,0);
-  const el=document.getElementById('tab-parceladas');
+  const el=document.getElementById('sub-parceladas');
   let rows=ps.map(p=>{
     const pct=Math.min(100,Math.round(p.parcela_atual/p.total_parcelas*100));
     return `<div class="row">
@@ -507,7 +611,7 @@ function renderResumo(){
   });
 
   const ms=getSummary().filter(m=>m.entrada_total).sort((a,b)=>a.ano-b.ano||a.mes-b.mes);
-  const el=document.getElementById('tab-resumo');
+  const el=document.getElementById('sub-resumo');
 
   let trs=allMonths.slice().reverse().map(m=>{
     const pct=(m.entrada_total&&m.economizado)?(m.economizado/m.entrada_total*100):null;
@@ -542,11 +646,12 @@ function renderResumo(){
     if(resumoChart) resumoChart.destroy();
     const ctx=document.getElementById('resumoChart');
     const labels=ms.map(m=>nomesC[m.mes]+'/'+String(m.ano).slice(2));
+    const ink=getComputedStyle(document.documentElement).getPropertyValue('--text').trim()||'#0F1623';
     if(ctx) resumoChart=new Chart(ctx,{
       data:{labels,datasets:[
         {type:'bar',label:'Entrada',data:ms.map(m=>m.entrada_total),backgroundColor:'#2563EB',yAxisID:'y'},
         {type:'bar',label:'Economizado',data:ms.map(m=>m.economizado),backgroundColor:'#16A34A',yAxisID:'y'},
-        {type:'line',label:'% Guardada',data:ms.map(m=>m.entrada_total?+(m.economizado/m.entrada_total*100).toFixed(1):0),borderColor:'#0F1623',backgroundColor:'#0F1623',yAxisID:'y1',tension:.3,pointRadius:3}
+        {type:'line',label:'% Guardada',data:ms.map(m=>m.entrada_total?+(m.economizado/m.entrada_total*100).toFixed(1):0),borderColor:ink,backgroundColor:ink,yAxisID:'y1',tension:.3,pointRadius:3}
       ]},
       options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{boxWidth:12,font:{size:11}}}},
         scales:{
@@ -586,17 +691,17 @@ function saveResumo(mes,ano){
   } else {
     DB.monthly_summary.push({id:uid(),mes,ano,entrada_total,economizado,imposto_pago,fatura_cartao});
   }
-  saveDB(); closeModal(); renderResumo(); toast('Resumo salvo!');
+  saveDB(); closeModal(); refresh('resumo'); toast('Resumo salvo!');
 }
 
 function escapeHtml(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
 /* ============ DELETES ============ */
-function delTx(id){ if(confirm('Excluir este lançamento?')){ DB.transacoes=DB.transacoes.filter(t=>t.id!==id); saveDB(); renderInicio(); renderLancamentos(); toast('Lançamento excluído'); } }
-function delFixa(id){ if(confirm('Excluir esta conta fixa?')){ DB.fixas=DB.fixas.filter(f=>f.id!==id); saveDB(); renderFixas(); renderInicio(); toast('Conta excluída'); } }
-function delEntradaFixa(id){ if(confirm('Excluir esta entrada fixa?')){ DB.entradas_fixas=DB.entradas_fixas.filter(f=>f.id!==id); saveDB(); renderFixas(); renderInicio(); toast('Entrada fixa excluída'); } }
-function delParcela(id){ if(confirm('Excluir esta parcela?')){ DB.parceladas=DB.parceladas.filter(p=>p.id!==id); saveDB(); renderParceladas(); renderInicio(); toast('Parcela excluída'); } }
-function delSaving(id){ if(confirm('Excluir esta movimentação?')){ DB.savings=DB.savings.filter(s=>s.id!==id); saveDB(); renderPatrimonio(); toast('Movimentação excluída'); } }
+function delTx(id){ if(confirm('Excluir este lançamento?')){ DB.transacoes=DB.transacoes.filter(t=>t.id!==id); saveDB(); refresh('inicio','lancamentos','visao'); toast('Lançamento excluído'); } }
+function delFixa(id){ if(confirm('Excluir esta conta fixa?')){ DB.fixas=DB.fixas.filter(f=>f.id!==id); saveDB(); refresh('inicio','fixas','visao'); toast('Conta excluída'); } }
+function delEntradaFixa(id){ if(confirm('Excluir esta entrada fixa?')){ DB.entradas_fixas=DB.entradas_fixas.filter(f=>f.id!==id); saveDB(); refresh('inicio','fixas','visao'); toast('Entrada fixa excluída'); } }
+function delParcela(id){ if(confirm('Excluir esta parcela?')){ DB.parceladas=DB.parceladas.filter(p=>p.id!==id); saveDB(); refresh('inicio','parceladas','visao'); toast('Parcela excluída'); } }
+function delSaving(id){ if(confirm('Excluir esta movimentação?')){ DB.savings=DB.savings.filter(s=>s.id!==id); saveDB(); refresh('patrimonio'); toast('Movimentação excluída'); } }
 
 /* ============ MODALS ============ */
 const modal=document.getElementById('modal'), backdrop=document.getElementById('backdrop');
@@ -631,7 +736,7 @@ function saveTx(){
   DB.transacoes.push({id:uid(),data:document.getElementById('m-data').value||todayISO(),tipo:txTipo,valor,
     descricao:document.getElementById('m-desc').value.trim(),categoria:document.getElementById('m-cat').value.trim(),
     forma_pagamento:document.getElementById('m-forma').value});
-  saveDB(); closeModal(); renderInicio(); renderLancamentos(); toast('Lançamento salvo');
+  saveDB(); closeModal(); refresh('inicio','lancamentos','visao'); toast('Lançamento salvo');
 }
 
 function openEntradaFixaModal(){
@@ -651,7 +756,7 @@ function saveEntradaFixa(){
   if(!(valor>0)){ toast('Informe um valor válido'); return; }
   if(!DB.entradas_fixas) DB.entradas_fixas=[];
   DB.entradas_fixas.push({id:uid(),nome,valor,dia_recebimento:dia,ativo:true});
-  saveDB(); closeModal(); renderFixas(); renderInicio(); toast('Entrada fixa adicionada!');
+  saveDB(); closeModal(); refresh('inicio','fixas','visao'); toast('Entrada fixa adicionada!');
 }
 function openFixaModal(){
   openModal(`
@@ -668,7 +773,7 @@ function saveFixa(){
   const dia=parseInt(document.getElementById('f-dia').value)||1;
   if(!nome||!(valor>0)){ toast('Preencha nome e valor'); return; }
   DB.fixas.push({id:uid(),nome,valor,dia_vencimento:dia,ativo:true});
-  saveDB(); closeModal(); renderFixas(); renderInicio(); toast('Conta adicionada');
+  saveDB(); closeModal(); refresh('inicio','fixas','visao'); toast('Conta adicionada');
 }
 
 function openParcelaModal(){
@@ -688,7 +793,7 @@ function saveParcela(){
   const tp=parseInt(document.getElementById('p-total').value)||1;
   if(!nome||!(vp>0)){ toast('Preencha nome e valor'); return; }
   DB.parceladas.push({id:uid(),nome,valor_parcela:vp,parcela_atual:pa,total_parcelas:tp,ativo:true});
-  saveDB(); closeModal(); renderParceladas(); renderInicio(); toast('Parcelamento adicionado');
+  saveDB(); closeModal(); refresh('inicio','parceladas','visao'); toast('Parcelamento adicionado');
 }
 
 let savTipo='aporte';
@@ -713,7 +818,7 @@ function saveSaving(){
   const valor=parseFloat(document.getElementById('s-valor').value);
   if(!(valor>0)){ toast('Informe um valor válido'); return; }
   DB.savings.push({id:uid(),data:document.getElementById('s-data').value||todayISO(),tipo:savTipo,valor,descricao:document.getElementById('s-desc').value.trim()});
-  saveDB(); closeModal(); renderPatrimonio(); toast('Movimentação registrada');
+  saveDB(); closeModal(); refresh('patrimonio'); toast('Movimentação registrada');
 }
 
 /* ============ TOAST ============ */
@@ -722,18 +827,34 @@ function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg
 
 /* ============ TABS ============ */
 document.querySelectorAll('.nav-in button').forEach(b=>{
-  b.addEventListener('click',()=>{
-    document.querySelectorAll('.nav-in button').forEach(x=>x.classList.remove('active'));
-    b.classList.add('active');
-    const tab=b.dataset.tab;
-    document.querySelectorAll('.tab-page').forEach(p=>p.classList.remove('active'));
-    document.getElementById('tab-'+tab).classList.add('active');
-    if(tab==='patrimonio') renderPatrimonio();
-    if(tab==='resumo') renderResumo();
-    if(tab==='visao') renderVisao();
-    window.scrollTo(0,0);
-  });
+  b.addEventListener('click',()=>showTab(b.dataset.tab));
 });
+
+/* ============ TEMA (claro / escuro) ============ */
+function currentTheme(){
+  const saved=localStorage.getItem('theme');
+  if(saved) return saved;
+  return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+}
+function applyChartTheme(t){
+  if(!window.Chart) return;
+  Chart.defaults.color = t==='dark' ? '#94A3B8' : '#64748B';
+  Chart.defaults.borderColor = t==='dark' ? '#26303D' : '#E2E8F0';
+}
+function applyTheme(){
+  const t=currentTheme();
+  // Só fixa o atributo quando o usuário escolheu manualmente; senão segue o sistema.
+  if(localStorage.getItem('theme')) document.documentElement.setAttribute('data-theme',t);
+  else document.documentElement.removeAttribute('data-theme');
+  const btn=document.getElementById('btn-theme');
+  if(btn) btn.textContent = t==='dark' ? '☀️' : '🌙';
+  applyChartTheme(t);
+}
+function toggleTheme(){
+  localStorage.setItem('theme', currentTheme()==='dark' ? 'light' : 'dark');
+  applyTheme();
+  refresh('patrimonio','resumo'); // gráficos visíveis re-desenham com as novas cores
+}
 
 /* ============ AUDIO + BANNER ============ */
 function playAudio(){ const a=document.getElementById('sccp-audio'); if(a) a.play().catch(()=>{}); }
@@ -835,6 +956,7 @@ function openBackupModal(){
 
 /* ============ INIT ============ */
 loadDB();
+applyTheme();
 renderAll();
 initBannerAudio();
 </script>
