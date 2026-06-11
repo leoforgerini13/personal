@@ -138,6 +138,13 @@ th{color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase}
 .subnav button.active{background:var(--blue);color:#fff}
 .subview{display:none}
 .subview.active{display:block}
+/* Seletor de ciclo (‹ ›) */
+.cycle-sel{display:flex;align-items:center;gap:8px;background:var(--card);border-radius:var(--r-sm);box-shadow:var(--shadow);padding:6px;margin-bottom:14px}
+.cycle-sel>button{width:40px;height:40px;border:none;background:var(--bg);color:var(--text);border-radius:8px;font-size:22px;line-height:1;cursor:pointer;flex:none}
+.cycle-sel>button:active{background:var(--border)}
+.cycle-mid{flex:1;text-align:center;cursor:pointer}
+.cycle-range{font-weight:700;font-size:14px}
+.cycle-tag{font-size:11px;color:var(--muted);margin-top:1px}
 /* Toggle de tema no header */
 .btn-theme{background:rgba(255,255,255,.12);color:#fff;border:none;border-radius:8px;padding:6px 9px;font-size:14px;cursor:pointer;line-height:1}
 /* Transição suave ao trocar de aba + entrada sutil de itens de lista */
@@ -269,12 +276,32 @@ function seed(){
 let DB=null;
 function loadDB(){
   const raw=localStorage.getItem(KEY);
-  if(raw){ try{ DB=JSON.parse(raw); migrateDB(); }catch(e){ DB=seed(); saveDB(); } }
-  else { DB=seed(); saveDB(); }
+  if(raw){ try{ DB=JSON.parse(raw); migrateDB(); }catch(e){ DB=seed(); } }
+  else { DB=seed(); }
+  advanceCyclesIfNeeded();   // avança parcelas se viraram ciclos desde a última abertura
+  saveDB();
 }
 function saveDB(){ localStorage.setItem(KEY,JSON.stringify(DB)); }
 function migrateDB(){
   if(!DB.entradas_fixas) DB.entradas_fixas=[];
+}
+function monthsBetween(isoA,isoB){ const a=new Date(isoA+'T12:00:00'),b=new Date(isoB+'T12:00:00'); return (b.getFullYear()-a.getFullYear())*12+(b.getMonth()-a.getMonth()); }
+// Virada de ciclo: se passaram N ciclos (dia 22) desde a última abertura, avança
+// parcela_atual de cada parcelamento e desativa os que terminaram. Só avança para
+// frente e grava uma âncora — em instalações já existentes, apenas registra a
+// âncora na 1ª vez (não mexe em nada retroativamente).
+function advanceCyclesIfNeeded(){
+  const curLast=cycleRangeByOffset(0).last;
+  if(DB.cycleAnchor){
+    const passed=monthsBetween(DB.cycleAnchor,curLast);
+    if(passed>0){
+      (DB.parceladas||[]).forEach(p=>{
+        p.parcela_atual=Number(p.parcela_atual)+passed;
+        if(p.parcela_atual>Number(p.total_parcelas)) p.ativo=false;
+      });
+    }
+  }
+  DB.cycleAnchor=curLast;
 }
 function resetData(){
   if(confirm('Apagar todos os dados e restaurar os valores iniciais?')){
@@ -316,13 +343,37 @@ let flashId=null;
 function clearFlash(){ flashId=null; }
 function flashCls(id){ return id===flashId?' row-new':''; }
 
-/* ===== Financial cycle: day 23 -> day 22 (credit card closing day = 22) ===== */
-function currentCycleRange(){
-  const n=new Date(); const y=n.getFullYear(), m=n.getMonth()+1, d=n.getDate();
-  let firstY,firstM,lastY,lastM;
-  if(d>=23){ firstY=y; firstM=m; lastM=m+1; lastY=y; if(lastM>12){lastM=1;lastY=y+1;} }
-  else { lastY=y; lastM=m; firstM=m-1; firstY=y; if(firstM<1){firstM=12;firstY=y-1;} }
-  return { first: iso(firstY,firstM,23), last: iso(lastY,lastM,22) };
+/* ===== Ciclo financeiro: dia 23 -> dia 22 (fechamento do cartão = 22) ===== */
+// Ciclo identificado pelo mês que contém o dia 22 de término. offset desloca em ciclos.
+function cycleRangeByOffset(offset){
+  const n=new Date();
+  const endM=n.getMonth() + (n.getDate()>=23?1:0) + offset; // mês (0-based; JS normaliza estouro) do dia 22 final
+  const end=new Date(n.getFullYear(), endM, 22);
+  const start=new Date(n.getFullYear(), endM-1, 23);        // dia 23 do mês anterior
+  return { first: iso(start.getFullYear(),start.getMonth()+1,start.getDate()),
+           last:  iso(end.getFullYear(),  end.getMonth()+1,  end.getDate()) };
+}
+function currentCycleRange(){ return cycleRangeByOffset(0); }
+
+/* Ciclo selecionado para navegação (‹ ›); 0 = ciclo atual */
+let cycleOffset=0;
+function selectedCycleRange(){ return cycleRangeByOffset(cycleOffset); }
+function changeCycle(delta){ cycleOffset+=delta; refresh('inicio','lancamentos','visao'); }
+function resetCycle(){ if(cycleOffset!==0){ cycleOffset=0; refresh('inicio','lancamentos','visao'); } }
+function cycleLabel(offset){
+  const {first,last}=cycleRangeByOffset(offset);
+  const f=new Date(first+'T12:00:00'), l=new Date(last+'T12:00:00');
+  const dd=x=>String(x.getDate()).padStart(2,'0');
+  const MM=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+  return dd(f)+'/'+MM[f.getMonth()]+' – '+dd(l)+'/'+MM[l.getMonth()];
+}
+function cycleSelectorHTML(){
+  const tag = cycleOffset===0?'Ciclo atual':(cycleOffset<0?'Ciclo passado':'Ciclo futuro');
+  return '<div class="cycle-sel">'
+    +'<button onclick="changeCycle(-1)" aria-label="Ciclo anterior">‹</button>'
+    +'<div class="cycle-mid" onclick="resetCycle()"><div class="cycle-range">'+cycleLabel(cycleOffset)+'</div><div class="cycle-tag">'+tag+'</div></div>'
+    +'<button onclick="changeCycle(1)" aria-label="Próximo ciclo">›</button>'
+    +'</div>';
 }
 function daysRemainingInCycle(){
   const {last}=currentCycleRange();
@@ -333,21 +384,44 @@ function daysRemainingInCycle(){
 }
 function inCurrentCycle(d){ const {first,last}=currentCycleRange(); return d>=first && d<=last; }
 
-/* ============ MONEY CALCULATIONS ============ */
+/* ============ MONEY CALCULATIONS (fonte única de recorrentes) ============ */
 function cycleTransactions(){ return getTransacoes().filter(t=>inCurrentCycle(t.data)); }
 
-function calcSaldo(){
-  const tx=cycleTransactions();
-  const entradas=tx.filter(t=>t.tipo==='entrada').reduce((s,t)=>s+t.valor,0);
-  const saidas=tx.filter(t=>t.tipo==='saida').reduce((s,t)=>s+t.valor,0);
-  // Excluímos a conta fixa "Cartão" do cálculo: as parcelas ativas já somam a
-  // fatura do cartão, então contar as duas faria dupla contagem do mesmo valor.
-  const fixasTotal=getFixas().filter(f=>f.ativo && f.nome!=='Cartão').reduce((s,f)=>s+f.valor,0);
-  const parcelasTotal=getParceladas().filter(p=>p.ativo).reduce((s,p)=>s+p.valor_parcela,0);
-  // Entradas fixas mensais (salário fixo, etc) somam ao saldo
-  const entradasFixasTotal=getEntradasFixas().filter(f=>f.ativo).reduce((s,f)=>s+f.valor,0);
-  return entradas - saidas - fixasTotal - parcelasTotal + entradasFixasTotal;
+// Eventos recorrentes DATADOS de um ciclo — a MESMA fonte alimenta Início, Visão
+// e o cálculo de saldo, evitando divergência entre as abas:
+//  • contas fixas: saída no dia de vencimento
+//  • entradas fixas: entrada no dia de recebimento
+//  • parcelas: saída no dia 22 (fechamento), com o nº da parcela do ciclo
+function recurringEvents(offset){
+  const {first,last}=cycleRangeByOffset(offset);
+  const dateForDom=dom=>{ // 1ª data do ciclo cujo dia do mês == dom (ou início, se não existir)
+    let d=new Date(first+'T12:00:00'); const end=new Date(last+'T12:00:00');
+    while(d<=end){ if(d.getDate()===dom) return iso(d.getFullYear(),d.getMonth()+1,d.getDate()); d=new Date(d.getTime()+86400000); }
+    return first;
+  };
+  const evs=[];
+  // Excluímos a fixa "Cartão": as parcelas já somam a fatura (sem dupla contagem).
+  getFixas().filter(f=>f.ativo && f.nome!=='Cartão').forEach(f=>
+    evs.push({tipo:'saida',origem:'fixa',nome:f.nome,valor:f.valor,data:dateForDom(f.dia_vencimento||1)}));
+  getEntradasFixas().filter(f=>f.ativo).forEach(f=>
+    evs.push({tipo:'entrada',origem:'entrada_fixa',nome:f.nome,valor:f.valor,data:dateForDom(f.dia_recebimento||1)}));
+  getParceladas().forEach(p=>{
+    const n=Number(p.parcela_atual)+offset; // nº da parcela NESTE ciclo (sem mutar dados)
+    if(p.ativo!==false && n>=1 && n<=Number(p.total_parcelas))
+      evs.push({tipo:'saida',origem:'parcela',nome:p.nome,valor:p.valor_parcela,parcelaNum:n,total:Number(p.total_parcelas),data:dateForDom(22)});
+  });
+  return evs;
 }
+
+// Saldo de um ciclo = transações avulsas do ciclo ± recorrentes do ciclo.
+function calcSaldoForCycle(offset){
+  const {first,last}=cycleRangeByOffset(offset);
+  let s=0;
+  getTransacoes().forEach(t=>{ if(t.data>=first && t.data<=last) s += (t.tipo==='entrada'?t.valor:-t.valor); });
+  recurringEvents(offset).forEach(e=> s += (e.tipo==='entrada'?e.valor:-e.valor));
+  return s;
+}
+function calcSaldo(){ return calcSaldoForCycle(0); }
 
 /* ============ RENDERING: estado → render direcionado ============ */
 // Cada "view" sabe em qual aba vive e qual função a desenha. Em vez de
@@ -404,68 +478,46 @@ function showSub(tab, sub){
 /* ============ VISÃO GERAL ============ */
 function renderVisao(){
   const el=document.getElementById('sub-visao');
-  const {first,last}=currentCycleRange();
+  const {first,last}=selectedCycleRange();
   const today_=todayISO();
 
-  // Montar todos os dias do ciclo
-  const days=[];
-  let d=new Date(first+'T12:00:00');
-  const endD=new Date(last+'T12:00:00');
-  while(d<=endD){ days.push(d.toISOString().slice(0,10)); d=new Date(d.getTime()+86400000); }
+  // Dias do ciclo
+  const days=[]; let d=new Date(first+'T12:00:00'); const endD=new Date(last+'T12:00:00');
+  while(d<=endD){ days.push(iso(d.getFullYear(),d.getMonth()+1,d.getDate())); d=new Date(d.getTime()+86400000); }
 
-  // Fixas de saída (sem "Cartão" — as parcelas já representam a fatura do cartão)
-  const fixas=getFixas().filter(f=>f.ativo && f.nome!=='Cartão');
-  // Entradas fixas (salário etc.) — distribuídas no dia de recebimento dentro do ciclo
-  const entradasFixas=getEntradasFixas().filter(f=>f.ativo);
-  // Parcelas ativas (aparecem no dia 22, fechamento do cartão)
-  const parcelas=DB.parceladas.filter(p=>Number(p.parcela_atual)<=Number(p.total_parcelas));
-  // Transações avulsas do ciclo
-  const txs=DB.transacoes.filter(t=>t.data>=first && t.data<=last);
-
-  // Para cada dia do ciclo, agrupar entradas e saídas (avulsas + recorrentes)
-  const byDay=days.map(iso=>{
-    const dom=parseInt(iso.slice(8));                                            // dia do mês (1-31)
-    const entradas=txs.filter(t=>t.data===iso && t.tipo==='entrada');            // entradas avulsas
-    const saidasTx=txs.filter(t=>t.data===iso && t.tipo==='saida');              // gastos avulsos
-    const saidasFixas=fixas.filter(f=>(f.dia_vencimento||1)===dom);              // contas fixas que vencem hoje
-    const entradasFixasDia=entradasFixas.filter(f=>(f.dia_recebimento||1)===dom);// entradas fixas recebidas hoje
-    const saidasParc=dom===22 ? parcelas : [];                                   // parcelas no fechamento (dia 22)
-    return {iso,entradas,saidasTx,saidasFixas,saidasParc,entradasFixasDia};
-  }).filter(d=> d.entradas.length||d.saidasTx.length||d.saidasFixas.length||d.saidasParc.length||d.entradasFixasDia.length);
+  const txs=getTransacoes().filter(t=>t.data>=first && t.data<=last);
+  const evs=recurringEvents(cycleOffset); // FONTE ÚNICA (fixas, entradas fixas, parcelas)
 
   const MESES=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-  const fmtDay=iso=>{
-    const dt=new Date(iso+'T12:00:00');
-    return `${String(dt.getDate()).padStart(2,'0')} ${MESES[dt.getMonth()]}`;
-  };
+  const fmtDay=isoDay=>{ const dt=new Date(isoDay+'T12:00:00'); return String(dt.getDate()).padStart(2,'0')+' '+MESES[dt.getMonth()]; };
 
   let totalIn=0,totalOut=0;
+  const byDay=days.map(isoDay=>{
+    const inTx=txs.filter(t=>t.data===isoDay && t.tipo==='entrada');
+    const outTx=txs.filter(t=>t.data===isoDay && t.tipo==='saida');
+    const evDay=evs.filter(e=>e.data===isoDay);
+    return {isoDay, inTx, outTx, evIn:evDay.filter(e=>e.tipo==='entrada'), evOut:evDay.filter(e=>e.tipo==='saida')};
+  }).filter(x=> x.inTx.length||x.outTx.length||x.evIn.length||x.evOut.length);
 
-  const rows=byDay.map(({iso,entradas,saidasTx,saidasFixas,saidasParc,entradasFixasDia})=>{
-    // Entradas do dia = avulsas + entradas fixas recebidas nesse dia
-    const sumIn=entradas.reduce((s,t)=>s+t.valor,0)+entradasFixasDia.reduce((s,f)=>s+f.valor,0);
-    const sumOutTx=saidasTx.reduce((s,t)=>s+t.valor,0);
-    const sumOutFx=saidasFixas.reduce((s,f)=>s+f.valor,0);
-    const sumOutPc=saidasParc.reduce((s,p)=>s+p.valor_parcela,0);
-    const sumOut=sumOutTx+sumOutFx+sumOutPc;
+  const rows=byDay.map(x=>{
+    const sumIn=x.inTx.reduce((s,t)=>s+t.valor,0)+x.evIn.reduce((s,e)=>s+e.valor,0);
+    const sumOut=x.outTx.reduce((s,t)=>s+t.valor,0)+x.evOut.reduce((s,e)=>s+e.valor,0);
     totalIn+=sumIn; totalOut+=sumOut;
-    const isToday=iso===today_;
-
-    // Linhas de detalhe — entradas (avulsas + fixas com 💰) e saídas
+    const isToday=x.isoDay===today_;
     const inLines=[
-      ...entradas.map(t=>`<div class="vg-item green">↑ ${escapeHtml(t.descricao||'Entrada')} <b>${brl(t.valor)}</b></div>`),
-      ...entradasFixasDia.map(f=>`<div class="vg-item green">💰 ${escapeHtml(f.nome)} (fixa) <b>${brl(f.valor)}</b></div>`),
+      ...x.inTx.map(t=>`<div class="vg-item green">↑ ${escapeHtml(t.descricao||'Entrada')} <b>${brl(t.valor)}</b></div>`),
+      ...x.evIn.map(e=>`<div class="vg-item green">💰 ${escapeHtml(e.nome)} (fixa) <b>${brl(e.valor)}</b></div>`)
     ].join('');
     const outLines=[
-      ...saidasTx.map(t=>`<div class="vg-item red">↓ ${t.descricao||t.categoria||'Gasto'} ${t.forma_pagamento==='cartao'?'💳':'💵'} <b>${brl(t.valor)}</b></div>`),
-      ...saidasFixas.map(f=>`<div class="vg-item red">📌 ${f.nome} <b>${brl(f.valor)}</b></div>`),
-      ...saidasParc.map(p=>`<div class="vg-item red">💳 ${p.nome} <span class="badge blue">${p.parcela_atual}/${p.total_parcelas}</span> <b>${brl(p.valor_parcela)}</b></div>`),
+      ...x.outTx.map(t=>`<div class="vg-item red">↓ ${escapeHtml(t.descricao||t.categoria||'Gasto')} ${t.forma_pagamento==='cartao'?'💳':'💵'} <b>${brl(t.valor)}</b></div>`),
+      ...x.evOut.map(e=> e.origem==='parcela'
+        ? `<div class="vg-item red">💳 ${escapeHtml(e.nome)} <span class="badge blue">${e.parcelaNum}/${e.total}</span> <b>${brl(e.valor)}</b></div>`
+        : `<div class="vg-item red">📌 ${escapeHtml(e.nome)} <b>${brl(e.valor)}</b></div>`)
     ].join('');
-
     return `
     <div class="vg-day${isToday?' vg-today':''}">
       <div class="vg-header">
-        <span class="vg-date">${fmtDay(iso)}${isToday?' <span class="badge blue">Hoje</span>':''}</span>
+        <span class="vg-date">${fmtDay(x.isoDay)}${isToday?' <span class="badge blue">Hoje</span>':''}</span>
         <span class="vg-totals">
           ${sumIn?`<span class="green">+${brl(sumIn)}</span>`:''}
           ${sumOut?`<span class="red">−${brl(sumOut)}</span>`:''}
@@ -476,37 +528,63 @@ function renderVisao(){
     </div>`;
   }).join('');
 
-  const cycleStart=new Date(first+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'});
-  const cycleEnd=new Date(last+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'});
-
   el.innerHTML=`
+    ${cycleSelectorHTML()}
     <div class="card">
-      <div class="muted-note">Ciclo ${cycleStart} → ${cycleEnd}</div>
       <div class="grid3">
         <div><div class="cap">Entradas</div><div class="big-num pos">${brl(totalIn)}</div></div>
         <div><div class="cap">Saídas</div><div class="big-num neg">${brl(totalOut)}</div></div>
         <div><div class="cap">Saldo</div><div class="big-num ${totalIn-totalOut>=0?'pos':'neg'}">${brl(totalIn-totalOut)}</div></div>
       </div>
     </div>
-    ${byDay.length===0?'<div class="empty">Nenhum evento neste ciclo ainda.</div>':rows}
+    ${byDay.length===0?'<div class="empty">Nenhum evento neste ciclo.</div>':rows}
   `;
 }
 
 function renderInicio(){
+  const el=document.getElementById('tab-inicio');
+
+  // ----- Ciclo passado/futuro: mostra o resumo do ciclo (sem "posso gastar hoje") -----
+  if(cycleOffset!==0){
+    const {first,last}=selectedCycleRange();
+    const saldo=calcSaldoForCycle(cycleOffset);
+    let entradas=0,saidas=0;
+    getTransacoes().forEach(t=>{ if(t.data>=first&&t.data<=last){ if(t.tipo==='entrada')entradas+=t.valor; else saidas+=t.valor; } });
+    recurringEvents(cycleOffset).forEach(e=>{ if(e.tipo==='entrada')entradas+=e.valor; else saidas+=e.valor; });
+    el.innerHTML=`
+      ${cycleSelectorHTML()}
+      <div class="hero"><div class="label">Saldo do ciclo</div><div class="big ${saldo>=0?'pos':'neg'}">${brl(saldo)}</div>
+        <div class="sub">${cycleOffset<0?'Ciclo encerrado':'Ciclo futuro · projeção pelas recorrentes'}</div></div>
+      <div class="stats">
+        <div class="stat"><div class="v pos">${brl(entradas)}</div><div class="l">Entradas</div></div>
+        <div class="stat"><div class="v neg">${brl(saidas)}</div><div class="l">Saídas</div></div>
+        <div class="stat"><div class="v ${saldo>=0?'pos':'neg'}">${brl(saldo)}</div><div class="l">Saldo</div></div>
+      </div>
+      <button class="btn btn-green" onclick="openTxModal()">+ Lançar Gasto</button>
+    `;
+    return;
+  }
+
+  // ----- Ciclo atual: anel/gauge + "posso gastar hoje" + projeção de fim de ciclo -----
   const saldo=calcSaldo();
   const dias=daysRemainingInCycle();
   const possoGastar=saldo/dias;
   const gastoHoje=getTransacoes().filter(t=>t.tipo==='saida' && t.data===todayISO()).reduce((s,t)=>s+t.valor,0);
 
-  // Anel/gauge: quanto da diária já foi consumida hoje (verde < 80%, âmbar 80-99%, vermelho >= 100%)
+  // Anel: quanto da diária já foi consumida hoje (verde < 80%, âmbar 80-99%, vermelho >= 100%)
   let pct, gcolor;
-  if(possoGastar<=0){ pct=100; gcolor='#F87171'; }          // sem folga: já estourou
+  if(possoGastar<=0){ pct=100; gcolor='#F87171'; }
   else { pct=Math.min(100,Math.round(gastoHoje/possoGastar*100)); gcolor=pct>=100?'#F87171':(pct>=80?'#FBBF24':'#4ADE80'); }
-  const C=2*Math.PI*52;                                       // circunferência do anel (r=52)
-  const off=(C*(1-Math.min(pct,100)/100)).toFixed(1);
+  const C=2*Math.PI*52, off=(C*(1-Math.min(pct,100)/100)).toFixed(1);
 
-  const el=document.getElementById('tab-inicio');
+  // Projeção: ritmo médio de gasto avulso por dia decorrido × dias que faltam.
+  const {first}=currentCycleRange();
+  const elapsed=Math.max(1,Math.floor((new Date(todayISO()+'T12:00:00')-new Date(first+'T12:00:00'))/86400000)+1);
+  const saidasAteHoje=getTransacoes().filter(t=>t.tipo==='saida' && t.data>=first && t.data<=todayISO()).reduce((s,t)=>s+t.valor,0);
+  const projecao=saldo - (saidasAteHoje/elapsed)*Math.max(0,dias-1);
+
   el.innerHTML=`
+    ${cycleSelectorHTML()}
     <div class="hero hero-gauge">
       <div class="gauge-wrap">
         <svg viewBox="0 0 120 120" aria-hidden="true">
@@ -521,6 +599,7 @@ function renderInicio(){
         <div class="sub">Gasto hoje ${brl(gastoHoje)} · ${dias} dia${dias!==1?'s':''} restante${dias!==1?'s':''}</div>
       </div>
     </div>
+    <div class="card row-between"><span class="cap">Projeção fim do ciclo (no ritmo atual)</span><span class="big-num ${projecao>=0?'pos':'neg'}">${brl(projecao)}</span></div>
     <div class="stats">
       <div class="stat"><div class="v ${saldo>=0?'pos':'neg'}">${brl(saldo)}</div><div class="l">Saldo do ciclo</div></div>
       <div class="stat"><div class="v">${brl(gastoHoje)}</div><div class="l">Gasto hoje</div></div>
@@ -531,7 +610,8 @@ function renderInicio(){
 }
 
 function renderLancamentos(){
-  const tx=cycleTransactions().slice().sort((a,b)=>b.data.localeCompare(a.data));
+  const {first,last}=selectedCycleRange();
+  const tx=getTransacoes().filter(t=>t.data>=first && t.data<=last).slice().sort((a,b)=>b.data.localeCompare(a.data));
   const entradas=tx.filter(t=>t.tipo==='entrada').reduce((s,t)=>s+t.valor,0);
   const saidas=tx.filter(t=>t.tipo==='saida').reduce((s,t)=>s+t.valor,0);
   const el=document.getElementById('tab-lancamentos');
@@ -551,6 +631,7 @@ function renderLancamentos(){
   if(!tx.length) rows='<div class="empty">Nenhum lançamento neste ciclo.</div>';
   el.innerHTML=`
     <h2 class="page-title">Lançamentos</h2>
+    ${cycleSelectorHTML()}
     <div class="card">
       <div class="totals"><span class="pos">Entradas: ${brl(entradas)}</span><span class="neg">Saídas: ${brl(saidas)}</span></div>
     </div>
