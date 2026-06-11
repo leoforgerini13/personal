@@ -143,9 +143,31 @@ th{color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase}
 /* Transição suave ao trocar de aba + entrada sutil de itens de lista */
 .tab-page.active{animation:fadeIn .22s ease}
 @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+/* Item recém-criado: leve destaque/entrada */
+@keyframes rowIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.row.row-new{animation:rowIn .3s ease}
+/* Item sendo excluído: desliza e some antes do re-render */
+@keyframes rowOut{to{opacity:0;transform:translateX(40px);max-height:0;padding-top:0;padding-bottom:0}}
+.row.leaving{animation:rowOut .2s ease forwards;overflow:hidden}
+.row{cursor:pointer}
+/* Hero com anel/gauge (Início) */
+.hero-gauge{display:flex;align-items:center;gap:18px}
+.gauge-wrap{position:relative;width:104px;height:104px;flex:none}
+.gauge-wrap svg{width:104px;height:104px;transform:rotate(-90deg)}
+.gauge-bg{fill:none;stroke:rgba(255,255,255,.16);stroke-width:10}
+.gauge-fg{fill:none;stroke-width:10;stroke-linecap:round;transition:stroke-dashoffset .5s ease,stroke .3s ease}
+.gauge-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.gauge-pct{font-size:22px;font-weight:800;line-height:1}
+.gauge-cap{font-size:10px;opacity:.75;margin-top:2px}
+.hero-gauge .hero-text{min-width:0}
+.hero-gauge .big{font-size:32px}
+/* Toast com ação "Desfazer" */
+#toast{display:flex;align-items:center;gap:6px}
+.toast-undo{background:none;border:none;color:#7DD3FC;font-weight:700;font-size:14px;cursor:pointer;padding:2px 4px;white-space:nowrap}
 @media (prefers-reduced-motion: reduce){
-  .tab-page.active{animation:none}
-  .modal{transition:none}
+  .tab-page.active,.row.row-new{animation:none}
+  .row.leaving{animation-duration:.01s}
+  .modal,.gauge-fg{transition:none}
 }
 </style>
 </head>
@@ -272,6 +294,27 @@ function brl(v){ if(v===null||v===undefined||v==='') return '—'; return Number
 function fdate(d){ return new Date(d+'T12:00:00').toLocaleDateString('pt-BR'); }
 function todayISO(){ const n=new Date(); return n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0'); }
 function iso(y,m,d){ return y+'-'+String(m).padStart(2,'0')+'-'+String(d).padStart(2,'0'); }
+
+/* ===== Máscara de moeda (formata enquanto digita; trata o input como centavos) ===== */
+function moneyMaskInput(el){
+  let d=el.value.replace(/\D/g,'');
+  if(!d){ el.value=''; return; }
+  d=String(parseInt(d,10));                 // remove zeros à esquerda
+  while(d.length<3) d='0'+d;                // garante pelo menos 0,0X
+  el.value=Number(d.slice(0,-2)).toLocaleString('pt-BR')+','+d.slice(-2);
+}
+function parseMoeda(s){                       // "1.234,56" -> 1234.56
+  if(s==null||s==='') return NaN;
+  return parseFloat(String(s).replace(/\./g,'').replace(',','.').replace(/[^\d.]/g,''));
+}
+function moedaToInput(v){                      // 1234.5 -> "1.234,50" (para pré-preencher na edição)
+  return v==null?'':Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+
+/* ===== Destaque do item recém-criado/editado (animação de entrada) ===== */
+let flashId=null;
+function clearFlash(){ flashId=null; }
+function flashCls(id){ return id===flashId?' row-new':''; }
 
 /* ===== Financial cycle: day 23 -> day 22 (credit card closing day = 22) ===== */
 function currentCycleRange(){
@@ -454,12 +497,29 @@ function renderInicio(){
   const dias=daysRemainingInCycle();
   const possoGastar=saldo/dias;
   const gastoHoje=getTransacoes().filter(t=>t.tipo==='saida' && t.data===todayISO()).reduce((s,t)=>s+t.valor,0);
+
+  // Anel/gauge: quanto da diária já foi consumida hoje (verde < 80%, âmbar 80-99%, vermelho >= 100%)
+  let pct, gcolor;
+  if(possoGastar<=0){ pct=100; gcolor='#F87171'; }          // sem folga: já estourou
+  else { pct=Math.min(100,Math.round(gastoHoje/possoGastar*100)); gcolor=pct>=100?'#F87171':(pct>=80?'#FBBF24':'#4ADE80'); }
+  const C=2*Math.PI*52;                                       // circunferência do anel (r=52)
+  const off=(C*(1-Math.min(pct,100)/100)).toFixed(1);
+
   const el=document.getElementById('tab-inicio');
   el.innerHTML=`
-    <div class="hero">
-      <div class="label">Posso gastar hoje</div>
-      <div class="big ${possoGastar>=0?'pos':'neg'}">${brl(possoGastar)}</div>
-      <div class="sub">Ciclo até dia 22 · saldo ÷ ${dias} dias restantes</div>
+    <div class="hero hero-gauge">
+      <div class="gauge-wrap">
+        <svg viewBox="0 0 120 120" aria-hidden="true">
+          <circle class="gauge-bg" cx="60" cy="60" r="52"></circle>
+          <circle class="gauge-fg" cx="60" cy="60" r="52" style="stroke:${gcolor};stroke-dasharray:${C.toFixed(1)};stroke-dashoffset:${off}"></circle>
+        </svg>
+        <div class="gauge-center"><div class="gauge-pct">${pct}%</div><div class="gauge-cap">usado hoje</div></div>
+      </div>
+      <div class="hero-text">
+        <div class="label">Posso gastar hoje</div>
+        <div class="big ${possoGastar>=0?'pos':'neg'}">${brl(possoGastar)}</div>
+        <div class="sub">Gasto hoje ${brl(gastoHoje)} · ${dias} dia${dias!==1?'s':''} restante${dias!==1?'s':''}</div>
+      </div>
     </div>
     <div class="stats">
       <div class="stat"><div class="v ${saldo>=0?'pos':'neg'}">${brl(saldo)}</div><div class="l">Saldo do ciclo</div></div>
@@ -479,13 +539,13 @@ function renderLancamentos(){
     const dd=fdate(t.data).slice(0,5);
     const icon=t.forma_pagamento==='cartao'?'💳':'💵';
     const desc=t.descricao?escapeHtml(t.descricao):'<span class="muted">Sem descrição</span>';
-    return `<div class="row">
+    return `<div class="row${flashCls(t.id)}" onclick="openTxModal('${t.id}')">
       <div class="main">
         <div class="name">${dd} · ${desc}</div>
         <div class="subt"><span class="badge">${escapeHtml(t.categoria||'—')}</span> ${icon}</div>
       </div>
       <div class="val ${t.tipo==='entrada'?'pos':'neg'}">${t.tipo==='entrada'?'+':'-'}${brl(t.valor)}</div>
-      <button class="del" onclick="delTx('${t.id}')">🗑</button>
+      <button class="del" onclick="event.stopPropagation();delTx('${t.id}',event)">🗑</button>
     </div>`;
   }).join('');
   if(!tx.length) rows='<div class="empty">Nenhum lançamento neste ciclo.</div>';
@@ -508,18 +568,18 @@ function renderFixas(){
   const el=document.getElementById('sub-fixas');
 
   let rowsSaidas=fx.slice().sort((a,b)=>a.dia_vencimento-b.dia_vencimento).map(f=>`
-    <div class="row">
+    <div class="row${flashCls(f.id)}" onclick="openFixaModal('${f.id}')">
       <div class="main"><div class="name">${escapeHtml(f.nome)}</div><div class="subt">Vence dia ${f.dia_vencimento}</div></div>
       <div class="val neg">${brl(f.valor)}</div>
-      <button class="del" onclick="delFixa('${f.id}')">🗑</button>
+      <button class="del" onclick="event.stopPropagation();delFixa('${f.id}',event)">🗑</button>
     </div>`).join('');
   if(!fx.length) rowsSaidas='<div class="empty">Nenhuma conta fixa de saída.</div>';
 
   let rowsEntradas=ef.slice().sort((a,b)=>a.dia_recebimento-b.dia_recebimento).map(f=>`
-    <div class="row">
+    <div class="row${flashCls(f.id)}" onclick="openEntradaFixaModal('${f.id}')">
       <div class="main"><div class="name">${escapeHtml(f.nome)}</div><div class="subt">Recebe dia ${f.dia_recebimento}</div></div>
       <div class="val pos">${brl(f.valor)}</div>
-      <button class="del" onclick="delEntradaFixa('${f.id}')">🗑</button>
+      <button class="del" onclick="event.stopPropagation();delEntradaFixa('${f.id}',event)">🗑</button>
     </div>`).join('');
   if(!ef.length) rowsEntradas='<div class="empty">Nenhuma entrada fixa cadastrada.</div>';
 
@@ -548,13 +608,13 @@ function renderParceladas(){
   const el=document.getElementById('sub-parceladas');
   let rows=ps.map(p=>{
     const pct=Math.min(100,Math.round(p.parcela_atual/p.total_parcelas*100));
-    return `<div class="row">
+    return `<div class="row${flashCls(p.id)}" onclick="openParcelaModal('${p.id}')">
       <div class="main">
         <div class="name">${escapeHtml(p.nome)} <span class="badge blue">Parcela ${p.parcela_atual}/${p.total_parcelas}</span></div>
         <div class="prog"><div style="width:${pct}%"></div></div>
       </div>
       <div class="val">${brl(p.valor_parcela)}</div>
-      <button class="del" onclick="delParcela('${p.id}')">🗑</button>
+      <button class="del" onclick="event.stopPropagation();delParcela('${p.id}',event)">🗑</button>
     </div>`;
   }).join('');
   if(!ps.length) rows='<div class="empty">Nenhuma compra parcelada.</div>';
@@ -572,13 +632,13 @@ function renderPatrimonio(){
   const totalGuardado=sav.reduce((s,m)=>s+(m.tipo==='aporte'?m.valor:-m.valor),0);
   const el=document.getElementById('tab-patrimonio');
   let rows=sav.slice().reverse().map(m=>`
-    <div class="row">
+    <div class="row${flashCls(m.id)}" onclick="openSavingModal('${m.id}')">
       <div class="main">
         <div class="name">${m.descricao?escapeHtml(m.descricao):'<span class="muted">Sem descrição</span>'}</div>
         <div class="subt">${fdate(m.data)} <span class="badge ${m.tipo==='aporte'?'green':'red'}">${m.tipo==='aporte'?'Aporte':'Resgate'}</span></div>
       </div>
       <div class="val ${m.tipo==='aporte'?'pos':'neg'}">${m.tipo==='aporte'?'+':'-'}${brl(m.valor)}</div>
-      <button class="del" onclick="delSaving('${m.id}')">🗑</button>
+      <button class="del" onclick="event.stopPropagation();delSaving('${m.id}',event)">🗑</button>
     </div>`).join('');
   if(!sav.length) rows='<div class="empty">Nenhuma movimentação.</div>';
   el.innerHTML=`
@@ -665,13 +725,13 @@ function renderResumo(){
 function openResumoModal(mes,ano){
   const nomes=['','Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
   const ex=getSummary().find(m=>m.mes===mes && m.ano===ano);
-  const v=(field)=>ex&&ex[field]!=null?ex[field]:'';
+  const mv=(field)=>{ const x=ex&&ex[field]!=null?ex[field]:null; return x==null?'':moedaToInput(x); };
   openModal(`
     <h3>${nomes[mes]} ${ano}</h3>
-    <div class="field"><label>Entrada total (R$)</label><input id="rs-entrada" type="number" step="0.01" inputmode="decimal" placeholder="0,00" value="${v('entrada_total')}"></div>
-    <div class="field"><label>Dinheiro guardado (R$)</label><input id="rs-eco" type="number" step="0.01" inputmode="decimal" placeholder="0,00" value="${v('economizado')}"></div>
-    <div class="field"><label>Imposto pago (R$)</label><input id="rs-imp" type="number" step="0.01" inputmode="decimal" placeholder="0,00" value="${v('imposto_pago')}"></div>
-    <div class="field"><label>Fatura cartão (R$)</label><input id="rs-fat" type="number" step="0.01" inputmode="decimal" placeholder="0,00" value="${v('fatura_cartao')}"></div>
+    <div class="field"><label>Entrada total (R$)</label><input id="rs-entrada" type="text" inputmode="decimal" placeholder="0,00" oninput="moneyMaskInput(this)" value="${mv('entrada_total')}"></div>
+    <div class="field"><label>Dinheiro guardado (R$)</label><input id="rs-eco" type="text" inputmode="decimal" placeholder="0,00" oninput="moneyMaskInput(this)" value="${mv('economizado')}"></div>
+    <div class="field"><label>Imposto pago (R$)</label><input id="rs-imp" type="text" inputmode="decimal" placeholder="0,00" oninput="moneyMaskInput(this)" value="${mv('imposto_pago')}"></div>
+    <div class="field"><label>Fatura cartão (R$)</label><input id="rs-fat" type="text" inputmode="decimal" placeholder="0,00" oninput="moneyMaskInput(this)" value="${mv('fatura_cartao')}"></div>
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
       <button class="btn-green" style="color:#fff" onclick="saveResumo(${mes},${ano})">Salvar</button>
@@ -680,7 +740,7 @@ function openResumoModal(mes,ano){
 }
 
 function saveResumo(mes,ano){
-  const parse=id=>{ const v=parseFloat(document.getElementById(id).value); return isNaN(v)?null:v; };
+  const parse=id=>{ const v=parseMoeda(document.getElementById(id).value); return isNaN(v)?null:v; };
   const entrada_total=parse('rs-entrada');
   const economizado=parse('rs-eco');
   const imposto_pago=parse('rs-imp');
@@ -696,134 +756,170 @@ function saveResumo(mes,ano){
 
 function escapeHtml(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
-/* ============ DELETES ============ */
-function delTx(id){ if(confirm('Excluir este lançamento?')){ DB.transacoes=DB.transacoes.filter(t=>t.id!==id); saveDB(); refresh('inicio','lancamentos','visao'); toast('Lançamento excluído'); } }
-function delFixa(id){ if(confirm('Excluir esta conta fixa?')){ DB.fixas=DB.fixas.filter(f=>f.id!==id); saveDB(); refresh('inicio','fixas','visao'); toast('Conta excluída'); } }
-function delEntradaFixa(id){ if(confirm('Excluir esta entrada fixa?')){ DB.entradas_fixas=DB.entradas_fixas.filter(f=>f.id!==id); saveDB(); refresh('inicio','fixas','visao'); toast('Entrada fixa excluída'); } }
-function delParcela(id){ if(confirm('Excluir esta parcela?')){ DB.parceladas=DB.parceladas.filter(p=>p.id!==id); saveDB(); refresh('inicio','parceladas','visao'); toast('Parcela excluída'); } }
-function delSaving(id){ if(confirm('Excluir esta movimentação?')){ DB.savings=DB.savings.filter(s=>s.id!==id); saveDB(); refresh('patrimonio'); toast('Movimentação excluída'); } }
+/* ============ DELETES (exclusão suave + "Desfazer", sem confirm nativo) ============ */
+// Remove o item na hora, guarda-o e oferece "Desfazer" no toast por alguns segundos.
+function softDelete(coll, id, views, label){
+  const arr=DB[coll]; const idx=arr.findIndex(x=>x.id===id);
+  if(idx<0) return;
+  const item=arr[idx];
+  arr.splice(idx,1); saveDB(); refresh(...views);
+  showUndo(label+' excluído', ()=>{ DB[coll].splice(Math.min(idx,DB[coll].length),0,item); saveDB(); refresh(...views); });
+}
+// Toca a animação de saída na linha tocada e só então remove de fato.
+function animThenDelete(ev, fn){
+  const row=ev&&ev.target&&ev.target.closest?ev.target.closest('.row'):null;
+  if(row){ row.classList.add('leaving'); setTimeout(fn,200); } else fn();
+}
+function delTx(id,ev){ animThenDelete(ev,()=>softDelete('transacoes',id,['inicio','lancamentos','visao'],'Lançamento')); }
+function delFixa(id,ev){ animThenDelete(ev,()=>softDelete('fixas',id,['inicio','fixas','visao'],'Conta')); }
+function delEntradaFixa(id,ev){ animThenDelete(ev,()=>softDelete('entradas_fixas',id,['inicio','fixas','visao'],'Entrada fixa')); }
+function delParcela(id,ev){ animThenDelete(ev,()=>softDelete('parceladas',id,['inicio','parceladas','visao'],'Parcela')); }
+function delSaving(id,ev){ animThenDelete(ev,()=>softDelete('savings',id,['patrimonio'],'Movimentação')); }
 
 /* ============ MODALS ============ */
 const modal=document.getElementById('modal'), backdrop=document.getElementById('backdrop');
 function openModal(html){ modal.innerHTML=html; backdrop.classList.add('open'); modal.classList.add('open'); }
 function closeModal(){ backdrop.classList.remove('open'); modal.classList.remove('open'); }
 
-// transaction modal
+// transaction modal — abre vazio (novo) ou pré-preenchido (edição, quando recebe id)
 let txTipo='saida';
-function openTxModal(){
-  txTipo='saida';
+function openTxModal(id){
+  const ex=id?getTransacoes().find(t=>t.id===id):null;
+  txTipo=ex?ex.tipo:'saida';
   openModal(`
-    <h3>Lançar Gasto</h3>
-    <div class="field"><label>Valor</label><input id="m-valor" type="number" step="0.01" inputmode="decimal" placeholder="0,00"></div>
+    <h3>${ex?'Editar lançamento':'Lançar Gasto'}</h3>
+    <div class="field"><label>Valor</label><input id="m-valor" type="text" inputmode="decimal" placeholder="0,00" oninput="moneyMaskInput(this)" value="${ex?moedaToInput(ex.valor):''}"></div>
     <div class="field"><label>Tipo</label>
       <div class="toggle">
-        <button id="tg-out" class="on-out" onclick="setTxTipo('saida')">Saída</button>
-        <button id="tg-in" onclick="setTxTipo('entrada')">Entrada</button>
+        <button id="tg-out" class="${txTipo==='saida'?'on-out':''}" onclick="setTxTipo('saida')">Saída</button>
+        <button id="tg-in" class="${txTipo==='entrada'?'on-in':''}" onclick="setTxTipo('entrada')">Entrada</button>
       </div>
     </div>
-    <div class="field"><label>Descrição</label><input id="m-desc" type="text" placeholder="Ex: Mercado"></div>
-    <div class="field"><label>Categoria</label><input id="m-cat" type="text" placeholder="Ex: Alimentação"></div>
+    <div class="field"><label>Descrição</label><input id="m-desc" type="text" placeholder="Ex: Mercado" value="${ex?escapeHtml(ex.descricao||''):''}"></div>
+    <div class="field"><label>Categoria</label><input id="m-cat" type="text" placeholder="Ex: Alimentação" value="${ex?escapeHtml(ex.categoria||''):''}"></div>
     <div class="field"><label>Forma de pagamento</label>
-      <select id="m-forma"><option value="dinheiro_pix">Dinheiro / Pix</option><option value="cartao">Cartão</option></select></div>
-    <div class="field"><label>Data</label><input id="m-data" type="date" value="${todayISO()}"></div>
-    <div class="modal-actions"><button class="btn-cancel" onclick="closeModal()">Cancelar</button><button class="btn-green" style="color:#fff" onclick="saveTx()">Salvar</button></div>
+      <select id="m-forma">
+        <option value="dinheiro_pix"${ex&&ex.forma_pagamento==='dinheiro_pix'?' selected':''}>Dinheiro / Pix</option>
+        <option value="cartao"${ex&&ex.forma_pagamento==='cartao'?' selected':''}>Cartão</option>
+      </select></div>
+    <div class="field"><label>Data</label><input id="m-data" type="date" value="${ex?ex.data:todayISO()}"></div>
+    <div class="modal-actions"><button class="btn-cancel" onclick="closeModal()">Cancelar</button><button class="btn-green" style="color:#fff" onclick="saveTx(${id?`'${id}'`:''})">Salvar</button></div>
   `);
 }
 function setTxTipo(t){ txTipo=t; document.getElementById('tg-out').className=t==='saida'?'on-out':''; document.getElementById('tg-in').className=t==='entrada'?'on-in':''; }
-function saveTx(){
-  const valor=parseFloat(document.getElementById('m-valor').value);
+function saveTx(id){
+  const valor=parseMoeda(document.getElementById('m-valor').value);
   if(!(valor>0)){ toast('Informe um valor válido'); return; }
-  DB.transacoes.push({id:uid(),data:document.getElementById('m-data').value||todayISO(),tipo:txTipo,valor,
-    descricao:document.getElementById('m-desc').value.trim(),categoria:document.getElementById('m-cat').value.trim(),
-    forma_pagamento:document.getElementById('m-forma').value});
-  saveDB(); closeModal(); refresh('inicio','lancamentos','visao'); toast('Lançamento salvo');
+  const rec={ data:document.getElementById('m-data').value||todayISO(), tipo:txTipo, valor,
+    descricao:document.getElementById('m-desc').value.trim(), categoria:document.getElementById('m-cat').value.trim(),
+    forma_pagamento:document.getElementById('m-forma').value };
+  if(id){ const i=DB.transacoes.findIndex(t=>t.id===id); if(i>=0) DB.transacoes[i]={...DB.transacoes[i],...rec}; flashId=id; }
+  else { const nid=uid(); DB.transacoes.push({id:nid,...rec}); flashId=nid; }
+  saveDB(); closeModal(); refresh('inicio','lancamentos','visao'); clearFlash(); toast(id?'Lançamento atualizado':'Lançamento salvo');
 }
 
-function openEntradaFixaModal(){
+function openEntradaFixaModal(id){
+  const ex=id?getEntradasFixas().find(f=>f.id===id):null;
   openModal(`
-    <h3>Adicionar Entrada Fixa</h3>
-    <div class="field"><label>Nome</label><input id="ef-nome" type="text" placeholder="Ex: Salário, Freelance"></div>
-    <div class="field"><label>Valor (R$)</label><input id="ef-valor" type="number" step="0.01" inputmode="decimal" placeholder="0,00"></div>
-    <div class="field"><label>Dia de recebimento</label><input id="ef-dia" type="number" min="1" max="31" value="5"></div>
-    <div class="modal-actions"><button class="btn-cancel" onclick="closeModal()">Cancelar</button><button style="background:var(--green);color:#fff" onclick="saveEntradaFixa()">Salvar</button></div>
+    <h3>${ex?'Editar entrada fixa':'Adicionar Entrada Fixa'}</h3>
+    <div class="field"><label>Nome</label><input id="ef-nome" type="text" placeholder="Ex: Salário, Freelance" value="${ex?escapeHtml(ex.nome):''}"></div>
+    <div class="field"><label>Valor (R$)</label><input id="ef-valor" type="text" inputmode="decimal" placeholder="0,00" oninput="moneyMaskInput(this)" value="${ex?moedaToInput(ex.valor):''}"></div>
+    <div class="field"><label>Dia de recebimento</label><input id="ef-dia" type="number" min="1" max="31" value="${ex?ex.dia_recebimento:5}"></div>
+    <div class="modal-actions"><button class="btn-cancel" onclick="closeModal()">Cancelar</button><button style="background:var(--green);color:#fff" onclick="saveEntradaFixa(${id?`'${id}'`:''})">Salvar</button></div>
   `);
 }
-function saveEntradaFixa(){
+function saveEntradaFixa(id){
   const nome=document.getElementById('ef-nome').value.trim();
-  const valor=parseFloat(document.getElementById('ef-valor').value);
+  const valor=parseMoeda(document.getElementById('ef-valor').value);
   const dia=parseInt(document.getElementById('ef-dia').value)||5;
   if(!nome){ toast('Informe o nome'); return; }
   if(!(valor>0)){ toast('Informe um valor válido'); return; }
   if(!DB.entradas_fixas) DB.entradas_fixas=[];
-  DB.entradas_fixas.push({id:uid(),nome,valor,dia_recebimento:dia,ativo:true});
-  saveDB(); closeModal(); refresh('inicio','fixas','visao'); toast('Entrada fixa adicionada!');
+  if(id){ const i=DB.entradas_fixas.findIndex(f=>f.id===id); if(i>=0) DB.entradas_fixas[i]={...DB.entradas_fixas[i],nome,valor,dia_recebimento:dia}; flashId=id; }
+  else { const nid=uid(); DB.entradas_fixas.push({id:nid,nome,valor,dia_recebimento:dia,ativo:true}); flashId=nid; }
+  saveDB(); closeModal(); refresh('inicio','fixas','visao'); clearFlash(); toast(id?'Entrada fixa atualizada':'Entrada fixa adicionada!');
 }
-function openFixaModal(){
+function openFixaModal(id){
+  const ex=id?getFixas().find(f=>f.id===id):null;
   openModal(`
-    <h3>Adicionar Conta Fixa</h3>
-    <div class="field"><label>Nome</label><input id="f-nome" type="text" placeholder="Ex: Internet"></div>
-    <div class="field"><label>Valor</label><input id="f-valor" type="number" step="0.01" inputmode="decimal" placeholder="0,00"></div>
-    <div class="field"><label>Dia de vencimento</label><input id="f-dia" type="number" min="1" max="31" value="1"></div>
-    <div class="modal-actions"><button class="btn-cancel" onclick="closeModal()">Cancelar</button><button class="btn-blue" style="color:#fff" onclick="saveFixa()">Salvar</button></div>
+    <h3>${ex?'Editar conta fixa':'Adicionar Conta Fixa'}</h3>
+    <div class="field"><label>Nome</label><input id="f-nome" type="text" placeholder="Ex: Internet" value="${ex?escapeHtml(ex.nome):''}"></div>
+    <div class="field"><label>Valor</label><input id="f-valor" type="text" inputmode="decimal" placeholder="0,00" oninput="moneyMaskInput(this)" value="${ex?moedaToInput(ex.valor):''}"></div>
+    <div class="field"><label>Dia de vencimento</label><input id="f-dia" type="number" min="1" max="31" value="${ex?ex.dia_vencimento:1}"></div>
+    <div class="modal-actions"><button class="btn-cancel" onclick="closeModal()">Cancelar</button><button class="btn-blue" style="color:#fff" onclick="saveFixa(${id?`'${id}'`:''})">Salvar</button></div>
   `);
 }
-function saveFixa(){
+function saveFixa(id){
   const nome=document.getElementById('f-nome').value.trim();
-  const valor=parseFloat(document.getElementById('f-valor').value);
+  const valor=parseMoeda(document.getElementById('f-valor').value);
   const dia=parseInt(document.getElementById('f-dia').value)||1;
   if(!nome||!(valor>0)){ toast('Preencha nome e valor'); return; }
-  DB.fixas.push({id:uid(),nome,valor,dia_vencimento:dia,ativo:true});
-  saveDB(); closeModal(); refresh('inicio','fixas','visao'); toast('Conta adicionada');
+  if(id){ const i=DB.fixas.findIndex(f=>f.id===id); if(i>=0) DB.fixas[i]={...DB.fixas[i],nome,valor,dia_vencimento:dia}; flashId=id; }
+  else { const nid=uid(); DB.fixas.push({id:nid,nome,valor,dia_vencimento:dia,ativo:true}); flashId=nid; }
+  saveDB(); closeModal(); refresh('inicio','fixas','visao'); clearFlash(); toast(id?'Conta atualizada':'Conta adicionada');
 }
 
-function openParcelaModal(){
+function openParcelaModal(id){
+  const ex=id?getParceladas().find(p=>p.id===id):null;
   openModal(`
-    <h3>Adicionar Parcelamento</h3>
-    <div class="field"><label>Nome</label><input id="p-nome" type="text" placeholder="Ex: Notebook"></div>
-    <div class="field"><label>Valor da parcela</label><input id="p-valor" type="number" step="0.01" inputmode="decimal" placeholder="0,00"></div>
-    <div class="field"><label>Parcela atual</label><input id="p-atual" type="number" min="1" value="1"></div>
-    <div class="field"><label>Total de parcelas</label><input id="p-total" type="number" min="1" value="1"></div>
-    <div class="modal-actions"><button class="btn-cancel" onclick="closeModal()">Cancelar</button><button class="btn-blue" style="color:#fff" onclick="saveParcela()">Salvar</button></div>
+    <h3>${ex?'Editar parcelamento':'Adicionar Parcelamento'}</h3>
+    <div class="field"><label>Nome</label><input id="p-nome" type="text" placeholder="Ex: Notebook" value="${ex?escapeHtml(ex.nome):''}"></div>
+    <div class="field"><label>Valor da parcela</label><input id="p-valor" type="text" inputmode="decimal" placeholder="0,00" oninput="moneyMaskInput(this)" value="${ex?moedaToInput(ex.valor_parcela):''}"></div>
+    <div class="field"><label>Parcela atual</label><input id="p-atual" type="number" min="1" value="${ex?ex.parcela_atual:1}"></div>
+    <div class="field"><label>Total de parcelas</label><input id="p-total" type="number" min="1" value="${ex?ex.total_parcelas:1}"></div>
+    <div class="modal-actions"><button class="btn-cancel" onclick="closeModal()">Cancelar</button><button class="btn-blue" style="color:#fff" onclick="saveParcela(${id?`'${id}'`:''})">Salvar</button></div>
   `);
 }
-function saveParcela(){
+function saveParcela(id){
   const nome=document.getElementById('p-nome').value.trim();
-  const vp=parseFloat(document.getElementById('p-valor').value);
+  const vp=parseMoeda(document.getElementById('p-valor').value);
   const pa=parseInt(document.getElementById('p-atual').value)||1;
   const tp=parseInt(document.getElementById('p-total').value)||1;
   if(!nome||!(vp>0)){ toast('Preencha nome e valor'); return; }
-  DB.parceladas.push({id:uid(),nome,valor_parcela:vp,parcela_atual:pa,total_parcelas:tp,ativo:true});
-  saveDB(); closeModal(); refresh('inicio','parceladas','visao'); toast('Parcelamento adicionado');
+  if(id){ const i=DB.parceladas.findIndex(p=>p.id===id); if(i>=0) DB.parceladas[i]={...DB.parceladas[i],nome,valor_parcela:vp,parcela_atual:pa,total_parcelas:tp}; flashId=id; }
+  else { const nid=uid(); DB.parceladas.push({id:nid,nome,valor_parcela:vp,parcela_atual:pa,total_parcelas:tp,ativo:true}); flashId=nid; }
+  saveDB(); closeModal(); refresh('inicio','parceladas','visao'); clearFlash(); toast(id?'Parcelamento atualizado':'Parcelamento adicionado');
 }
 
 let savTipo='aporte';
-function openSavingModal(){
-  savTipo='aporte';
+function openSavingModal(id){
+  const ex=id?getSavings().find(s=>s.id===id):null;
+  savTipo=ex?ex.tipo:'aporte';
   openModal(`
-    <h3>Registrar Movimentação</h3>
+    <h3>${ex?'Editar movimentação':'Registrar Movimentação'}</h3>
     <div class="field"><label>Tipo</label>
       <div class="toggle">
-        <button id="sv-ap" class="on-blue" onclick="setSavTipo('aporte')">Aporte</button>
-        <button id="sv-rg" onclick="setSavTipo('resgate')">Resgate</button>
+        <button id="sv-ap" class="${savTipo==='aporte'?'on-blue':''}" onclick="setSavTipo('aporte')">Aporte</button>
+        <button id="sv-rg" class="${savTipo==='resgate'?'on-blue':''}" onclick="setSavTipo('resgate')">Resgate</button>
       </div>
     </div>
-    <div class="field"><label>Valor</label><input id="s-valor" type="number" step="0.01" inputmode="decimal" placeholder="0,00"></div>
-    <div class="field"><label>Data</label><input id="s-data" type="date" value="${todayISO()}"></div>
-    <div class="field"><label>Descrição</label><input id="s-desc" type="text" placeholder="Ex: Reserva"></div>
-    <div class="modal-actions"><button class="btn-cancel" onclick="closeModal()">Cancelar</button><button class="btn-blue" style="color:#fff" onclick="saveSaving()">Salvar</button></div>
+    <div class="field"><label>Valor</label><input id="s-valor" type="text" inputmode="decimal" placeholder="0,00" oninput="moneyMaskInput(this)" value="${ex?moedaToInput(ex.valor):''}"></div>
+    <div class="field"><label>Data</label><input id="s-data" type="date" value="${ex?ex.data:todayISO()}"></div>
+    <div class="field"><label>Descrição</label><input id="s-desc" type="text" placeholder="Ex: Reserva" value="${ex?escapeHtml(ex.descricao||''):''}"></div>
+    <div class="modal-actions"><button class="btn-cancel" onclick="closeModal()">Cancelar</button><button class="btn-blue" style="color:#fff" onclick="saveSaving(${id?`'${id}'`:''})">Salvar</button></div>
   `);
 }
 function setSavTipo(t){ savTipo=t; document.getElementById('sv-ap').className=t==='aporte'?'on-blue':''; document.getElementById('sv-rg').className=t==='resgate'?'on-blue':''; }
-function saveSaving(){
-  const valor=parseFloat(document.getElementById('s-valor').value);
+function saveSaving(id){
+  const valor=parseMoeda(document.getElementById('s-valor').value);
   if(!(valor>0)){ toast('Informe um valor válido'); return; }
-  DB.savings.push({id:uid(),data:document.getElementById('s-data').value||todayISO(),tipo:savTipo,valor,descricao:document.getElementById('s-desc').value.trim()});
-  saveDB(); closeModal(); refresh('patrimonio'); toast('Movimentação registrada');
+  const rec={ data:document.getElementById('s-data').value||todayISO(), tipo:savTipo, valor, descricao:document.getElementById('s-desc').value.trim() };
+  if(id){ const i=DB.savings.findIndex(s=>s.id===id); if(i>=0) DB.savings[i]={...DB.savings[i],...rec}; flashId=id; }
+  else { const nid=uid(); DB.savings.push({id:nid,...rec}); flashId=nid; }
+  saveDB(); closeModal(); refresh('patrimonio'); clearFlash(); toast(id?'Movimentação atualizada':'Movimentação registrada');
 }
 
 /* ============ TOAST ============ */
 let toastTimer=null;
 function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove('show'),2600); }
+// Toast com botão "Desfazer" (substitui os confirm() de exclusão).
+function showUndo(msg, undoFn){
+  const t=document.getElementById('toast');
+  t.innerHTML='<span>'+escapeHtml(msg)+'</span><button class="toast-undo">Desfazer</button>';
+  t.classList.add('show');
+  t.querySelector('.toast-undo').onclick=()=>{ t.classList.remove('show'); undoFn(); setTimeout(()=>toast('Restaurado'),220); };
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove('show'),5000);
+}
 
 /* ============ TABS ============ */
 document.querySelectorAll('.nav-in button').forEach(b=>{
