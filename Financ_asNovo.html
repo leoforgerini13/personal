@@ -4,6 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Finanças</title>
+<!-- PWA / Adicionar à tela inicial (funciona ao abrir via http/https; offline já garantido pelo localStorage) -->
+<meta name="theme-color" content="#0F1623">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Finanças">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Crect width='180' height='180' fill='%230F1623'/%3E%3Ccircle cx='90' cy='90' r='70' fill='none' stroke='%23fff' stroke-width='8'/%3E%3Ctext x='90' y='104' text-anchor='middle' font-size='44' fill='%23fff' font-family='sans-serif' font-weight='bold'%3ESCCP%3C/text%3E%3C/svg%3E">
+<link rel="manifest" href='data:application/json,{"name":"Finan%C3%A7as","short_name":"Finan%C3%A7as","start_url":".","display":"standalone","background_color":"%230F1623","theme_color":"%230F1623"}'>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
 <style>
 :root{
@@ -145,6 +152,13 @@ th{color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase}
 .cycle-mid{flex:1;text-align:center;cursor:pointer}
 .cycle-range{font-weight:700;font-size:14px}
 .cycle-tag{font-size:11px;color:var(--muted);margin-top:1px}
+/* Busca e filtros (Lançamentos) */
+.search-input{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:var(--r-sm);font-size:15px;background:var(--field-bg);color:var(--text)}
+.filters{display:flex;gap:8px;margin-top:10px}
+.filters select{flex:1;min-width:0;padding:8px;border:1px solid var(--border);border-radius:8px;background:var(--field-bg);color:var(--text);font-size:12px}
+/* Categorias com orçamento */
+.cat-ic{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:8px;font-size:16px;margin-right:8px;flex:none}
+.cat-row .name{display:flex;align-items:center}
 /* Toggle de tema no header */
 .btn-theme{background:rgba(255,255,255,.12);color:#fff;border:none;border-radius:8px;padding:6px 9px;font-size:14px;cursor:pointer;line-height:1}
 /* Transição suave ao trocar de aba + entrada sutil de itens de lista */
@@ -204,10 +218,12 @@ th{color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase}
   <section id="tab-planejamento" class="tab-page">
     <div class="subnav">
       <button data-sub="fixas" class="active" onclick="showSub('planejamento','fixas')">📌 Fixas</button>
-      <button data-sub="parceladas" onclick="showSub('planejamento','parceladas')">💳 Parceladas</button>
+      <button data-sub="parceladas" onclick="showSub('planejamento','parceladas')">💳 Parcelas</button>
+      <button data-sub="categorias" onclick="showSub('planejamento','categorias')">🏷️ Categorias</button>
     </div>
     <div id="sub-fixas" class="subview active"></div>
     <div id="sub-parceladas" class="subview"></div>
+    <div id="sub-categorias" class="subview"></div>
   </section>
 
   <section id="tab-patrimonio" class="tab-page"></section>
@@ -241,6 +257,13 @@ th{color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase}
 const KEY='financas_v1';
 const uid=()=> (crypto.randomUUID? crypto.randomUUID() : 'id'+Date.now()+Math.random().toString(16).slice(2));
 
+// Categorias padrão (ícone + cor); orçamento (teto mensal) opcional por categoria.
+const CAT_DEFAULTS=[
+  ['Alimentação','🍔','#F97316'],['Transporte','🚗','#3B82F6'],['Moradia','🏠','#8B5CF6'],
+  ['Lazer','🎉','#EC4899'],['Saúde','💊','#10B981'],['Compras','🛍️','#F59E0B'],['Outros','📦','#64748B']
+];
+function defaultCategorias(){ return CAT_DEFAULTS.map(([nome,icone,cor])=>({id:uid(),nome,icone,cor,orcamento:null})); }
+
 function seed(){
   const fixas=[
     ['Financiamento',2269,10],['Psicólogo',1920,15],['Condomínio',633,5],['Cartão',838,22],
@@ -270,7 +293,7 @@ function seed(){
   const entradas_fixas=[
     {id:uid(),nome:'Salário Inpress',valor:10000,dia_recebimento:10,ativo:true}
   ];
-  return {fixas,parceladas,transacoes,monthly_summary,savings,entradas_fixas};
+  return {fixas,parceladas,transacoes,monthly_summary,savings,entradas_fixas,categorias:defaultCategorias(),metaPoupanca:null};
 }
 
 let DB=null;
@@ -284,6 +307,8 @@ function loadDB(){
 function saveDB(){ localStorage.setItem(KEY,JSON.stringify(DB)); }
 function migrateDB(){
   if(!DB.entradas_fixas) DB.entradas_fixas=[];
+  if(!DB.categorias) DB.categorias=defaultCategorias();   // adiciona categorias preservando dados
+  if(DB.metaPoupanca===undefined) DB.metaPoupanca=null;
 }
 function monthsBetween(isoA,isoB){ const a=new Date(isoA+'T12:00:00'),b=new Date(isoB+'T12:00:00'); return (b.getFullYear()-a.getFullYear())*12+(b.getMonth()-a.getMonth()); }
 // Virada de ciclo: se passaram N ciclos (dia 22) desde a última abertura, avança
@@ -315,6 +340,7 @@ const getTransacoes=()=>DB.transacoes;
 const getSummary=()=>DB.monthly_summary;
 const getSavings=()=>DB.savings;
 const getEntradasFixas=()=>(DB.entradas_fixas||[]);
+const getCategorias=()=>(DB.categorias||[]);
 
 /* ============ HELPERS ============ */
 function brl(v){ if(v===null||v===undefined||v==='') return '—'; return Number(v).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}); }
@@ -428,10 +454,10 @@ function calcSaldo(){ return calcSaldoForCycle(0); }
 // reconstruir o app inteiro a cada ação, só re-renderizamos a view afetada
 // que estiver visível; as demais ficam "sujas" e renderizam ao abrir a aba.
 const RENDER={ inicio:renderInicio, lancamentos:renderLancamentos, fixas:renderFixas,
-  parceladas:renderParceladas, patrimonio:renderPatrimonio, resumo:renderResumo, visao:renderVisao };
+  parceladas:renderParceladas, categorias:renderCategorias, patrimonio:renderPatrimonio, resumo:renderResumo, visao:renderVisao };
 const VIEW_TAB={ inicio:'inicio', lancamentos:'lancamentos', fixas:'planejamento',
-  parceladas:'planejamento', patrimonio:'patrimonio', resumo:'analise', visao:'analise' };
-const TAB_VIEWS={ inicio:['inicio'], lancamentos:['lancamentos'], planejamento:['fixas','parceladas'],
+  parceladas:'planejamento', categorias:'planejamento', patrimonio:'patrimonio', resumo:'analise', visao:'analise' };
+const TAB_VIEWS={ inicio:['inicio'], lancamentos:['lancamentos'], planejamento:['fixas','parceladas','categorias'],
   patrimonio:['patrimonio'], analise:['resumo','visao'] };
 const ALL_VIEWS=Object.keys(RENDER);
 
@@ -609,12 +635,54 @@ function renderInicio(){
   `;
 }
 
+// Estado de busca/filtro dos Lançamentos (preservado entre re-renders)
+let lancFilter={q:'',tipo:'',forma:'',cat:''};
+function setLancFilter(field,val){ lancFilter[field]=val; renderLancList(); } // atualiza só a lista (mantém o foco da busca)
+
 function renderLancamentos(){
+  const el=document.getElementById('tab-lancamentos');
+  const cats=getCategorias();
+  // "Cromo" da aba (selector + busca + filtros) é montado uma vez; a lista é separada.
+  el.innerHTML=`
+    <h2 class="page-title">Lançamentos</h2>
+    ${cycleSelectorHTML()}
+    <div class="card">
+      <input id="lanc-q" class="search-input" type="text" placeholder="🔎 Buscar descrição ou categoria" value="${escapeHtml(lancFilter.q)}" oninput="setLancFilter('q',this.value)">
+      <div class="filters">
+        <select onchange="setLancFilter('tipo',this.value)">
+          <option value=""${lancFilter.tipo===''?' selected':''}>Tipo: todos</option>
+          <option value="saida"${lancFilter.tipo==='saida'?' selected':''}>Saídas</option>
+          <option value="entrada"${lancFilter.tipo==='entrada'?' selected':''}>Entradas</option>
+        </select>
+        <select onchange="setLancFilter('forma',this.value)">
+          <option value=""${lancFilter.forma===''?' selected':''}>Forma: todas</option>
+          <option value="dinheiro_pix"${lancFilter.forma==='dinheiro_pix'?' selected':''}>Dinheiro/Pix</option>
+          <option value="cartao"${lancFilter.forma==='cartao'?' selected':''}>Cartão</option>
+        </select>
+        <select onchange="setLancFilter('cat',this.value)">
+          <option value=""${lancFilter.cat===''?' selected':''}>Categoria: todas</option>
+          ${cats.map(c=>`<option value="${escapeHtml(c.nome)}"${lancFilter.cat===c.nome?' selected':''}>${c.icone} ${escapeHtml(c.nome)}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+    <div id="lanc-list"></div>
+    <button class="btn btn-blue" onclick="openTxModal()">+ Lançar Gasto</button>
+  `;
+  renderLancList();
+}
+
+function renderLancList(){
   const {first,last}=selectedCycleRange();
-  const tx=getTransacoes().filter(t=>t.data>=first && t.data<=last).slice().sort((a,b)=>b.data.localeCompare(a.data));
+  const q=lancFilter.q.trim().toLowerCase();
+  let tx=getTransacoes().filter(t=>t.data>=first && t.data<=last);
+  if(lancFilter.tipo)  tx=tx.filter(t=>t.tipo===lancFilter.tipo);
+  if(lancFilter.forma) tx=tx.filter(t=>t.forma_pagamento===lancFilter.forma);
+  if(lancFilter.cat)   tx=tx.filter(t=>(t.categoria||'')===lancFilter.cat);
+  if(q) tx=tx.filter(t=>((t.descricao||'')+' '+(t.categoria||'')).toLowerCase().includes(q));
+  tx=tx.slice().sort((a,b)=>b.data.localeCompare(a.data));
+
   const entradas=tx.filter(t=>t.tipo==='entrada').reduce((s,t)=>s+t.valor,0);
   const saidas=tx.filter(t=>t.tipo==='saida').reduce((s,t)=>s+t.valor,0);
-  const el=document.getElementById('tab-lancamentos');
   let rows=tx.map(t=>{
     const dd=fdate(t.data).slice(0,5);
     const icon=t.forma_pagamento==='cartao'?'💳':'💵';
@@ -628,15 +696,10 @@ function renderLancamentos(){
       <button class="del" onclick="event.stopPropagation();delTx('${t.id}',event)">🗑</button>
     </div>`;
   }).join('');
-  if(!tx.length) rows='<div class="empty">Nenhum lançamento neste ciclo.</div>';
-  el.innerHTML=`
-    <h2 class="page-title">Lançamentos</h2>
-    ${cycleSelectorHTML()}
-    <div class="card">
-      <div class="totals"><span class="pos">Entradas: ${brl(entradas)}</span><span class="neg">Saídas: ${brl(saidas)}</span></div>
-    </div>
+  if(!tx.length) rows='<div class="empty">Nenhum lançamento encontrado.</div>';
+  document.getElementById('lanc-list').innerHTML=`
+    <div class="card"><div class="totals"><span class="pos">Entradas: ${brl(entradas)}</span><span class="neg">Saídas: ${brl(saidas)}</span></div></div>
     <div class="card">${rows}</div>
-    <button class="btn btn-blue" onclick="openTxModal()">+ Lançar Gasto</button>
   `;
 }
 
@@ -725,6 +788,7 @@ function renderPatrimonio(){
   el.innerHTML=`
     <h2 class="page-title">Patrimônio</h2>
     <div class="hero"><div class="label">Total Guardado</div><div class="big pos">${brl(totalGuardado)}</div></div>
+    ${metaHTML(totalGuardado)}
     <div class="card"><div class="chart-box"><canvas id="patrChart"></canvas></div></div>
     <div class="card">${rows}</div>
     <button class="btn-add" onclick="openSavingModal()">+ Registrar</button>
@@ -738,6 +802,31 @@ function renderPatrimonio(){
     if(ctx) patrChart=new Chart(ctx,{type:'line',data:{labels,datasets:[{label:'Patrimônio acumulado',data,borderColor:'#16A34A',backgroundColor:'rgba(22,163,74,.12)',fill:true,tension:.3,pointRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>'R$'+(v/1000)+'k'}}}}});
   }
 }
+
+// Meta de poupança (Patrimônio): barra de progresso até o alvo.
+function metaHTML(total){
+  const meta=DB.metaPoupanca;
+  if(!meta) return `<button class="btn-add" style="margin-bottom:14px" onclick="openMetaModal()">🎯 Definir meta de poupança</button>`;
+  const pct=Math.min(100,Math.round(total/meta*100));
+  const falta=Math.max(0,meta-total);
+  return `<div class="card" onclick="openMetaModal()" style="cursor:pointer">
+    <div class="row-between"><span class="cap">🎯 Meta de poupança</span><span class="cap">${brl(total)} / ${brl(meta)}</span></div>
+    <div class="prog" style="margin-top:8px;height:10px"><div style="width:${pct}%;background:${pct>=100?'var(--green)':'var(--blue)'}"></div></div>
+    <div class="cap" style="margin-top:6px">${pct>=100?'Meta atingida! 🎉':'Faltam '+brl(falta)+' ('+pct+'%)'}</div>
+  </div>`;
+}
+function openMetaModal(){
+  openModal(`
+    <h3>Meta de poupança</h3>
+    <div class="field"><label>Valor alvo (R$)</label><input id="meta-valor" type="text" inputmode="decimal" placeholder="0,00" oninput="moneyMaskInput(this)" value="${DB.metaPoupanca?moedaToInput(DB.metaPoupanca):''}"></div>
+    <div class="modal-actions">
+      ${DB.metaPoupanca?'<button class="btn-cancel" onclick="clearMeta()">Remover</button>':'<button class="btn-cancel" onclick="closeModal()">Cancelar</button>'}
+      <button class="btn-blue" style="color:#fff" onclick="saveMeta()">Salvar</button>
+    </div>
+  `);
+}
+function saveMeta(){ const v=parseMoeda(document.getElementById('meta-valor').value); if(!(v>0)){ toast('Informe um valor válido'); return; } DB.metaPoupanca=v; saveDB(); closeModal(); refresh('patrimonio'); toast('Meta salva'); }
+function clearMeta(){ DB.metaPoupanca=null; saveDB(); closeModal(); refresh('patrimonio'); toast('Meta removida'); }
 
 let resumoChart=null;
 function renderResumo(){
@@ -837,6 +926,65 @@ function saveResumo(mes,ano){
 
 function escapeHtml(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
+/* ============ CATEGORIAS (com orçamento/teto mensal) ============ */
+function renderCategorias(){
+  const el=document.getElementById('sub-categorias');
+  const cats=getCategorias();
+  const {first,last}=currentCycleRange(); // orçamento é por ciclo atual
+  const saidas=getTransacoes().filter(t=>t.tipo==='saida' && t.data>=first && t.data<=last);
+  const gastoDe=nome=>saidas.filter(t=>(t.categoria||'')===nome).reduce((s,t)=>s+t.valor,0);
+
+  let rows=cats.map(c=>{
+    const gasto=gastoDe(c.nome);
+    let info;
+    if(c.orcamento){
+      const pct=Math.min(100,Math.round(gasto/c.orcamento*100));
+      const over=gasto>c.orcamento;
+      info=`<div class="prog" style="margin-top:8px;height:8px"><div style="width:${pct}%;background:${over?'var(--red)':c.cor}"></div></div>
+        <div class="cap" style="margin-top:5px">${brl(gasto)} de ${brl(c.orcamento)}${over?' · estourou ⚠️':' ('+pct+'%)'}</div>`;
+    } else {
+      info=`<div class="cap" style="margin-top:5px">Gasto no ciclo: ${brl(gasto)} · sem teto</div>`;
+    }
+    return `<div class="card cat-row" onclick="openCatModal('${c.id}')" style="cursor:pointer">
+      <div class="row-between">
+        <div class="name"><span class="cat-ic" style="background:${c.cor}22;color:${c.cor}">${c.icone}</span> ${escapeHtml(c.nome)}</div>
+        <button class="del" onclick="event.stopPropagation();delCategoria('${c.id}')">🗑</button>
+      </div>
+      ${info}
+    </div>`;
+  }).join('');
+  if(!cats.length) rows='<div class="empty">Nenhuma categoria.</div>';
+
+  el.innerHTML=`
+    <p class="muted-note">Defina um teto mensal por categoria e acompanhe o gasto no ciclo atual.</p>
+    ${rows}
+    <button class="btn-add" onclick="openCatModal()">+ Adicionar categoria</button>
+  `;
+}
+function delCategoria(id){ softDelete('categorias',id,['categorias','lancamentos'],'Categoria'); }
+function openCatModal(id){
+  const ex=id?getCategorias().find(c=>c.id===id):null;
+  openModal(`
+    <h3>${ex?'Editar categoria':'Nova categoria'}</h3>
+    <div class="field"><label>Nome</label><input id="c-nome" type="text" placeholder="Ex: Alimentação" value="${ex?escapeHtml(ex.nome):''}"></div>
+    <div class="field"><label>Ícone (emoji)</label><input id="c-ic" type="text" maxlength="2" placeholder="🍔" value="${ex?escapeHtml(ex.icone||''):''}"></div>
+    <div class="field"><label>Cor</label><input id="c-cor" type="color" value="${ex?ex.cor:'#2563EB'}" style="height:46px;padding:4px"></div>
+    <div class="field"><label>Teto mensal (R$, opcional)</label><input id="c-orc" type="text" inputmode="decimal" placeholder="0,00" oninput="moneyMaskInput(this)" value="${ex&&ex.orcamento?moedaToInput(ex.orcamento):''}"></div>
+    <div class="modal-actions"><button class="btn-cancel" onclick="closeModal()">Cancelar</button><button class="btn-blue" style="color:#fff" onclick="saveCat(${id?`'${id}'`:''})">Salvar</button></div>
+  `);
+}
+function saveCat(id){
+  const nome=document.getElementById('c-nome').value.trim();
+  const icone=document.getElementById('c-ic').value.trim()||'📦';
+  const cor=document.getElementById('c-cor').value||'#2563EB';
+  const orcV=parseMoeda(document.getElementById('c-orc').value);
+  const orcamento=isNaN(orcV)?null:orcV;
+  if(!nome){ toast('Informe o nome'); return; }
+  if(id){ const i=DB.categorias.findIndex(c=>c.id===id); if(i>=0) DB.categorias[i]={...DB.categorias[i],nome,icone,cor,orcamento}; }
+  else { DB.categorias.push({id:uid(),nome,icone,cor,orcamento}); }
+  saveDB(); closeModal(); refresh('categorias','lancamentos'); toast(id?'Categoria atualizada':'Categoria criada');
+}
+
 /* ============ DELETES (exclusão suave + "Desfazer", sem confirm nativo) ============ */
 // Remove o item na hora, guarda-o e oferece "Desfazer" no toast por alguns segundos.
 function softDelete(coll, id, views, label){
@@ -877,7 +1025,12 @@ function openTxModal(id){
       </div>
     </div>
     <div class="field"><label>Descrição</label><input id="m-desc" type="text" placeholder="Ex: Mercado" value="${ex?escapeHtml(ex.descricao||''):''}"></div>
-    <div class="field"><label>Categoria</label><input id="m-cat" type="text" placeholder="Ex: Alimentação" value="${ex?escapeHtml(ex.categoria||''):''}"></div>
+    <div class="field"><label>Categoria</label>
+      <select id="m-cat">
+        <option value=""${!ex||!ex.categoria?' selected':''}>— Categoria —</option>
+        ${getCategorias().map(c=>`<option value="${escapeHtml(c.nome)}"${ex&&ex.categoria===c.nome?' selected':''}>${c.icone} ${escapeHtml(c.nome)}</option>`).join('')}
+        ${ex&&ex.categoria&&!getCategorias().some(c=>c.nome===ex.categoria)?`<option value="${escapeHtml(ex.categoria)}" selected>${escapeHtml(ex.categoria)}</option>`:''}
+      </select></div>
     <div class="field"><label>Forma de pagamento</label>
       <select id="m-forma">
         <option value="dinheiro_pix"${ex&&ex.forma_pagamento==='dinheiro_pix'?' selected':''}>Dinheiro / Pix</option>
@@ -1108,8 +1261,11 @@ function importJSON(){
       // Reconstrói garantindo todas as coleções; migrateDB preenche campos novos.
       DB={
         fixas:data.fixas||[], parceladas:data.parceladas||[], transacoes:data.transacoes||[],
-        monthly_summary:data.monthly_summary||[], savings:data.savings||[], entradas_fixas:data.entradas_fixas||[]
+        monthly_summary:data.monthly_summary||[], savings:data.savings||[], entradas_fixas:data.entradas_fixas||[],
+        categorias:data.categorias||defaultCategorias(),
+        metaPoupanca:(data.metaPoupanca!==undefined?data.metaPoupanca:null)
       };
+      if(data.cycleAnchor) DB.cycleAnchor=data.cycleAnchor;
       migrateDB(); saveDB(); renderAll(); closeModal();
       toast('Backup importado com sucesso');
     };
