@@ -665,7 +665,10 @@ function renderLancamentos(){
       </div>
     </div>
     <div id="lanc-list"></div>
-    <button class="btn-add" onclick="openTxModal()">+ Lançar Gasto</button>
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <button class="btn-add" style="flex:1;margin-top:0" onclick="openTxModal()">+ Lançar Gasto</button>
+      <button class="btn-add" style="flex:1;margin-top:0;background:#1A1A1A;color:#fff" onclick="openLancParcelaModal()">💳 Lançar Parcelado</button>
+    </div>
   `;
   renderLancList();
 }
@@ -1166,6 +1169,45 @@ function saveParcela(id){
   if(id){ const i=DB.parceladas.findIndex(p=>p.id===id); if(i>=0) DB.parceladas[i]={...DB.parceladas[i],nome,valor_parcela:vp,parcela_atual:pa,total_parcelas:tp}; flashId=id; }
   else { const nid=uid(); DB.parceladas.push({id:nid,nome,valor_parcela:vp,parcela_atual:pa,total_parcelas:tp,ativo:true}); flashId=nid; }
   saveDB(); closeModal(); refresh('inicio','parceladas','visao'); clearFlash(); toast(id?'Atualizado':'Parcelamento adicionado');
+}
+
+function openLancParcelaModal(){
+  openModal(`<h3>💳 Lançar Compra Parcelada</h3>
+    <div class="field"><label>Nome da compra</label><input id="lp-nome" type="text" placeholder="Ex: Notebook, Tênis..."></div>
+    <div class="field"><label>Valor total da compra (R$)</label><input id="lp-total" type="text" inputmode="decimal" placeholder="0,00" oninput="moneyMaskInput(this);calcParcela()"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div class="field"><label>Nº de parcelas</label><input id="lp-qtd" type="number" min="1" max="120" value="12" oninput="calcParcela()"></div>
+      <div class="field"><label>Parcela atual</label><input id="lp-atual" type="number" min="1" value="1"></div>
+    </div>
+    <div id="lp-preview" style="background:var(--surface2);border-radius:8px;padding:10px 12px;font-size:13px;color:var(--text2);margin-bottom:8px"></div>
+    <div class="modal-actions"><button class="btn-cancel" onclick="closeModal()">Cancelar</button><button class="btn-accent" onclick="saveLancParcela()">Adicionar</button></div>
+  `);
+  calcParcela();
+}
+function calcParcela(){
+  const total=parseMoeda(document.getElementById('lp-total')?.value||'');
+  const qtd=parseInt(document.getElementById('lp-qtd')?.value)||1;
+  const prev=document.getElementById('lp-preview');
+  if(!prev) return;
+  if(total>0&&qtd>0){
+    prev.innerHTML=`Valor por parcela: <b style="color:var(--text);font-size:15px">${brl(total/qtd)}</b> × ${qtd} meses`;
+  } else {
+    prev.textContent='Preencha o valor total e o número de parcelas.';
+  }
+}
+function saveLancParcela(){
+  const nome=document.getElementById('lp-nome').value.trim();
+  const totalV=parseMoeda(document.getElementById('lp-total').value);
+  const qtd=parseInt(document.getElementById('lp-qtd').value)||1;
+  const atual=parseInt(document.getElementById('lp-atual').value)||1;
+  if(!nome){ toast('Informe o nome da compra'); return; }
+  if(!(totalV>0)){ toast('Informe o valor total'); return; }
+  const vp=+(totalV/qtd).toFixed(2);
+  const nid=uid();
+  DB.parceladas.push({id:nid,nome,valor_parcela:vp,parcela_atual:atual,total_parcelas:qtd,ativo:true});
+  flashId=nid;
+  saveDB(); closeModal(); refresh('inicio','parceladas','visao','lancamentos'); clearFlash();
+  toast(`Parcelado adicionado: ${qtd}× ${brl(vp)}`);
 }
 
 let savTipo='aporte';
