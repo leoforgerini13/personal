@@ -7,6 +7,8 @@
     "status": "ativo",
     "cadenciaEsperada": 3,
     "ultimoToque": "2026-07-17",
+    "inicio": "2026-06-16",
+    "previsaoFim": "2026-08-15",
     "notas": "Reposicionamento das marcas RMG / Club / Social. Weekly às quartas 10h com Clarissa, Gabriel e Isabel.",
     "marcos": [
       { "id": "bhg-m1", "titulo": "Board: novo posicionamento RMG/Club/Social", "data": "2026-07-28", "feito": false },
@@ -21,6 +23,8 @@
     "status": "ativo",
     "cadenciaEsperada": 3,
     "ultimoToque": "2026-07-15",
+    "inicio": "2026-07-01",
+    "previsaoFim": "2026-08-14",
     "notas": "18 benchmarks internacionais + concorrentes locais. CP semanal quartas 15h.",
     "marcos": [
       { "id": "ba-m1", "titulo": "Entregar deck de benchmarks", "data": "2026-07-24", "feito": false },
@@ -36,7 +40,9 @@
     "status": "ativo",
     "cadenciaEsperada": 4,
     "ultimoToque": "2026-07-06",
-    "notas": "Card-modelo. Edite nome, cliente e cadência ou apague se não usar.",
+    "inicio": "2026-07-06",
+    "previsaoFim": "2026-08-01",
+    "notas": "Card-modelo. Edite nome, cliente e datas ou apague se não usar.",
     "marcos": [
       { "id": "inp-m1", "titulo": "Definir próximo marco", "data": "2026-07-25", "feito": false }
     ]
@@ -49,6 +55,8 @@
     "status": "ativo",
     "cadenciaEsperada": 5,
     "ultimoToque": "2026-07-12",
+    "inicio": "2026-07-10",
+    "previsaoFim": "2026-08-20",
     "notas": "Card-modelo. Substitua pelos dados reais desta frente.",
     "marcos": [
       { "id": "fr1-m1", "titulo": "Definir próximo marco", "data": "2026-07-30", "feito": false }
@@ -62,6 +70,8 @@
     "status": "ativo",
     "cadenciaEsperada": 7,
     "ultimoToque": "2026-07-14",
+    "inicio": "2026-07-14",
+    "previsaoFim": "2026-09-05",
     "notas": "Card-modelo. Use para uma frente de menor cadência (semanal).",
     "marcos": [
       { "id": "fr2-m1", "titulo": "Definir próximo marco", "data": "2026-08-05", "feito": false }

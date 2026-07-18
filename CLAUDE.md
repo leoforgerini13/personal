@@ -39,12 +39,12 @@ Ao republicar o Artifact (mesma URL), rode `node build.js` e reenvie `artifact.h
 
 ## Módulos (7 itens de navegação, um nível só)
 
-1. **Hoje** — data por extenso, 3 prioridades manuais, tarefas de hoje, compromissos do dia, sugestão da frente mais dormente.
-2. **Tarefas** — segmentada em **Semana** (tarefas por dia, com navegação de semanas) e **Board** (colunas A fazer / Fazendo / Feito). A segmentação é um filtro dentro da view, **não** sub-abas na navegação lateral.
-3. **Frentes** — cards por dias-sem-toque, ordenados por urgência.
-4. **Timeline** — Gantt-lite: marcos datados por frente numa linha do tempo + gestor de marcos editável.
-5. **Rotina** — heatmap de 12 semanas + histórico mensal (6 meses).
-6. **Amsterdam** — caminho crítico (checklist com dependências) + **gastos da mudança** (R$ e €).
+1. **Hoje** — data por extenso, 3 prioridades manuais, tarefas de hoje, compromissos do dia.
+2. **Tarefas** — segmentada em **Semana** (tarefas por dia), **Gantt** (barras da semana por projeto) e **Board** (colunas A fazer / Fazendo / Feito, com **arrastar** entre colunas). A segmentação é filtro dentro da view, **não** sub-abas na navegação.
+3. **Frentes** — cartões de projetos **ativos** (nome, cliente, período, próximo marco). Sem indicador de "dias sem toque". Ordenados por próximo marco.
+4. **Timeline** — visão **macro**: barra início → previsão de fim por projeto, marcos como diamantes + gestor de marcos editável.
+5. **Rotina** — heatmap de 12 semanas + histórico mensal (6 meses). Hábitos editáveis (adicionar/editar meta/excluir).
+6. **Amsterdam** — checklist **por clusters** (Documentação & Legal, Trabalho & Carreira, Moradia & Mudança, Financeiro & Seguros), com dependências, + **gastos da mudança** (R$ e €).
 7. **Log** — timeline reversa, agrupada por semana, filtrável por frente.
 
 Tudo é editável/adicionável no próprio dashboard (botão "+ …" em cada view, editar/excluir por item), gravando no buffer → "Copiar patch" → `/sync`.
@@ -74,11 +74,10 @@ Tudo é editável/adicionável no próprio dashboard (botão "+ …" em cada vie
   muito respiro. Minimalista com tipografia forte.
 - **Um único acento de alta saturação** (`--accent:#ff6a3d`). O acento **aponta, não decora**:
   em cada view, no máximo **um** elemento o recebe. Todo o resto vive em escala de cinza.
-  - Frentes → a frente mais dormente (só se estourou a cadência).
   - Timeline → o marco próximo (próximo marco não-feito com data ≥ hoje).
   - Rotina → a célula de hoje quando cumprida.
   - Amsterdam → o próximo item desbloqueado e não-feito (as barras de gasto ficam em cinza).
-  - Hoje / Timeline (gestor) / Log → sem acento.
+  - Hoje / Frentes / Timeline (gestor) / Log → sem acento.
   - Exceção deliberada (pedido do usuário): em **Tarefas**, a prioridade `alta` recebe um pequeno *dot* do acento — é sinal de leitura, mantido discreto (só o ponto, nunca a linha inteira).
 - Hierarquia por **contraste de escala tipográfica**, não por bordas/sombras/caixas aninhadas.
   Número grande em peso alto; label minúsculo em caixa alta com tracking aberto.
@@ -102,19 +101,22 @@ define o alerta — não uma régua fixa. Frentes são ordenadas por `ratio` des
 ```json
 { "id": "banco-atlantico", "nome": "Banco Atlântico", "cliente": "Marcas com Sal",
   "tipo": "agencia|freela|pessoal", "status": "ativo|arquivado",
-  "cadenciaEsperada": 3, "ultimoToque": "YYYY-MM-DD", "notas": "…",
+  "cadenciaEsperada": 3, "ultimoToque": "YYYY-MM-DD",
+  "inicio": "YYYY-MM-DD", "previsaoFim": "YYYY-MM-DD", "notas": "…",
   "marcos": [ { "id": "…", "titulo": "…", "data": "YYYY-MM-DD", "feito": false } ] }
 ```
 `status: "arquivado"` some do dashboard. O **próximo marco** é derivado: o `marcos[]` não-feito
-de menor `data`. (Schema antigo com `proximoMarco` ainda é aceito, mas prefira `marcos[]`.)
+de menor `data`. `inicio`/`previsaoFim` alimentam a Timeline macro. (Schema antigo com
+`proximoMarco` ainda é aceito, mas prefira `marcos[]`.)
 
 **tarefas.json** — array de:
 ```json
 { "id": "tk-1", "projeto": "banco-atlantico", "titulo": "<a ação>", "descricao": "…",
-  "data": "YYYY-MM-DD", "prioridade": "alta|media|baixa",
+  "data": "YYYY-MM-DD", "dataFim": "YYYY-MM-DD", "prioridade": "alta|media|baixa",
   "status": "a_fazer|fazendo|feito", "criadaEm": "YYYY-MM-DD" }
 ```
-`projeto` e `data` podem ser vazios. Alimentada também por `/planejar`.
+`projeto`, `data` e `dataFim` podem ser vazios; `dataFim` (prazo) desenha a barra no Gantt semanal.
+Alimentada também por `/planejar`.
 
 **gastos.json** — array de (custos da mudança, duas moedas):
 ```json
@@ -129,12 +131,14 @@ Os totais e as barras (pago vs. estimado, por moeda) são calculados no build/ru
   "registros": { "YYYY-MM-DD": ["musculacao", "usp"] } }
 ```
 
-**carreira.json** — array de (checklist com dependências):
+**carreira.json** — array de (checklist com dependências, agrupado por cluster):
 ```json
-{ "id": "autorizacao-eu", "titulo": "Autorização de trabalho na UE",
+{ "id": "autorizacao-eu", "categoria": "documentacao|carreira|moradia|financeiro",
+  "titulo": "Autorização de trabalho na UE",
   "estado": "nao_iniciado|em_andamento|feito", "bloqueia": ["aplicacoes"], "nota": "" }
 ```
-Um item está **bloqueado** se algum item que o cita em `bloqueia` não estiver `feito`.
+`categoria` define o cluster na aba Amsterdam. Um item está **bloqueado** se algum item que o
+cita em `bloqueia` não estiver `feito`.
 
 **agenda.json** — array de (só o que interessa): `{ "inicio", "fim", "titulo", "diaInteiro" }`.
 `inicio`/`fim` em ISO com offset. Gerado por `/hoje` a partir do Google Calendar pessoal.

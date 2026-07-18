@@ -1,44 +1,23 @@
 [
-  {
-    "id": "autorizacao-eu",
-    "titulo": "Autorização de trabalho na UE",
-    "estado": "em_andamento",
-    "bloqueia": ["aplicacoes"],
-    "nota": "Verificar via de cidadania / visto de busca de emprego (zoekjaar)."
-  },
-  {
-    "id": "reconhecimento-diploma",
-    "titulo": "Reconhecimento do diploma",
-    "estado": "nao_iniciado",
-    "bloqueia": [],
-    "nota": ""
-  },
-  {
-    "id": "aplicacoes",
-    "titulo": "Aplicações para vagas",
-    "estado": "nao_iniciado",
-    "bloqueia": ["entrevistas"],
-    "nota": ""
-  },
-  {
-    "id": "entrevistas",
-    "titulo": "Rodada de entrevistas",
-    "estado": "nao_iniciado",
-    "bloqueia": ["mudanca"],
-    "nota": ""
-  },
-  {
-    "id": "moradia",
-    "titulo": "Pesquisa de moradia em Amsterdam",
-    "estado": "nao_iniciado",
-    "bloqueia": [],
-    "nota": ""
-  },
-  {
-    "id": "mudanca",
-    "titulo": "Logística da mudança",
-    "estado": "nao_iniciado",
-    "bloqueia": [],
-    "nota": ""
-  }
+  { "id": "passaporte", "categoria": "documentacao", "titulo": "Passaporte válido (renovar se < 6 meses)", "estado": "nao_iniciado", "bloqueia": [], "nota": "" },
+  { "id": "autorizacao-eu", "categoria": "documentacao", "titulo": "Autorização de trabalho na UE", "estado": "em_andamento", "bloqueia": ["aplicacoes"], "nota": "Verificar via de cidadania / visto de busca de emprego (zoekjaar)." },
+  { "id": "apostilamento", "categoria": "documentacao", "titulo": "Apostilamento de certidões (nascimento etc.)", "estado": "nao_iniciado", "bloqueia": [], "nota": "" },
+  { "id": "reconhecimento-diploma", "categoria": "documentacao", "titulo": "Reconhecimento do diploma", "estado": "nao_iniciado", "bloqueia": [], "nota": "" },
+  { "id": "bsn-registro", "categoria": "documentacao", "titulo": "BSN / registro na prefeitura (gemeente)", "estado": "nao_iniciado", "bloqueia": [], "nota": "Só após ter endereço fixo em Amsterdam." },
+
+  { "id": "cv-portfolio", "categoria": "carreira", "titulo": "CV e portfólio em inglês", "estado": "nao_iniciado", "bloqueia": ["aplicacoes"], "nota": "" },
+  { "id": "aplicacoes", "categoria": "carreira", "titulo": "Aplicações para vagas", "estado": "nao_iniciado", "bloqueia": ["entrevistas"], "nota": "" },
+  { "id": "entrevistas", "categoria": "carreira", "titulo": "Rodada de entrevistas", "estado": "nao_iniciado", "bloqueia": ["contrato-caucao", "passagem"], "nota": "" },
+  { "id": "networking", "categoria": "carreira", "titulo": "Networking / LinkedIn ativo", "estado": "nao_iniciado", "bloqueia": [], "nota": "" },
+
+  { "id": "pesquisa-moradia", "categoria": "moradia", "titulo": "Pesquisa de moradia", "estado": "nao_iniciado", "bloqueia": ["contrato-caucao"], "nota": "" },
+  { "id": "contrato-caucao", "categoria": "moradia", "titulo": "Contrato de aluguel + caução", "estado": "nao_iniciado", "bloqueia": ["bsn-registro"], "nota": "" },
+  { "id": "mobilia", "categoria": "moradia", "titulo": "Mobília inicial", "estado": "nao_iniciado", "bloqueia": [], "nota": "" },
+  { "id": "envio-pertences", "categoria": "moradia", "titulo": "Envio de pertences / o que trazer", "estado": "nao_iniciado", "bloqueia": [], "nota": "" },
+  { "id": "passagem", "categoria": "moradia", "titulo": "Passagem e data da mudança", "estado": "nao_iniciado", "bloqueia": [], "nota": "" },
+
+  { "id": "conta-internacional", "categoria": "financeiro", "titulo": "Conta bancária internacional (Wise/N26)", "estado": "nao_iniciado", "bloqueia": [], "nota": "" },
+  { "id": "cambio-reserva", "categoria": "financeiro", "titulo": "Câmbio + reserva de emergência", "estado": "nao_iniciado", "bloqueia": [], "nota": "" },
+  { "id": "seguro-saude", "categoria": "financeiro", "titulo": "Seguro saúde", "estado": "nao_iniciado", "bloqueia": [], "nota": "" },
+  { "id": "impostos", "categoria": "financeiro", "titulo": "Situação fiscal no Brasil (saída definitiva)", "estado": "nao_iniciado", "bloqueia": [], "nota": "" }
 ]
