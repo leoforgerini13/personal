@@ -1,0 +1,44 @@
+[
+  {
+    "id": "autorizacao-eu",
+    "titulo": "Autorização de trabalho na UE",
+    "estado": "em_andamento",
+    "bloqueia": ["aplicacoes"],
+    "nota": "Verificar via de cidadania / visto de busca de emprego (zoekjaar)."
+  },
+  {
+    "id": "reconhecimento-diploma",
+    "titulo": "Reconhecimento do diploma",
+    "estado": "nao_iniciado",
+    "bloqueia": [],
+    "nota": ""
+  },
+  {
+    "id": "aplicacoes",
+    "titulo": "Aplicações para vagas",
+    "estado": "nao_iniciado",
+    "bloqueia": ["entrevistas"],
+    "nota": ""
+  },
+  {
+    "id": "entrevistas",
+    "titulo": "Rodada de entrevistas",
+    "estado": "nao_iniciado",
+    "bloqueia": ["mudanca"],
+    "nota": ""
+  },
+  {
+    "id": "moradia",
+    "titulo": "Pesquisa de moradia em Amsterdam",
+    "estado": "nao_iniciado",
+    "bloqueia": [],
+    "nota": ""
+  },
+  {
+    "id": "mudanca",
+    "titulo": "Logística da mudança",
+    "estado": "nao_iniciado",
+    "bloqueia": [],
+    "nota": ""
+  }
+]
