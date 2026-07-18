@@ -5,15 +5,19 @@ argument-hint: (cole o JSON do "Copiar patch" a seguir)
 
 Reconciliar nos arquivos-fonte o patch gerado pelo dashboard (botão "Copiar patch").
 
-O patch é o buffer do `localStorage` serializado. Ele pode conter qualquer subconjunto destas chaves:
+O patch é o buffer do `localStorage` serializado. Pode conter qualquer subconjunto destas chaves.
+Coleções de itens usam o formato **`{ add:[], update:{id:{campos}}, remove:[ids] }`**:
 
 ```json
 {
   "registros":   { "YYYY-MM-DD": ["habitoId", ...] },
   "toques":      [ { "data": "...", "projeto": "id", "texto": "..." } ],
-  "projetos":    { "projetoId": { "nome": "...", "cliente": "...", "cadenciaEsperada": N, "proximoMarco": {"titulo":"...","data":"..."}, "notas": "..." } },
-  "carreira":    { "itemId": { "estado": "nao_iniciado|em_andamento|feito", "nota": "..." } },
-  "prioridades": [ { "texto": "...", "feito": true|false } ]
+  "prioridades": [ { "texto": "...", "feito": true|false } ],
+  "projetos":    { "add": [ {schema projetos} ], "update": { "id": {campos} }, "remove": ["id"] },
+  "tarefas":     { "add": [ {schema tarefas} ], "update": { "id": {campos} }, "remove": ["id"] },
+  "gastos":      { "add": [ {schema gastos} ],  "update": { "id": {campos} }, "remove": ["id"] },
+  "carreira":    { "add": [ {schema carreira} ],"update": { "id": {campos} }, "remove": ["id"] },
+  "habitos":     { "add": [ {schema habito} ],  "update": { "id": {campos} }, "remove": ["id"] }
 }
 ```
 
@@ -21,14 +25,17 @@ O patch vem em `$ARGUMENTS` ou colado logo após o comando. Se não houver patch
 
 Reconciliação (o buffer é a intenção do usuário; os JSONs são a verdade a atualizar):
 
-1. **registros** → em `data/rotina.json`, para cada data, o array do patch é **autoritativo** para aquela data (substitui o valor daquele dia; ele já reflete marcações e desmarcações feitas no dashboard).
-2. **toques** → para cada toque: acrescentar ao FIM de `data/log.json` (append-only, sem duplicar entradas idênticas já presentes) e atualizar `ultimoToque` do projeto correspondente em `data/projetos.json` se a data for mais recente.
-3. **projetos** → mesclar campo a campo no projeto de mesmo `id` em `data/projetos.json`. Não apagar campos não citados. Se um id não existir e claramente for uma frente nova, confirmar com o usuário antes de criar.
-4. **carreira** → mesclar `estado`/`nota` no item de mesmo `id` em `data/carreira.json`.
-5. **prioridades** → efêmeras (uso diário). Não há arquivo para elas; use como contexto se relevante, mas não persista.
+1. **registros** → em `data/rotina.json`, o array de cada data é **autoritativo** para aquele dia (substitui).
+2. **toques** → para cada toque: acrescentar ao FIM de `data/log.json` (append-only, sem duplicar idênticos) e atualizar `ultimoToque` do projeto em `data/projetos.json` se a data for mais recente.
+3. **prioridades** → efêmeras (uso diário). Não há arquivo; use como contexto, não persista.
+4. Para cada coleção (`projetos`, `tarefas`, `gastos`, `carreira`, `habitos`), no arquivo correspondente:
+   - **add**: acrescentar os objetos novos. Os `id` gerados pelo dashboard vêm como `new-…`/`tk-…` etc.; pode mantê-los ou trocar por um slug estável.
+   - **update**: mesclar os campos no item de mesmo `id` (não apagar campos não citados). `update` em `projetos` pode conter `marcos` (array inteiro, autoritativo) e `ultimoToque`.
+   - **remove**: excluir os itens cujo `id` está na lista.
+   - Se um `update`/`remove` citar um `id` que não existe, avisar e pular (não criar do nada).
 
 Depois:
 
-6. Rodar `node build.js`.
-7. Resumir o que foi reconciliado (quantos toques, quais hábitos, quais frentes/itens alterados).
-8. Lembrar o usuário de **limpar o buffer** no navegador se quiser (o patch já foi aplicado): ele pode limpar o `localStorage` da página ou simplesmente ignorar — o próximo build parte dos JSONs.
+5. Rodar `node build.js`.
+6. Resumir o que foi reconciliado por coleção (adicionados / atualizados / removidos, toques, hábitos).
+7. Lembrar que o patch já foi aplicado — o usuário pode limpar o buffer do navegador (`localStorage`) se quiser; o próximo build parte dos JSONs.

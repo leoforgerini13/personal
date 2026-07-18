@@ -5,10 +5,13 @@
     "cliente": "GameSmart",
     "tipo": "freela",
     "status": "ativo",
-    "proximoMarco": { "titulo": "Board: novo posicionamento RMG/Club/Social", "data": "2026-07-28" },
     "cadenciaEsperada": 3,
     "ultimoToque": "2026-07-17",
-    "notas": "Reposicionamento das marcas RMG / Club / Social. Weekly às quartas 10h com Clarissa, Gabriel e Isabel."
+    "notas": "Reposicionamento das marcas RMG / Club / Social. Weekly às quartas 10h com Clarissa, Gabriel e Isabel.",
+    "marcos": [
+      { "id": "bhg-m1", "titulo": "Board: novo posicionamento RMG/Club/Social", "data": "2026-07-28", "feito": false },
+      { "id": "bhg-m2", "titulo": "Kickoff de naming — Club", "data": "2026-08-11", "feito": false }
+    ]
   },
   {
     "id": "banco-atlantico",
@@ -16,10 +19,14 @@
     "cliente": "Marcas com Sal",
     "tipo": "agencia",
     "status": "ativo",
-    "proximoMarco": { "titulo": "Entregar deck de benchmarks", "data": "2026-07-24" },
     "cadenciaEsperada": 3,
     "ultimoToque": "2026-07-15",
-    "notas": "18 benchmarks internacionais + concorrentes locais. CP semanal quartas 15h; aprendizados dos benchs em 30/07."
+    "notas": "18 benchmarks internacionais + concorrentes locais. CP semanal quartas 15h.",
+    "marcos": [
+      { "id": "ba-m1", "titulo": "Entregar deck de benchmarks", "data": "2026-07-24", "feito": false },
+      { "id": "ba-m2", "titulo": "Aprendizados dos benchmarks", "data": "2026-07-30", "feito": false },
+      { "id": "ba-m3", "titulo": "Recomendações finais", "data": "2026-08-14", "feito": false }
+    ]
   },
   {
     "id": "modelo-inpress",
@@ -27,10 +34,12 @@
     "cliente": "InPress",
     "tipo": "agencia",
     "status": "ativo",
-    "proximoMarco": { "titulo": "Definir próximo marco", "data": "2026-07-25" },
     "cadenciaEsperada": 4,
     "ultimoToque": "2026-07-06",
-    "notas": "Card-modelo. Edite nome, cliente e cadência ou apague se não usar."
+    "notas": "Card-modelo. Edite nome, cliente e cadência ou apague se não usar.",
+    "marcos": [
+      { "id": "inp-m1", "titulo": "Definir próximo marco", "data": "2026-07-25", "feito": false }
+    ]
   },
   {
     "id": "modelo-freela-1",
@@ -38,20 +47,24 @@
     "cliente": "Cliente a definir",
     "tipo": "freela",
     "status": "ativo",
-    "proximoMarco": { "titulo": "Definir próximo marco", "data": "2026-07-30" },
     "cadenciaEsperada": 5,
     "ultimoToque": "2026-07-12",
-    "notas": "Card-modelo. Substitua pelos dados reais desta frente."
+    "notas": "Card-modelo. Substitua pelos dados reais desta frente.",
+    "marcos": [
+      { "id": "fr1-m1", "titulo": "Definir próximo marco", "data": "2026-07-30", "feito": false }
+    ]
   },
   {
     "id": "modelo-freela-2",
-    "nome": "[modelo] Freela — projeto pessoal",
+    "nome": "[modelo] Projeto pessoal",
     "cliente": "—",
     "tipo": "pessoal",
     "status": "ativo",
-    "proximoMarco": { "titulo": "Definir próximo marco", "data": "2026-08-05" },
     "cadenciaEsperada": 7,
     "ultimoToque": "2026-07-14",
-    "notas": "Card-modelo. Use para uma frente de menor cadência (semanal)."
+    "notas": "Card-modelo. Use para uma frente de menor cadência (semanal).",
+    "marcos": [
+      { "id": "fr2-m1", "titulo": "Definir próximo marco", "data": "2026-08-05", "feito": false }
+    ]
   }
 ]

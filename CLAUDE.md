@@ -11,15 +11,29 @@ frente não é % de progresso; é **há quantos dias eu não toco nela**.
 ```
 /
 ├── data/
-│   ├── projetos.json    ← frentes de trabalho
+│   ├── projetos.json    ← frentes de trabalho (com marcos)
+│   ├── tarefas.json     ← tarefas (data, prioridade, status, projeto)
 │   ├── rotina.json      ← hábitos + registros
 │   ├── carreira.json    ← checklist Amsterdam (com dependências)
+│   ├── gastos.json      ← custos da mudança (R$ e €, estimado vs. pago)
 │   ├── agenda.json      ← gerado a partir do Google Calendar (/hoje)
 │   └── log.json         ← append-only, um objeto por toque
 ├── build.js             ← Node, sem dependências externas
 ├── index.html           ← OUTPUT gerado (NÃO editar à mão)
-└── .claude/commands/    ← /toque /hoje /feito /sync /semana
+└── .claude/commands/    ← /toque /hoje /feito /sync /semana /planejar
 ```
+
+## Módulos (7 itens de navegação, um nível só)
+
+1. **Hoje** — data por extenso, 3 prioridades manuais, tarefas de hoje, compromissos do dia, sugestão da frente mais dormente.
+2. **Tarefas** — segmentada em **Semana** (tarefas por dia, com navegação de semanas) e **Board** (colunas A fazer / Fazendo / Feito). A segmentação é um filtro dentro da view, **não** sub-abas na navegação lateral.
+3. **Frentes** — cards por dias-sem-toque, ordenados por urgência.
+4. **Timeline** — Gantt-lite: marcos datados por frente numa linha do tempo + gestor de marcos editável.
+5. **Rotina** — heatmap de 12 semanas + histórico mensal (6 meses).
+6. **Amsterdam** — caminho crítico (checklist com dependências) + **gastos da mudança** (R$ e €).
+7. **Log** — timeline reversa, agrupada por semana, filtrável por frente.
+
+Tudo é editável/adicionável no próprio dashboard (botão "+ …" em cada view, editar/excluir por item), gravando no buffer → "Copiar patch" → `/sync`.
 
 ## Regras duras (não desviar)
 
@@ -47,9 +61,11 @@ frente não é % de progresso; é **há quantos dias eu não toco nela**.
 - **Um único acento de alta saturação** (`--accent:#ff6a3d`). O acento **aponta, não decora**:
   em cada view, no máximo **um** elemento o recebe. Todo o resto vive em escala de cinza.
   - Frentes → a frente mais dormente (só se estourou a cadência).
+  - Timeline → o marco próximo (próximo marco não-feito com data ≥ hoje).
   - Rotina → a célula de hoje quando cumprida.
-  - Amsterdam → o próximo item desbloqueado e não-feito.
-  - Hoje / Log → sem acento.
+  - Amsterdam → o próximo item desbloqueado e não-feito (as barras de gasto ficam em cinza).
+  - Hoje / Timeline (gestor) / Log → sem acento.
+  - Exceção deliberada (pedido do usuário): em **Tarefas**, a prioridade `alta` recebe um pequeno *dot* do acento — é sinal de leitura, mantido discreto (só o ponto, nunca a linha inteira).
 - Hierarquia por **contraste de escala tipográfica**, não por bordas/sombras/caixas aninhadas.
   Número grande em peso alto; label minúsculo em caixa alta com tracking aberto.
 - **Proibido**: imagem/render/ilustração/gradiente-arte; visualização orgânica/blob; métrica de
@@ -72,10 +88,26 @@ define o alerta — não uma régua fixa. Frentes são ordenadas por `ratio` des
 ```json
 { "id": "banco-atlantico", "nome": "Banco Atlântico", "cliente": "Marcas com Sal",
   "tipo": "agencia|freela|pessoal", "status": "ativo|arquivado",
-  "proximoMarco": { "titulo": "…", "data": "YYYY-MM-DD" },
-  "cadenciaEsperada": 3, "ultimoToque": "YYYY-MM-DD", "notas": "…" }
+  "cadenciaEsperada": 3, "ultimoToque": "YYYY-MM-DD", "notas": "…",
+  "marcos": [ { "id": "…", "titulo": "…", "data": "YYYY-MM-DD", "feito": false } ] }
 ```
-`status: "arquivado"` some do dashboard.
+`status: "arquivado"` some do dashboard. O **próximo marco** é derivado: o `marcos[]` não-feito
+de menor `data`. (Schema antigo com `proximoMarco` ainda é aceito, mas prefira `marcos[]`.)
+
+**tarefas.json** — array de:
+```json
+{ "id": "tk-1", "projeto": "banco-atlantico", "titulo": "<a ação>", "descricao": "…",
+  "data": "YYYY-MM-DD", "prioridade": "alta|media|baixa",
+  "status": "a_fazer|fazendo|feito", "criadaEm": "YYYY-MM-DD" }
+```
+`projeto` e `data` podem ser vazios. Alimentada também por `/planejar`.
+
+**gastos.json** — array de (custos da mudança, duas moedas):
+```json
+{ "id": "gt-1", "item": "…", "categoria": "…",
+  "estimadoBRL": 0, "estimadoEUR": 0, "pagoBRL": 0, "pagoEUR": 0, "nota": "…" }
+```
+Os totais e as barras (pago vs. estimado, por moeda) são calculados no build/runtime.
 
 **rotina.json**:
 ```json
@@ -98,18 +130,23 @@ Nunca reescrever/reordenar entradas existentes.
 
 ## Formato do patch (buffer do localStorage → /sync)
 
-Qualquer subconjunto de:
+Qualquer subconjunto do abaixo. Coleções de itens usam o formato
+**`{ add:[], update:{id:{campos}}, remove:[ids] }`**:
 ```json
 {
   "registros":   { "YYYY-MM-DD": ["habitoId"] },
   "toques":      [ { "data": "...", "projeto": "id", "texto": "..." } ],
-  "projetos":    { "id": { "nome": "...", "cadenciaEsperada": 3, "proximoMarco": {...}, "notas": "..." } },
-  "carreira":    { "id": { "estado": "...", "nota": "..." } },
-  "prioridades": [ { "texto": "...", "feito": false } ]
+  "prioridades": [ { "texto": "...", "feito": false } ],
+  "projetos":    { "add": [ {…} ], "update": { "id": { "nome": "...", "cadenciaEsperada": 3, "marcos": [...], "ultimoToque": "..." } }, "remove": ["id"] },
+  "tarefas":     { "add": [ {…} ], "update": { "id": {…} }, "remove": ["id"] },
+  "gastos":      { "add": [ {…} ], "update": { "id": {…} }, "remove": ["id"] },
+  "carreira":    { "add": [ {…} ], "update": { "id": { "estado": "...", "nota": "..." } }, "remove": ["id"] },
+  "habitos":     { "add": [ {…} ], "update": { "id": {…} }, "remove": ["id"] }
 }
 ```
 `registros[data]` é autoritativo para aquele dia. `toques` viram entradas de `log.json` +
-atualização de `ultimoToque`. `prioridades` são efêmeras (não têm arquivo). Ver `/sync`.
+atualização de `ultimoToque`. `prioridades` são efêmeras (não têm arquivo). Em `projetos.update`,
+`marcos` é o array inteiro (autoritativo). Ver `/sync`.
 
 ## Fluxo de trabalho
 
@@ -124,6 +161,7 @@ atualização de `ultimoToque`. `prioridades` são efêmeras (não têm arquivo)
 - `/toque <projeto> "<texto>"` — registra toque no log, atualiza `ultimoToque`, rebuild.
 - `/hoje` — puxa o Google Calendar do dia, regrava `agenda.json`, rebuild, reporta o que estourou a cadência.
 - `/feito <habito>` — registra o hábito hoje, rebuild.
+- `/planejar <texto livre>` — transforma o que preciso fazer na semana em tarefas estruturadas em `tarefas.json`, rebuild.
 - `/sync` — reconcilia um patch colado nos JSONs, rebuild.
 - `/semana` — resumo do log dos últimos 7 dias + o que ficou dormente (não altera arquivos).
 
