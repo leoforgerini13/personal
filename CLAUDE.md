@@ -19,9 +19,23 @@ frente não é % de progresso; é **há quantos dias eu não toco nela**.
 │   ├── agenda.json      ← gerado a partir do Google Calendar (/hoje)
 │   └── log.json         ← append-only, um objeto por toque
 ├── build.js             ← Node, sem dependências externas
-├── index.html           ← OUTPUT gerado (NÃO editar à mão)
+├── index.html           ← OUTPUT local (file://), com snapshot da agenda embutido
+├── artifact.html        ← OUTPUT para publicar como Artifact (agenda AO VIVO, sem snapshot)
 └── .claude/commands/    ← /toque /hoje /feito /sync /semana /planejar
 ```
+
+## Dois outputs (mesmo código-fonte)
+
+`build.js` gera **dois** arquivos a partir do mesmo `STYLE`+`APP`:
+
+- **`index.html`** — documento completo para abrir em `file://`. Embute a agenda como *snapshot* offline. É o modo do brief original (sem rede).
+- **`artifact.html`** — só o conteúdo (o publish envolve em `<head>`/`<body>`). Publicado como **Artifact da claude.ai** com a capability `mcp`, ele chama o conector **Google Calendar** do usuário via `window.claude.mcp` (`watchTool` do tool `list_events`) e mostra a agenda **ao vivo**. **Não embute** eventos reais do calendário (privacidade).
+
+O runtime detecta `window.claude.mcp`: se existir (Artifact), puxa ao vivo; senão (`file://`), usa o snapshot embutido. A regra "proibido `fetch()` dos JSONs" continua valendo — os dados do painel seguem embutido inline; só a **agenda** tem caminho ao vivo, e via `window.claude.mcp`, nunca `fetch`.
+
+**Tema claro/escuro:** tokens em `:root` + `@media (prefers-color-scheme)` + overrides `:root[data-theme=...]`; botão no rodapé da navegação, escolha persistida em `localStorage`.
+
+Ao republicar o Artifact (mesma URL), rode `node build.js` e reenvie `artifact.html` com o mesmo `file_path` nesta conversa, mantendo `capabilities` e `favicon` estáveis.
 
 ## Módulos (7 itens de navegação, um nível só)
 

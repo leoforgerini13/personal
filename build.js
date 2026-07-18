@@ -32,11 +32,21 @@ const DATA = {
 // ---------- CSS ----------
 const STYLE = `
 :root{
+  /* ground padrão: quase-preto quente (identidade da ferramenta) */
   --bg:#15120f; --surface:#1e1a16; --surface-2:#26211c; --border:#2b2621;
   --hi:#f5f0ea; --mid:#a89f96; --lo:#6b635b;
   --accent:#ff6a3d; --ambar:#b8824e; --neutro:#8a817a;
   --r:18px;
 }
+/* tema claro = papel quente (mesmo mundo, não invertido) */
+@media (prefers-color-scheme: light){
+  :root{ --bg:#efe9df; --surface:#faf6ef; --surface-2:#e7ded1; --border:#ddd3c4;
+    --hi:#221d17; --mid:#6d645a; --lo:#a49a8d; --accent:#d94f1b; --ambar:#a06a34; --neutro:#8a8077; }
+}
+:root[data-theme="dark"]{ --bg:#15120f; --surface:#1e1a16; --surface-2:#26211c; --border:#2b2621;
+  --hi:#f5f0ea; --mid:#a89f96; --lo:#6b635b; --accent:#ff6a3d; --ambar:#b8824e; --neutro:#8a817a; }
+:root[data-theme="light"]{ --bg:#efe9df; --surface:#faf6ef; --surface-2:#e7ded1; --border:#ddd3c4;
+  --hi:#221d17; --mid:#6d645a; --lo:#a49a8d; --accent:#d94f1b; --ambar:#a06a34; --neutro:#8a8077; }
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
 body{
@@ -59,6 +69,12 @@ select{cursor:pointer}
 .navitem.active{color:var(--hi);background:var(--surface)}
 .navitem .dot{width:5px;height:5px;border-radius:50%;background:transparent}
 .navitem.active .dot{background:var(--hi)}
+#themebtn{margin-top:auto}
+.calstatus{font-size:11px;color:var(--lo);margin:-8px 0 14px}
+.calstatus.live{color:var(--mid)}
+.calstatus .ld{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--lo);margin-right:7px;vertical-align:middle}
+.calstatus.live .ld{background:var(--mid)}
+.calstatus .relink{color:var(--mid);text-decoration:underline;cursor:default}
 
 #main{padding:46px 54px 100px;max-width:1120px}
 .view{display:none}
@@ -429,7 +445,8 @@ const APP = `
     grid.appendChild(col);
     var ag=el('div',{});
     ag.appendChild(el('div',{class:'block-title',text:'Compromissos de hoje'}));
-    var hoje=D.agenda.filter(function(e){ return String(e.inicio).slice(0,10)===TODAY; }).sort(function(a,b){return a.inicio<b.inicio?-1:1;});
+    ag.appendChild(calStatusNode());
+    var hoje=agendaEvents().filter(function(e){ return String(e.inicio).slice(0,10)===TODAY; }).sort(function(a,b){return a.inicio<b.inicio?-1:1;});
     if(!hoje.length) ag.appendChild(el('div',{class:'agenda-empty',text:'Sem compromissos hoje.'}));
     hoje.forEach(function(e){ ag.appendChild(el('div',{class:'agenda-item'},[
       el('div',{class:'hora',text: e.diaInteiro?'dia inteiro':(hhmm(e.inicio)+' – '+hhmm(e.fim))}), el('div',{class:'tit',text:e.titulo}) ])); });
@@ -837,6 +854,56 @@ const APP = `
   function fmtData(s){ if(!s)return''; var p=String(s).split('-'); return (+p[2])+' '+MES_ABREV[(+p[1])-1]; }
   function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
+  // =================== AGENDA AO VIVO (MCP) ===================
+  var LIVE_AGENDA=null, calStatus={code:'connecting'}, calUnsub=null;
+  var CAL_SERVER='Google Calendar', CAL_TOOL='list_events';
+  function mcpAvailable(){ return !!(window.claude && window.claude.mcp); }
+  function agendaEvents(){ return LIVE_AGENDA!=null ? LIVE_AGENDA : D.agenda; }
+  function mapEvents(payload){
+    if(typeof payload==='string'){ try{ payload=JSON.parse(payload); }catch(e){ payload=null; } }
+    var evs = payload && payload.events ? payload.events : (Array.isArray(payload)?payload:[]);
+    return evs.map(function(e){ var s=e.start||{}, en=e.end||{}; var allday=!!(s.date && !s.dateTime);
+      return { inicio:s.dateTime||s.date||'', fim:en.dateTime||en.date||'', titulo:e.summary||'(sem título)', diaInteiro:allday }; })
+      .filter(function(e){ return e.inicio; });
+  }
+  function calStatusText(){
+    if(!mcpAvailable()) return 'snapshot local';
+    var c=calStatus&&calStatus.code;
+    if(c==='live') return 'agenda ao vivo'+(calStatus.at?(' · '+hhmmMs(calStatus.at)):'');
+    if(c==='connecting'||!c) return 'conectando à agenda…';
+    if(c==='needs_reauth') return 'Reconecte o Google Calendar em claude.ai → Conectores';
+    if(c==='server_not_connected') return 'Conecte o Google Calendar em claude.ai → Conectores';
+    if(c==='selection_required') return 'Escolha qual Google Calendar usar (claude.ai)';
+    if(c==='not_granted'||c==='capability_disabled'||c==='capability_removed'||c==='not_in_manifest') return 'snapshot local';
+    if(c==='blocked_by_policy') return 'agenda bloqueada por política da organização';
+    return 'sem conexão ao vivo — mostrando snapshot';
+  }
+  function calStatusNode(){ var live=calStatus&&calStatus.code==='live';
+    return el('div',{class:'calstatus'+(live?' live':'')},[ el('span',{class:'ld'}), document.createTextNode(calStatusText()) ]); }
+  function hhmmMs(ms){ var d=new Date(ms); return pad(d.getHours())+':'+pad(d.getMinutes()); }
+  function initCalendar(){
+    if(!mcpAvailable()){ calStatus={code:'offline'}; return; }
+    calStatus={code:'connecting'};
+    var now=new Date(); var start=ymd(addDays(now,-1)), end=ymd(addDays(now,14));
+    var input={ calendarId:'lforgerini@gmail.com', startTime:start+'T00:00:00-03:00', endTime:end+'T23:59:59-03:00', orderBy:'startTime', timeZone:'America/Sao_Paulo' };
+    try{
+      calUnsub=window.claude.mcp.watchTool(CAL_SERVER, CAL_TOOL, input, function(ev){
+        if(ev.type==='data'){ LIVE_AGENDA=mapEvents(ev.result&&ev.result.payload); var c=ev.result&&ev.result.cache; calStatus={code:'live', at: c?c.storedAt:Date.now()}; }
+        else if(ev.type==='error'){ var code=(ev.error&&ev.error.code)||'upstream_error'; calStatus={code:code};
+          if(code==='needs_reauth'||code==='server_not_connected'||code==='not_granted'||code==='capability_disabled') { /* mantém snapshot */ } }
+        if(CURRENT==='hoje') renderCurrent();
+      }, { refetchInterval:300000 });
+    }catch(e){ calStatus={code:'upstream_error'}; }
+  }
+
+  // =================== TEMA ===================
+  function currentTheme(){ var t=document.documentElement.getAttribute('data-theme'); if(t) return t;
+    return (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches)?'light':'dark'; }
+  function themeActionLabel(){ return currentTheme()==='light'?'Tema escuro':'Tema claro'; }
+  function applyTheme(t){ document.documentElement.setAttribute('data-theme',t); try{localStorage.setItem('atencao_theme',t);}catch(e){}
+    var lbl=document.getElementById('themelabel'); if(lbl)lbl.textContent=themeActionLabel(); }
+  function toggleTheme(){ applyTheme(currentTheme()==='light'?'dark':'light'); }
+
   // =================== NAV / BOOT ===================
   var VIEWS=[
     {id:'hoje',nome:'Hoje',render:renderHoje},
@@ -854,29 +921,42 @@ const APP = `
       sec.classList.toggle('active',on); document.getElementById('nav-'+v.id).classList.toggle('active',on); }); renderCurrent(); }
 
   function boot(){
+    try{ var savedT=localStorage.getItem('atencao_theme'); if(savedT) document.documentElement.setAttribute('data-theme',savedT); }catch(e){}
     var app=el('div',{id:'app'}); var nav=el('nav',{id:'nav'});
     nav.appendChild(el('div',{class:'brand',html:'Atencao<span>alocacao pessoal</span>'}));
     VIEWS.forEach(function(v){ nav.appendChild(el('button',{id:'nav-'+v.id,class:'navitem',onclick:function(){ show(v.id); }},[ el('span',{class:'dot'}), el('span',{text:v.nome}) ])); });
+    nav.appendChild(el('button',{id:'themebtn',class:'navitem',onclick:toggleTheme,title:'Alternar tema'},[ el('span',{class:'dot'}), el('span',{id:'themelabel',text:themeActionLabel()}) ]));
     var main=el('main',{id:'main'}); VIEWS.forEach(function(v){ main.appendChild(el('section',{id:'view-'+v.id,class:'view'})); });
     app.appendChild(nav); app.appendChild(main); document.body.appendChild(app);
     toastEl=el('div',{id:'toast'}); document.body.appendChild(toastEl);
     patchBtn=el('button',{id:'patchbtn',onclick:copyPatch},[ el('span',{class:'bd'}), el('span',{text:'Copiar patch'}) ]); document.body.appendChild(patchBtn);
-    refreshPatchBtn(); show('hoje');
+    refreshPatchBtn(); show('hoje'); initCalendar();
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot); else boot();
 })();
 `;
 
-// ---------- HTML ----------
+// ---------- OUTPUTS ----------
+// index.html: doc completo para uso local (file://). Embute a agenda como snapshot offline.
+const dataFull = JSON.stringify(DATA);
 const html = '<!doctype html>\n<html lang="pt-BR">\n<head>\n<meta charset="utf-8">\n' +
   '<meta name="viewport" content="width=device-width, initial-scale=1">\n' +
   '<title>Atencao — alocacao pessoal</title>\n' +
   '<style>' + STYLE + '</style>\n</head>\n<body>\n' +
-  '<script>window.__DATA__ = ' + JSON.stringify(DATA) + ';</script>\n' +
+  '<script>window.__DATA__ = ' + dataFull + ';</script>\n' +
   '<script>' + APP + '</script>\n' +
   '</body>\n</html>\n';
-
 fs.writeFileSync(path.join(__dirname, 'index.html'), html, 'utf8');
-console.log('[build] index.html gerado (' + (html.length/1024).toFixed(1) + ' KB) — ' +
+
+// artifact.html: só o conteúdo (o publish envolve em <head>/<body>). Puxa a agenda AO VIVO
+// via window.claude.mcp; NÃO embute os eventos reais do calendário (privacidade).
+const dataArtifact = JSON.stringify(Object.assign({}, DATA, { agenda: [] }));
+const artifact = '<style>' + STYLE + '</style>\n' +
+  '<script>window.__DATA__ = ' + dataArtifact + ';</script>\n' +
+  '<script>' + APP + '</script>\n';
+fs.writeFileSync(path.join(__dirname, 'artifact.html'), artifact, 'utf8');
+
+console.log('[build] index.html (' + (html.length/1024).toFixed(1) + ' KB, com snapshot) + artifact.html (' +
+  (artifact.length/1024).toFixed(1) + ' KB, agenda ao vivo) — ' +
   DATA.projetos.length + ' frentes, ' + DATA.tarefas.length + ' tarefas, ' + DATA.gastos.length + ' gastos, ' +
-  DATA.rotina.habitos.length + ' habitos, ' + DATA.agenda.length + ' compromissos.');
+  DATA.rotina.habitos.length + ' habitos.');
