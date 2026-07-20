@@ -33,18 +33,18 @@
     ]
   },
   {
-    "id": "modelo-inpress",
-    "nome": "[modelo] Frente InPress",
+    "id": "samarco-inpress",
+    "nome": "Samarco",
     "cliente": "InPress",
     "tipo": "agencia",
     "status": "ativo",
     "cadenciaEsperada": 4,
-    "ultimoToque": "2026-07-06",
-    "inicio": "2026-07-06",
-    "previsaoFim": "2026-08-01",
-    "notas": "Card-modelo. Edite nome, cliente e datas ou apague se não usar.",
+    "ultimoToque": "2026-07-20",
+    "inicio": "2026-07-21",
+    "previsaoFim": "2026-08-29",
+    "notas": "Kickoff com Tasso. Coletar briefing e documentos; primeira versão de planejamento até 24/07.",
     "marcos": [
-      { "id": "inp-m1", "titulo": "Definir próximo marco", "data": "2026-07-25", "feito": false }
+      { "id": "sam-m1", "titulo": "1ª versão do planejamento", "data": "2026-07-24", "feito": false }
     ]
   },
   {
