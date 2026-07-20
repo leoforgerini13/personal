@@ -16,6 +16,7 @@ frente não é % de progresso; é **há quantos dias eu não toco nela**.
 │   ├── rotina.json      ← hábitos + registros
 │   ├── carreira.json    ← checklist Amsterdam (com dependências)
 │   ├── gastos.json      ← custos da mudança (R$ e €, estimado vs. pago)
+│   ├── leitura.json     ← livro atual (capa base64, progresso, páginas/dia)
 │   ├── agenda.json      ← gerado a partir do Google Calendar (/hoje)
 │   └── log.json         ← append-only, um objeto por toque
 ├── build.js             ← Node, sem dependências externas
@@ -43,7 +44,7 @@ Ao republicar o Artifact (mesma URL), rode `node build.js` e reenvie `artifact.h
 2. **Tarefas** — segmentada em **Semana** (tarefas por dia), **Gantt** (barras da semana por projeto) e **Board** (colunas A fazer / Fazendo / Feito, com **arrastar** entre colunas). A segmentação é filtro dentro da view, **não** sub-abas na navegação.
 3. **Frentes** — cartões de projetos **ativos** (nome, cliente, período, próximo marco). Sem indicador de "dias sem toque". Ordenados por próximo marco.
 4. **Timeline** — visão **macro**: barra início → previsão de fim por projeto, marcos como diamantes + gestor de marcos editável.
-5. **Rotina** — **calendário mensal** navegável de hábitos (cada dia marca os hábitos por inicial, clicável; legenda com contagem do mês + meta semanal). Hábitos editáveis (adicionar/editar meta/excluir).
+5. **Rotina** — **widget de leitura** no topo (capa, barra de progresso, logger de páginas/dia) + **calendário mensal** navegável de hábitos (cada dia marca os hábitos por inicial, clicável; legenda com contagem do mês + meta semanal). Hábitos editáveis (adicionar/editar meta/excluir).
 6. **Amsterdam** — checklist **por clusters** (Documentação & Legal, Trabalho & Carreira, Moradia & Mudança, Financeiro & Seguros), com dependências, + **gastos da mudança** (R$ e €).
 7. **Log** — timeline reversa, agrupada por semana, filtrável por frente.
 
@@ -125,6 +126,15 @@ Alimentada também por `/planejar`.
 ```
 Os totais e as barras (pago vs. estimado, por moeda) são calculados no build/runtime.
 
+**leitura.json** — livro em leitura (objeto único):
+```json
+{ "titulo": "Kitchen Confidential", "autor": "Anthony Bourdain", "subtitulo": "…",
+  "capa": "<data URI base64 ou vazio>", "totalPaginas": 385, "paginaAtual": 0,
+  "registros": { "YYYY-MM-DD": 23 } }
+```
+`capa` é embutida em base64 (nada de URL externa). `registros[data]` = páginas lidas naquele dia.
+Barra de progresso = `paginaAtual / totalPaginas`.
+
 **rotina.json**:
 ```json
 { "habitos": [ { "id": "musculacao", "nome": "Musculação", "meta": { "tipo": "semanal", "alvo": 4 } } ],
@@ -159,7 +169,8 @@ Qualquer subconjunto do abaixo. Coleções de itens usam o formato
   "tarefas":     { "add": [ {…} ], "update": { "id": {…} }, "remove": ["id"] },
   "gastos":      { "add": [ {…} ], "update": { "id": {…} }, "remove": ["id"] },
   "carreira":    { "add": [ {…} ], "update": { "id": { "estado": "...", "nota": "..." } }, "remove": ["id"] },
-  "habitos":     { "add": [ {…} ], "update": { "id": {…} }, "remove": ["id"] }
+  "habitos":     { "add": [ {…} ], "update": { "id": {…} }, "remove": ["id"] },
+  "leitura":     { "set": { "paginaAtual": 23, "totalPaginas": 385, "capa": "…" }, "registros": { "YYYY-MM-DD": 23 } }
 }
 ```
 `registros[data]` é autoritativo para aquele dia. `toques` viram entradas de `log.json` +

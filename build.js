@@ -26,6 +26,7 @@ const DATA = {
   log: readJSON('log.json', []),
   tarefas: readJSON('tarefas.json', []),
   gastos: readJSON('gastos.json', []),
+  leitura: readJSON('leitura.json', { titulo: '', autor: '', subtitulo: '', capa: '', totalPaginas: 0, paginaAtual: 0, registros: {} }),
   geradoEm: new Date().toISOString()
 };
 
@@ -296,6 +297,24 @@ select{cursor:pointer}
 .habmgr-row .hm-n b{font-weight:600;color:var(--hi)}
 .habmgr-row .hm-m{font-size:12px;color:var(--lo);font-variant-numeric:tabular-nums}
 .habmgr-row .hm-a{display:flex;gap:6px}
+/* widget de leitura */
+.book{display:flex;gap:18px;background:var(--surface);border-radius:16px;padding:16px 18px;margin-bottom:24px;align-items:center}
+.book-cover{width:78px;flex:none}
+.book-cover img{width:78px;border-radius:8px;display:block;box-shadow:0 6px 18px rgba(0,0,0,.35)}
+.book-ph{width:78px;height:114px;border-radius:8px;background:var(--surface-2);border:1px solid var(--border);display:flex;flex-direction:column;justify-content:center;padding:8px;text-align:center}
+.book-ph .bt{font-size:11px;font-weight:700;color:var(--hi);line-height:1.15}
+.book-ph .ba{font-size:8px;color:var(--mid);margin-top:5px;text-transform:uppercase;letter-spacing:.06em}
+.book-info{flex:1;min-width:0}
+.book-info .bttl{font-size:16px;font-weight:600}
+.book-info .baut{font-size:12.5px;color:var(--mid);margin-top:2px}
+.book-bar{height:7px;background:var(--surface-2);border-radius:5px;margin:12px 0 8px;overflow:hidden}
+.book-bar > i{display:block;height:100%;background:var(--neutro);border-radius:5px}
+.book-stats{font-size:12px;color:var(--lo);font-variant-numeric:tabular-nums}
+.book-log{display:flex;align-items:center;gap:8px;margin-top:12px;flex-wrap:wrap}
+.book-log input{width:96px}
+.book-log .today{font-size:12px;color:var(--mid);margin-left:auto}
+.cover-prev img{max-width:90px;border-radius:6px;display:block}
+.cover-prev .empty{padding:0}
 
 /* AMSTERDAM */
 .clusters{display:grid;grid-template-columns:1fr 1fr;gap:16px}
@@ -384,7 +403,9 @@ const APP = `
   // ---- buffer ----
   function emptyColl(){ return {add:[],update:{},remove:[]}; }
   function emptyBuf(){ return { registros:{}, toques:[], prioridades:null,
-    projetos:emptyColl(), tarefas:emptyColl(), gastos:emptyColl(), carreira:emptyColl(), habitos:emptyColl() }; }
+    projetos:emptyColl(), tarefas:emptyColl(), gastos:emptyColl(), carreira:emptyColl(), habitos:emptyColl(),
+    leitura:{set:{},registros:{}} }; }
+  function leituraEmpty(){ return !BUF.leitura || (Object.keys(BUF.leitura.set||{}).length===0 && Object.keys(BUF.leitura.registros||{}).length===0); }
   function loadBuf(){ try{ var b=JSON.parse(localStorage.getItem(LS_KEY)); if(!b||typeof b!=='object') return emptyBuf();
       var e=emptyBuf(); for(var k in e){ if(b[k]!=null) e[k]=b[k]; } return e; }catch(err){ return emptyBuf(); } }
   var BUF = loadBuf();
@@ -392,7 +413,7 @@ const APP = `
   function collEmpty(c){ return !c || (c.add.length===0 && Object.keys(c.update).length===0 && c.remove.length===0); }
   function bufEmpty(){
     return Object.keys(BUF.registros).length===0 && BUF.toques.length===0 &&
-      collEmpty(BUF.projetos)&&collEmpty(BUF.tarefas)&&collEmpty(BUF.gastos)&&collEmpty(BUF.carreira)&&collEmpty(BUF.habitos) &&
+      collEmpty(BUF.projetos)&&collEmpty(BUF.tarefas)&&collEmpty(BUF.gastos)&&collEmpty(BUF.carreira)&&collEmpty(BUF.habitos) && leituraEmpty() &&
       (!BUF.prioridades || BUF.prioridades.every(function(p){return !p.texto && !p.feito;}));
   }
   function newId(pfx){ return (pfx||'new')+'-'+Date.now()+'-'+Math.floor(Math.random()*1000); }
@@ -436,6 +457,10 @@ const APP = `
   function mergedTarefas(){ return mergeColl(D.tarefas, BUF.tarefas); }
   function mergedGastos(){ return mergeColl(D.gastos, BUF.gastos); }
   function mergedCarreira(){ return mergeColl(D.carreira, BUF.carreira); }
+  function mergedLeitura(){ var base=D.leitura||{titulo:'',autor:'',subtitulo:'',capa:'',totalPaginas:0,paginaAtual:0,registros:{}};
+    var o={}; for(var k in base)o[k]=base[k]; var s=(BUF.leitura&&BUF.leitura.set)||{}; for(var k2 in s)o[k2]=s[k2];
+    o.registros=Object.assign({}, base.registros||{}, (BUF.leitura&&BUF.leitura.registros)||{}); return o; }
+  function setLeitura(fields){ for(var k in fields)BUF.leitura.set[k]=fields[k]; saveBuf(); }
   function mergedLog(){ return D.log.concat(BUF.toques); }
   function getReg(date){ if(BUF.registros[date]) return BUF.registros[date].slice(); return (D.rotina.registros[date]||[]).slice(); }
   function projNome(id){ var p=mergedProjetos().filter(function(x){return x.id===id;})[0]; return p?p.nome:(id||'—'); }
@@ -458,6 +483,7 @@ const APP = `
     if(Object.keys(BUF.registros).length) out.registros=BUF.registros;
     if(BUF.toques.length) out.toques=BUF.toques;
     ['projetos','tarefas','gastos','carreira','habitos'].forEach(function(c){ if(!collEmpty(BUF[c])) out[c]=BUF[c]; });
+    if(!leituraEmpty()){ out.leitura={}; if(Object.keys(BUF.leitura.set).length)out.leitura.set=BUF.leitura.set; if(Object.keys(BUF.leitura.registros).length)out.leitura.registros=BUF.leitura.registros; }
     if(BUF.prioridades && BUF.prioridades.some(function(p){return p.texto;})) out.prioridades=BUF.prioridades;
     var txt=JSON.stringify(out,null,2);
     function ok(){ toast('Patch copiado. Cole no Claude Code com /sync.'); }
@@ -800,6 +826,56 @@ const APP = `
     host.appendChild(form);
   }
 
+  // =================== LEITURA (widget no topo da Rotina) ===================
+  function renderLivro(root){
+    var L=mergedLeitura();
+    if(!L.titulo && !L.totalPaginas){ // sem livro: oferecer adicionar
+      root.appendChild(el('div',{class:'book empty-book'},[ el('div',{class:'book-info'},[
+        el('div',{class:'bttl',text:'Nenhum livro em leitura'}),
+        el('button',{class:'addbtn',style:'margin-top:10px',text:'+ Adicionar livro',onclick:function(){ livroForm(root); }}) ]) ]));
+      return;
+    }
+    var total=+L.totalPaginas||0, atual=Math.min(total||L.paginaAtual, +L.paginaAtual||0);
+    var pctv=total>0?Math.min(100,Math.round(atual/total*100)):0;
+    var faltam=Math.max(0, total-atual);
+    var hojeLidas=(L.registros&&L.registros[TODAY])||0;
+    var cover = L.capa ? el('div',{class:'book-cover'},[ el('img',{src:L.capa,alt:L.titulo}) ])
+      : el('div',{class:'book-cover'},[ el('div',{class:'book-ph'},[ el('div',{class:'bt',text:L.titulo}), L.autor?el('div',{class:'ba',text:L.autor}):null ]) ]);
+    var inNum=el('input',{type:'number',min:'1',placeholder:'páginas'});
+    function reg(){ var n=parseInt(inNum.value,10); if(!n||n<1){ toast('Quantas páginas?'); return; } logPaginas(n); }
+    var info=el('div',{class:'book-info'},[
+      el('div',{class:'bttl',text:L.titulo}), L.autor?el('div',{class:'baut',text:L.autor+(L.subtitulo?(' · '+L.subtitulo):'')}):null,
+      el('div',{class:'book-bar'},[ el('i',{style:'width:'+pctv+'%'}) ]),
+      el('div',{class:'book-stats',text: total>0 ? ('página '+atual+' de '+total+' · '+pctv+'% · faltam '+faltam) : ('página '+atual) }),
+      el('div',{class:'book-log'},[
+        inNum,
+        el('button',{class:'btn ghost',text:'Registrar',onclick:reg}),
+        el('button',{class:'iconbtn',text:'Editar',onclick:function(){ livroForm(root,L); }}),
+        el('div',{class:'today',text: hojeLidas?('hoje: '+hojeLidas+' pág'):'sem leitura hoje'})
+      ])
+    ]);
+    root.appendChild(el('div',{class:'book'},[ cover, info ]));
+  }
+  function logPaginas(n){ var L=mergedLeitura(); var total=+L.totalPaginas||0; var novo=(+L.paginaAtual||0)+n; if(total>0)novo=Math.min(total,novo);
+    BUF.leitura.set.paginaAtual=novo; BUF.leitura.registros[TODAY]=((L.registros&&L.registros[TODAY])||0)+n; saveBuf(); renderCurrent();
+    toast('+'+n+' páginas hoje.', function(){ var L2=mergedLeitura(); BUF.leitura.set.paginaAtual=Math.max(0,(+L2.paginaAtual||0)-n); var cur=((D.leitura&&D.leitura.registros&&D.leitura.registros[TODAY])||0); var was=(BUF.leitura.registros[TODAY]||0)-n; if(was>cur)BUF.leitura.registros[TODAY]=was; else delete BUF.leitura.registros[TODAY]; saveBuf(); renderCurrent(); }); }
+  function livroForm(root, init){ var L=init||mergedLeitura();
+    var iT=inp(L.titulo),iA=inp(L.autor),iS=inp(L.subtitulo),iTot=inp(L.totalPaginas,'number'),iPag=inp(L.paginaAtual,'number');
+    var coverData=L.capa||'';
+    var prev=el('div',{class:'cover-prev'}); function drawPrev(){ clear(prev); if(coverData){ prev.appendChild(el('img',{src:coverData})); } else prev.appendChild(el('span',{class:'empty',text:'sem capa'})); } drawPrev();
+    var file=el('input',{type:'file',accept:'image/*'});
+    file.addEventListener('change',function(){ var f=file.files&&file.files[0]; if(!f)return; if(f.size>3500000){ toast('Imagem muito grande (máx ~3 MB).'); return; } var r=new FileReader(); r.onload=function(){ coverData=r.result; drawPrev(); }; r.readAsDataURL(f); });
+    var host=el('div',{}); root.querySelector('.vhead').insertAdjacentElement('afterend',host);
+    host.appendChild(el('div',{class:'form'},[ el('div',{class:'label',text:'Livro em leitura'}),
+      field('Título',iT), el('div',{class:'row'},[ field('Autor',iA), field('Subtítulo',iS) ]),
+      el('div',{class:'row'},[ field('Total de páginas',iTot), field('Página atual',iPag) ]),
+      el('div',{class:'row'},[ field('Capa (imagem)',file), el('div',{},[ el('div',{class:'label',text:'Prévia'}), el('div',{style:'margin-top:6px'},[prev]), coverData?el('button',{class:'iconbtn',style:'margin-top:8px',text:'Remover capa',onclick:function(){ coverData=''; drawPrev(); }}):null ]) ]),
+      el('div',{class:'savebar'},[ el('button',{class:'btn ghost',text:'Cancelar',onclick:function(){ host.parentNode.removeChild(host); }}),
+        el('button',{class:'btn primary',text:'Salvar',onclick:function(){ if(!iT.value.trim()){toast('Título?');return;}
+          setLeitura({titulo:iT.value.trim(),autor:iA.value.trim(),subtitulo:iS.value.trim(),totalPaginas:parseInt(iTot.value,10)||0,paginaAtual:parseInt(iPag.value,10)||0,capa:coverData});
+          renderCurrent(); toast('Livro salvo.'); }}) ]) ]));
+  }
+
   // =================== ROTINA (calendário) ===================
   var monthOffset=0;
   function habInitial(h){ return (h.nome||'?').trim().charAt(0).toUpperCase(); }
@@ -810,6 +886,7 @@ const APP = `
     var y=monthDate.getFullYear(), mo=monthDate.getMonth();
     root.appendChild(el('div',{class:'vhead'},[ el('div',{},[ el('h1',{text:'Rotina'}), el('div',{class:'big',html:'Calendário de <b>hábitos</b>'}) ]),
       el('button',{class:'addbtn',text:'Editar hábitos',onclick:function(){ habitManager(root); }}) ]));
+    renderLivro(root);
     var habs=mergedHabitos();
     // navegação de mês
     root.appendChild(el('div',{class:'wknav'},[

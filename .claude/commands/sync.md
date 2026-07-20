@@ -17,7 +17,8 @@ Coleções de itens usam o formato **`{ add:[], update:{id:{campos}}, remove:[id
   "tarefas":     { "add": [ {schema tarefas} ], "update": { "id": {campos} }, "remove": ["id"] },
   "gastos":      { "add": [ {schema gastos} ],  "update": { "id": {campos} }, "remove": ["id"] },
   "carreira":    { "add": [ {schema carreira} ],"update": { "id": {campos} }, "remove": ["id"] },
-  "habitos":     { "add": [ {schema habito} ],  "update": { "id": {campos} }, "remove": ["id"] }
+  "habitos":     { "add": [ {schema habito} ],  "update": { "id": {campos} }, "remove": ["id"] },
+  "leitura":     { "set": { campos do livro }, "registros": { "YYYY-MM-DD": <páginas> } }
 }
 ```
 
@@ -33,6 +34,7 @@ Reconciliação (o buffer é a intenção do usuário; os JSONs são a verdade a
    - **update**: mesclar os campos no item de mesmo `id` (não apagar campos não citados). `update` em `projetos` pode conter `marcos` (array inteiro, autoritativo) e `ultimoToque`.
    - **remove**: excluir os itens cujo `id` está na lista.
    - Se um `update`/`remove` citar um `id` que não existe, avisar e pular (não criar do nada).
+5b. **leitura** → em `data/leitura.json`: mesclar os campos de `set` (título, autor, capa base64, `totalPaginas`, `paginaAtual`); em `registros`, cada data é autoritativa (páginas lidas naquele dia).
 
 Depois:
 
