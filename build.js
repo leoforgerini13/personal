@@ -289,6 +289,13 @@ select{cursor:pointer}
 .cday.today .hdot.on{background:var(--accent);border-color:var(--accent)}
 .hdot:hover{transform:scale(1.18)}
 .cday.future .hdot{cursor:default;opacity:.45}
+.habmgr-list{display:flex;flex-direction:column;gap:2px}
+.habmgr-row{display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:14px;padding:9px 0;border-bottom:1px solid var(--border)}
+.habmgr-row .hm-n{display:flex;align-items:center;gap:10px}
+.habmgr-row .hm-n .sw{width:17px;height:17px;border-radius:5px;background:var(--mid);color:var(--bg);font-size:9px;font-weight:700;line-height:17px;text-align:center;flex:none}
+.habmgr-row .hm-n b{font-weight:600;color:var(--hi)}
+.habmgr-row .hm-m{font-size:12px;color:var(--lo);font-variant-numeric:tabular-nums}
+.habmgr-row .hm-a{display:flex;gap:6px}
 
 /* AMSTERDAM */
 .clusters{display:grid;grid-template-columns:1fr 1fr;gap:16px}
@@ -802,7 +809,7 @@ const APP = `
     var base=new Date(); var monthDate=new Date(base.getFullYear(), base.getMonth()+monthOffset, 1);
     var y=monthDate.getFullYear(), mo=monthDate.getMonth();
     root.appendChild(el('div',{class:'vhead'},[ el('div',{},[ el('h1',{text:'Rotina'}), el('div',{class:'big',html:'Calendário de <b>hábitos</b>'}) ]),
-      el('button',{class:'addbtn',text:'+ Hábito',onclick:function(){ habitoForm(root); }}) ]));
+      el('button',{class:'addbtn',text:'Editar hábitos',onclick:function(){ habitManager(root); }}) ]));
     var habs=mergedHabitos();
     // navegação de mês
     root.appendChild(el('div',{class:'wknav'},[
@@ -862,6 +869,30 @@ const APP = `
           else { addItem('habitos',{id:newId('hab'),nome:iN.value.trim(),meta:{tipo:'semanal',alvo:parseInt(iA.value,10)||1}}); toast('Hábito adicionado.'); }
           renderCurrent(); }}) ]) ])); }
   function delHabito(h){ removeItem('habitos',h.id); renderCurrent(); toast('Hábito removido.', function(){ var r=BUF.habitos; var i=r.remove.indexOf(h.id); if(i>=0){r.remove.splice(i,1);saveBuf();} else { addItem('habitos',h);} renderCurrent(); }); }
+  function habitManager(root){
+    var open=root.querySelector('.habmgr'); if(open){ open.parentNode.removeChild(open); return; }
+    var host=el('div',{class:'form habmgr'});
+    host.appendChild(el('div',{class:'label',text:'Gerir hábitos'}));
+    var list=el('div',{class:'habmgr-list'});
+    var habs=mergedHabitos();
+    if(!habs.length) list.appendChild(el('div',{class:'empty',text:'Nenhum hábito ainda.'}));
+    habs.forEach(function(h){
+      list.appendChild(el('div',{class:'habmgr-row'},[
+        el('div',{class:'hm-n'},[ el('span',{class:'sw',text:habInitial(h)}), el('b',{text:h.nome}) ]),
+        el('div',{class:'hm-m',text:'meta '+(h.meta?h.meta.alvo:'?')+'/sem'}),
+        el('div',{class:'hm-a'},[
+          el('button',{class:'iconbtn',text:'Editar',onclick:function(){ host.parentNode.removeChild(host); habitoForm(root,h); }}),
+          el('button',{class:'iconbtn',text:'Excluir',onclick:function(){ host.parentNode.removeChild(host); delHabito(h); }})
+        ])
+      ]));
+    });
+    host.appendChild(list);
+    host.appendChild(el('div',{class:'savebar'},[
+      el('button',{class:'btn ghost',text:'Fechar',onclick:function(){ host.parentNode.removeChild(host); }}),
+      el('button',{class:'btn primary',text:'+ Adicionar hábito',onclick:function(){ host.parentNode.removeChild(host); habitoForm(root); }})
+    ]));
+    root.querySelector('.vhead').insertAdjacentElement('afterend',host);
+  }
 
   // =================== AMSTERDAM ===================
   var CATS=[['documentacao','Documentação & Legal'],['carreira','Trabalho & Carreira'],['moradia','Moradia & Mudança'],['financeiro','Financeiro & Seguros']];
