@@ -1,13 +1,112 @@
 [
-  { "id": "tk-0", "projeto": "brand-hub-gamesmart", "titulo": "Review geral do projeto de marca com a Clarissa", "descricao": "", "data": "2026-07-17", "dataFim": "", "prioridade": "media", "status": "feito", "criadaEm": "2026-07-16" },
-  { "id": "tk-1", "projeto": "banco-atlantico", "titulo": "Finalizar deck de benchmarks", "descricao": "Consolidar 18 internacionais + concorrentes locais em slides.", "data": "2026-07-22", "dataFim": "2026-07-24", "prioridade": "alta", "status": "fazendo", "criadaEm": "2026-07-15" },
-  { "id": "tk-2", "projeto": "brand-hub-gamesmart", "titulo": "Rascunhar território de posicionamento RMG", "descricao": "Base para o board de 28/07.", "data": "2026-07-21", "dataFim": "2026-07-22", "prioridade": "alta", "status": "a_fazer", "criadaEm": "2026-07-16" },
-  { "id": "tk-3", "projeto": "brand-hub-gamesmart", "titulo": "Montar deck do board", "descricao": "", "data": "2026-07-27", "dataFim": "", "prioridade": "alta", "status": "a_fazer", "criadaEm": "2026-07-16" },
-  { "id": "tk-4", "projeto": "banco-atlantico", "titulo": "Preparar aprendizados dos benchmarks", "descricao": "", "data": "2026-07-29", "dataFim": "", "prioridade": "media", "status": "a_fazer", "criadaEm": "2026-07-16" },
-
-  { "id": "tk-drbingo-slides", "projeto": "brand-hub-gamesmart", "titulo": "Montar 2 slides do board (Dr. Bingo) e enviar ao GG", "descricao": "Dois slides da apresentação do board, enviar ao Gabriel (GG).", "data": "2026-07-21", "dataFim": "", "prioridade": "alta", "status": "a_fazer", "criadaEm": "2026-07-20" },
-  { "id": "tk-ba-revisar", "projeto": "banco-atlantico", "titulo": "Revisar e ajustar a apresentação", "descricao": "Terminar a revisão e os ajustes até quarta (22/07).", "data": "2026-07-21", "dataFim": "2026-07-22", "prioridade": "alta", "status": "a_fazer", "criadaEm": "2026-07-20" },
-  { "id": "tk-samarco-kickoff", "projeto": "samarco-inpress", "titulo": "Kickoff do projeto com o Tasso", "descricao": "", "data": "2026-07-21", "dataFim": "", "prioridade": "alta", "status": "a_fazer", "criadaEm": "2026-07-20" },
-  { "id": "tk-samarco-docs", "projeto": "samarco-inpress", "titulo": "Pedir os documentos do projeto (briefing etc.)", "descricao": "", "data": "2026-07-21", "dataFim": "", "prioridade": "media", "status": "a_fazer", "criadaEm": "2026-07-20" },
-  { "id": "tk-samarco-plan", "projeto": "samarco-inpress", "titulo": "Subir a 1ª versão do planejamento", "descricao": "Entregar até sexta (24/07).", "data": "2026-07-22", "dataFim": "2026-07-24", "prioridade": "alta", "status": "a_fazer", "criadaEm": "2026-07-20" }
+  {
+    "id": "tk-0",
+    "projeto": "brand-hub-gamesmart",
+    "titulo": "Review geral do projeto de marca com a Clarissa",
+    "descricao": "",
+    "data": "2026-07-17",
+    "dataFim": "",
+    "prioridade": "media",
+    "status": "feito",
+    "criadaEm": "2026-07-16"
+  },
+  {
+    "id": "tk-1",
+    "projeto": "banco-atlantico",
+    "titulo": "Finalizar deck de benchmarks",
+    "descricao": "Consolidar 18 internacionais + concorrentes locais em slides.",
+    "data": "2026-07-22",
+    "dataFim": "2026-07-24",
+    "prioridade": "alta",
+    "status": "fazendo",
+    "criadaEm": "2026-07-15"
+  },
+  {
+    "id": "tk-2",
+    "projeto": "brand-hub-gamesmart",
+    "titulo": "Rascunhar território de posicionamento RMG",
+    "descricao": "Base para o board de 28/07.",
+    "data": "2026-07-21",
+    "dataFim": "2026-07-22",
+    "prioridade": "alta",
+    "status": "a_fazer",
+    "criadaEm": "2026-07-16"
+  },
+  {
+    "id": "tk-3",
+    "projeto": "brand-hub-gamesmart",
+    "titulo": "Montar deck do board",
+    "descricao": "",
+    "data": "2026-07-27",
+    "dataFim": "",
+    "prioridade": "alta",
+    "status": "a_fazer",
+    "criadaEm": "2026-07-16"
+  },
+  {
+    "id": "tk-4",
+    "projeto": "banco-atlantico",
+    "titulo": "Preparar aprendizados dos benchmarks",
+    "descricao": "",
+    "data": "2026-07-29",
+    "dataFim": "",
+    "prioridade": "media",
+    "status": "a_fazer",
+    "criadaEm": "2026-07-16"
+  },
+  {
+    "id": "tk-drbingo-slides",
+    "projeto": "brand-hub-gamesmart",
+    "titulo": "Montar 2 slides do board (Dr. Bingo) e enviar ao GG",
+    "descricao": "Dois slides da apresentação do board, enviar ao Gabriel (GG).",
+    "data": "2026-07-21",
+    "dataFim": "",
+    "prioridade": "alta",
+    "status": "a_fazer",
+    "criadaEm": "2026-07-20"
+  },
+  {
+    "id": "tk-ba-revisar",
+    "projeto": "banco-atlantico",
+    "titulo": "Revisar e ajustar a apresentação",
+    "descricao": "Terminar a revisão e os ajustes até quarta (22/07).",
+    "data": "2026-07-21",
+    "dataFim": "2026-07-22",
+    "prioridade": "alta",
+    "status": "a_fazer",
+    "criadaEm": "2026-07-20"
+  },
+  {
+    "id": "tk-samarco-kickoff",
+    "projeto": "samarco-inpress",
+    "titulo": "Kickoff do projeto com o Tasso",
+    "descricao": "",
+    "data": "2026-07-21",
+    "dataFim": "",
+    "prioridade": "alta",
+    "status": "a_fazer",
+    "criadaEm": "2026-07-20"
+  },
+  {
+    "id": "tk-samarco-docs",
+    "projeto": "samarco-inpress",
+    "titulo": "Pedir os documentos do projeto (briefing etc.)",
+    "descricao": "",
+    "data": "2026-07-21",
+    "dataFim": "",
+    "prioridade": "media",
+    "status": "a_fazer",
+    "criadaEm": "2026-07-20"
+  },
+  {
+    "id": "tk-samarco-plan",
+    "projeto": "samarco-inpress",
+    "titulo": "Subir a 1ª versão do planejamento",
+    "descricao": "Entregar até sexta (24/07).",
+    "data": "2026-07-22",
+    "dataFim": "2026-07-24",
+    "prioridade": "alta",
+    "status": "a_fazer",
+    "criadaEm": "2026-07-20"
+  }
 ]

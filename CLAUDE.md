@@ -19,11 +19,21 @@ frente não é % de progresso; é **há quantos dias eu não toco nela**.
 │   ├── leitura.json     ← livro atual (capa base64, progresso, páginas/dia)
 │   ├── agenda.json      ← gerado a partir do Google Calendar (/hoje)
 │   └── log.json         ← append-only, um objeto por toque
-├── build.js             ← Node, sem dependências externas
+├── build.js             ← Node, sem dependências externas (exporta STYLE/APP/build)
+├── server.js            ← app local: serve o dashboard + chat Sonnet 5 que edita os JSONs
+├── package.json         ← dependência do server (@anthropic-ai/sdk); node_modules ignorado
 ├── index.html           ← OUTPUT local (file://), com snapshot da agenda embutido
 ├── artifact.html        ← OUTPUT para publicar como Artifact (agenda AO VIVO, sem snapshot)
 └── .claude/commands/    ← /toque /hoje /feito /sync /semana /planejar
 ```
+
+## Três modos (mesmo código-fonte)
+
+`build.js` exporta `STYLE`+`APP`+`build()`; os três modos reaproveitam isso:
+
+- **`index.html`** (`node build.js`) — offline via `file://`, snapshot da agenda embutido. Zero deps.
+- **`artifact.html`** — publicado como Artifact da claude.ai; agenda **ao vivo** via `window.claude.mcp` (conector Google Calendar). Não embute eventos reais (privacidade).
+- **`server.js`** (`npm start`) — app local que serve o dashboard por HTTP e injeta um **chat** (canto inferior direito). O chat chama o **`claude-sonnet-5`** (adaptive thinking, effort baixo) via `@anthropic-ai/sdk` num loop de tool-use; cada ferramenta (`add_tarefa`, `update_tarefa`, `registrar_toque`, `marcar_habito`, `log_paginas`, `add_gasto`, `update_gasto`, `add_frente`) edita os `data/*.json` e regenera o dashboard. Requer `ANTHROPIC_API_KEY` no ambiente (nunca no código). **A agenda não é ao vivo neste modo** (só no Artifact) — usa o snapshot; rode `/hoje`. Ver `README.md`.
 
 ## Dois outputs (mesmo código-fonte)
 
