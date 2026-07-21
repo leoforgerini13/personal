@@ -28,6 +28,14 @@ Um servidor Node serve o dashboard e adiciona um **chat** que conversa com o Son
 JSONs por linguagem natural** (adicionar/atualizar tarefas, registrar toques, marcar hábitos, logar
 páginas de leitura, lançar gastos, criar frentes). Requer sua chave da API Anthropic.
 
+**Jeito mais fácil (um clique):**
+- **macOS** — dê dois cliques em **`start.command`** (se bloquear: botão direito → Abrir).
+- **Windows** — dê dois cliques em **`start.bat`**.
+- **Linux/terminal** — `./start.sh`.
+
+O lançador instala as dependências, pede sua chave uma vez, sobe o servidor e abre o navegador.
+
+**Ou manualmente:**
 ```bash
 npm install                          # instala @anthropic-ai/sdk
 export ANTHROPIC_API_KEY=sk-ant-...  # sua chave
