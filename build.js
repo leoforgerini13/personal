@@ -18,17 +18,20 @@ function readJSON(name, fallback) {
   }
 }
 
-const DATA = {
-  projetos: readJSON('projetos.json', []),
-  rotina: readJSON('rotina.json', { habitos: [], registros: {} }),
-  carreira: readJSON('carreira.json', []),
-  agenda: readJSON('agenda.json', []),
-  log: readJSON('log.json', []),
-  tarefas: readJSON('tarefas.json', []),
-  gastos: readJSON('gastos.json', []),
-  leitura: readJSON('leitura.json', { titulo: '', autor: '', subtitulo: '', capa: '', totalPaginas: 0, paginaAtual: 0, registros: {} }),
-  geradoEm: new Date().toISOString()
-};
+function readData() {
+  return {
+    projetos: readJSON('projetos.json', []),
+    rotina: readJSON('rotina.json', { habitos: [], registros: {} }),
+    carreira: readJSON('carreira.json', []),
+    agenda: readJSON('agenda.json', []),
+    log: readJSON('log.json', []),
+    tarefas: readJSON('tarefas.json', []),
+    gastos: readJSON('gastos.json', []),
+    leitura: readJSON('leitura.json', { titulo: '', autor: '', subtitulo: '', capa: '', totalPaginas: 0, paginaAtual: 0, registros: {} }),
+    geradoEm: new Date().toISOString()
+  };
+}
+const DATA = readData();
 
 // ---------- CSS ----------
 const STYLE = `
@@ -1200,26 +1203,35 @@ const APP = `
 `;
 
 // ---------- OUTPUTS ----------
-// index.html: doc completo para uso local (file://). Embute a agenda como snapshot offline.
-const dataFull = JSON.stringify(DATA);
-const html = '<!doctype html>\n<html lang="pt-BR">\n<head>\n<meta charset="utf-8">\n' +
-  '<meta name="viewport" content="width=device-width, initial-scale=1">\n' +
-  '<title>Atencao — alocacao pessoal</title>\n' +
-  '<style>' + STYLE + '</style>\n</head>\n<body>\n' +
-  '<script>window.__DATA__ = ' + dataFull + ';</script>\n' +
-  '<script>' + APP + '</script>\n' +
-  '</body>\n</html>\n';
-fs.writeFileSync(path.join(__dirname, 'index.html'), html, 'utf8');
+function build() {
+  const DATA = readData();
+  // index.html: doc completo para uso local (file://). Embute a agenda como snapshot offline.
+  const html = '<!doctype html>\n<html lang="pt-BR">\n<head>\n<meta charset="utf-8">\n' +
+    '<meta name="viewport" content="width=device-width, initial-scale=1">\n' +
+    '<title>Atencao — alocacao pessoal</title>\n' +
+    '<style>' + STYLE + '</style>\n</head>\n<body>\n' +
+    '<script>window.__DATA__ = ' + JSON.stringify(DATA) + ';</script>\n' +
+    '<script>' + APP + '</script>\n' +
+    '</body>\n</html>\n';
+  fs.writeFileSync(path.join(__dirname, 'index.html'), html, 'utf8');
 
-// artifact.html: só o conteúdo (o publish envolve em <head>/<body>). Puxa a agenda AO VIVO
-// via window.claude.mcp; NÃO embute os eventos reais do calendário (privacidade).
-const dataArtifact = JSON.stringify(Object.assign({}, DATA, { agenda: [] }));
-const artifact = '<style>' + STYLE + '</style>\n' +
-  '<script>window.__DATA__ = ' + dataArtifact + ';</script>\n' +
-  '<script>' + APP + '</script>\n';
-fs.writeFileSync(path.join(__dirname, 'artifact.html'), artifact, 'utf8');
+  // artifact.html: só o conteúdo (o publish envolve em <head>/<body>). Puxa a agenda AO VIVO
+  // via window.claude.mcp; NÃO embute os eventos reais do calendário (privacidade).
+  const dataArtifact = JSON.stringify(Object.assign({}, DATA, { agenda: [] }));
+  const artifact = '<style>' + STYLE + '</style>\n' +
+    '<script>window.__DATA__ = ' + dataArtifact + ';</script>\n' +
+    '<script>' + APP + '</script>\n';
+  fs.writeFileSync(path.join(__dirname, 'artifact.html'), artifact, 'utf8');
+  return { html: html, artifact: artifact, data: DATA };
+}
 
-console.log('[build] index.html (' + (html.length/1024).toFixed(1) + ' KB, com snapshot) + artifact.html (' +
-  (artifact.length/1024).toFixed(1) + ' KB, agenda ao vivo) — ' +
-  DATA.projetos.length + ' frentes, ' + DATA.tarefas.length + ' tarefas, ' + DATA.gastos.length + ' gastos, ' +
-  DATA.rotina.habitos.length + ' habitos.');
+// STYLE+APP são reaproveitados pelo server.js (modo app local com chat).
+module.exports = { STYLE: STYLE, APP: APP, build: build, readData: readData, readJSON: readJSON, DATA_DIR: DATA_DIR };
+
+if (require.main === module) {
+  const out = build();
+  console.log('[build] index.html (' + (out.html.length/1024).toFixed(1) + ' KB, com snapshot) + artifact.html (' +
+    (out.artifact.length/1024).toFixed(1) + ' KB, agenda ao vivo) — ' +
+    out.data.projetos.length + ' frentes, ' + out.data.tarefas.length + ' tarefas, ' + out.data.gastos.length + ' gastos, ' +
+    out.data.rotina.habitos.length + ' habitos.');
+}

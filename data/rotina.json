@@ -1,33 +1,128 @@
 {
   "habitos": [
-    { "id": "musculacao", "nome": "Musculação", "meta": { "tipo": "semanal", "alvo": 4 } },
-    { "id": "basquete",   "nome": "Basquete",   "meta": { "tipo": "semanal", "alvo": 1 } },
-    { "id": "usp",        "nome": "Ciências Sociais", "meta": { "tipo": "semanal", "alvo": 3 } },
-    { "id": "holandes",   "nome": "Holandês",   "meta": { "tipo": "semanal", "alvo": 2 } }
+    {
+      "id": "musculacao",
+      "nome": "Musculação",
+      "meta": {
+        "tipo": "semanal",
+        "alvo": 4
+      }
+    },
+    {
+      "id": "basquete",
+      "nome": "Basquete",
+      "meta": {
+        "tipo": "semanal",
+        "alvo": 1
+      }
+    },
+    {
+      "id": "usp",
+      "nome": "Ciências Sociais",
+      "meta": {
+        "tipo": "semanal",
+        "alvo": 3
+      }
+    },
+    {
+      "id": "holandes",
+      "nome": "Holandês",
+      "meta": {
+        "tipo": "semanal",
+        "alvo": 2
+      }
+    }
   ],
   "registros": {
-    "2026-06-02": ["musculacao", "usp"],
-    "2026-06-03": ["holandes"],
-    "2026-06-04": ["musculacao", "usp"],
-    "2026-06-06": ["basquete", "musculacao"],
-    "2026-06-09": ["musculacao", "holandes"],
-    "2026-06-11": ["usp", "musculacao"],
-    "2026-06-13": ["basquete"],
-    "2026-06-16": ["musculacao", "usp", "holandes"],
-    "2026-06-18": ["musculacao", "usp"],
-    "2026-06-20": ["basquete", "musculacao"],
-    "2026-06-23": ["musculacao", "holandes"],
-    "2026-06-25": ["usp", "musculacao"],
-    "2026-06-30": ["musculacao", "usp"],
-    "2026-07-02": ["musculacao", "holandes"],
-    "2026-07-04": ["basquete", "musculacao"],
-    "2026-07-07": ["musculacao", "usp"],
-    "2026-07-09": ["usp", "holandes"],
-    "2026-07-11": ["basquete", "musculacao"],
-    "2026-07-13": ["musculacao", "usp"],
-    "2026-07-14": ["musculacao", "holandes"],
-    "2026-07-15": ["usp", "basquete"],
-    "2026-07-16": ["musculacao", "usp"],
-    "2026-07-17": ["holandes"]
+    "2026-06-02": [
+      "musculacao",
+      "usp"
+    ],
+    "2026-06-03": [
+      "holandes"
+    ],
+    "2026-06-04": [
+      "musculacao",
+      "usp"
+    ],
+    "2026-06-06": [
+      "basquete",
+      "musculacao"
+    ],
+    "2026-06-09": [
+      "musculacao",
+      "holandes"
+    ],
+    "2026-06-11": [
+      "usp",
+      "musculacao"
+    ],
+    "2026-06-13": [
+      "basquete"
+    ],
+    "2026-06-16": [
+      "musculacao",
+      "usp",
+      "holandes"
+    ],
+    "2026-06-18": [
+      "musculacao",
+      "usp"
+    ],
+    "2026-06-20": [
+      "basquete",
+      "musculacao"
+    ],
+    "2026-06-23": [
+      "musculacao",
+      "holandes"
+    ],
+    "2026-06-25": [
+      "usp",
+      "musculacao"
+    ],
+    "2026-06-30": [
+      "musculacao",
+      "usp"
+    ],
+    "2026-07-02": [
+      "musculacao",
+      "holandes"
+    ],
+    "2026-07-04": [
+      "basquete",
+      "musculacao"
+    ],
+    "2026-07-07": [
+      "musculacao",
+      "usp"
+    ],
+    "2026-07-09": [
+      "usp",
+      "holandes"
+    ],
+    "2026-07-11": [
+      "basquete",
+      "musculacao"
+    ],
+    "2026-07-13": [
+      "musculacao",
+      "usp"
+    ],
+    "2026-07-14": [
+      "musculacao",
+      "holandes"
+    ],
+    "2026-07-15": [
+      "usp",
+      "basquete"
+    ],
+    "2026-07-16": [
+      "musculacao",
+      "usp"
+    ],
+    "2026-07-17": [
+      "holandes"
+    ]
   }
 }
