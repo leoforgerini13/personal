@@ -315,6 +315,20 @@ select{cursor:pointer}
 .book-log .today{font-size:12px;color:var(--mid);margin-left:auto}
 .cover-prev img{max-width:90px;border-radius:6px;display:block}
 .cover-prev .empty{padding:0}
+/* progresso da semana (metas de rotina) */
+.wtrack{background:var(--surface);border-radius:16px;padding:16px 18px;margin-bottom:24px}
+.wtrack .wth{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px;gap:12px}
+.wtrack .wth .t{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--lo);font-weight:600}
+.wtrack .wth .r{font-size:11px;color:var(--lo);font-variant-numeric:tabular-nums;text-align:right}
+.wtrow{display:grid;grid-template-columns:140px 1fr 92px;align-items:center;gap:14px;padding:7px 0}
+.wtrow .wn{font-size:13.5px;color:var(--hi)}
+.wtrow .wb{height:8px;background:var(--surface-2);border-radius:5px;overflow:hidden}
+.wtrow .wb > i{display:block;height:100%;background:var(--neutro);border-radius:5px;transition:width .2s}
+.wtrow.done .wb > i{background:var(--mid)}
+.wtrow .wv{font-size:12px;color:var(--mid);text-align:right;font-variant-numeric:tabular-nums}
+.wtrow .wv b{color:var(--hi);font-weight:600}
+.wtrow .wv .met{color:var(--mid)}
+@media(max-width:900px){ .wtrow{grid-template-columns:100px 1fr 76px} }
 
 /* AMSTERDAM */
 .clusters{display:grid;grid-template-columns:1fr 1fr;gap:16px}
@@ -878,6 +892,24 @@ const APP = `
 
   // =================== ROTINA (calendário) ===================
   var monthOffset=0;
+  function renderSemanaTracker(root){
+    var habs=mergedHabitos(); if(!habs.length) return;
+    var mon=mondayOf(new Date()), sun=addDays(mon,6);
+    var batidas=0; habs.forEach(function(h){ var alvo=(h.meta&&h.meta.alvo)||0; if(alvo && countWeek(h.id)>=alvo) batidas++; });
+    var card=el('div',{class:'wtrack'});
+    card.appendChild(el('div',{class:'wth'},[ el('div',{class:'t',text:'Progresso da semana'}),
+      el('div',{class:'r',text: mon.getDate()+' '+MES_ABREV[mon.getMonth()]+' – '+sun.getDate()+' '+MES_ABREV[sun.getMonth()]+' · '+batidas+'/'+habs.length+' metas'}) ]));
+    habs.forEach(function(h){ var c=countWeek(h.id); var alvo=(h.meta&&h.meta.alvo)||0;
+      var pct=alvo>0?Math.min(100,Math.round(c/alvo*100)):0; var done=alvo>0 && c>=alvo;
+      card.appendChild(el('div',{class:'wtrow'+(done?' done':'')},[
+        el('div',{class:'wn',text:h.nome}),
+        el('div',{class:'wb'},[ el('i',{style:'width:'+pct+'%'}) ]),
+        el('div',{class:'wv'},[ el('b',{text:c}), document.createTextNode('/'+alvo),
+          done?el('span',{class:'met',text:' ✓'}):document.createTextNode(' · '+pct+'%') ])
+      ]));
+    });
+    root.appendChild(card);
+  }
   function habInitial(h){ return (h.nome||'?').trim().charAt(0).toUpperCase(); }
   function monthCount(hid,y,mo){ var n=new Date(y,mo+1,0).getDate(), c=0; for(var d=1;d<=n;d++){ if(getReg(y+'-'+pad(mo+1)+'-'+pad(d)).indexOf(hid)>=0)c++; } return c; }
   function renderRotina(root){
@@ -887,6 +919,7 @@ const APP = `
     root.appendChild(el('div',{class:'vhead'},[ el('div',{},[ el('h1',{text:'Rotina'}), el('div',{class:'big',html:'Calendário de <b>hábitos</b>'}) ]),
       el('button',{class:'addbtn',text:'Editar hábitos',onclick:function(){ habitManager(root); }}) ]));
     renderLivro(root);
+    renderSemanaTracker(root);
     var habs=mergedHabitos();
     // navegação de mês
     root.appendChild(el('div',{class:'wknav'},[
