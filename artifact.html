@@ -105,6 +105,53 @@ select{cursor:pointer}
 .agenda-item .hora{font-size:12px;color:var(--lo);font-variant-numeric:tabular-nums}
 .agenda-item .tit{font-size:14.5px;color:var(--hi);margin-top:3px}
 .agenda-empty,.empty{color:var(--lo);font-size:14px;padding:10px 0}
+.block-title.spaced{margin-top:30px}
+/* check genérico (hoje / atrasadas) */
+.check{flex:none;width:20px;height:20px;border:1.5px solid var(--border);border-radius:7px;color:transparent;font-size:12px;line-height:17px;text-align:center;transition:.15s;background:transparent}
+.check:hover{border-color:var(--mid)}
+.check.on{background:var(--mid);border-color:var(--mid);color:var(--bg)}
+/* atenção esfriando (Hoje / Revisão) — sistema de temperatura das frentes */
+.cool{background:var(--surface);border-radius:16px;padding:2px 16px;margin-bottom:26px}
+.cool-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+.cool-row:last-child{border-bottom:none}
+.cool-row .tdot{width:9px;height:9px;border-radius:50%;flex:none;background:var(--neutro)}
+.cool-row.ambar .tdot{background:var(--ambar)}
+.cool-row.quente .tdot{background:var(--accent)}
+.cool-row .ci{flex:1;min-width:0}
+.cool-row .cn{font-size:14.5px;color:var(--hi)}
+.cool-row.quente .cn{font-weight:600}
+.cool-row .cm{font-size:11.5px;color:var(--lo);margin-top:2px}
+.cool-row .ctag{font-size:11px;color:var(--mid);flex:none}
+/* tarefas atrasadas */
+.overdue-task{display:flex;align-items:center;gap:11px;padding:11px 0;border-bottom:1px solid var(--border)}
+.overdue-task .tt{flex:1;font-size:14.5px;color:var(--hi)}
+.overdue-task .od{font-size:11px;color:var(--ambar);flex:none;font-variant-numeric:tabular-nums;white-space:nowrap}
+/* agenda → toque */
+.ag-toque{display:block;margin-top:8px;font-size:11.5px;color:var(--mid);border:1px dashed var(--border);border-radius:8px;padding:6px 9px;text-align:left;width:100%;transition:.15s}
+button.ag-toque:hover{color:var(--hi);border-color:var(--mid)}
+.ag-toque.done{color:var(--lo);border-style:solid}
+/* projeção de leitura */
+.book-proj{font-size:11.5px;color:var(--mid);margin-top:5px}
+/* revisão da semana */
+.rev-list{display:flex;flex-direction:column}
+.rev-row{display:flex;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid var(--border)}
+.rev-row .rv-n{font-size:22px;font-weight:600;color:var(--hi);width:34px;flex:none;text-align:right;font-variant-numeric:tabular-nums}
+.rev-row .rv-b{min-width:0}
+.rev-row .rv-name{font-size:14.5px;color:var(--hi)}
+.rev-row .rv-sub{font-size:11.5px;color:var(--lo);margin-top:2px;overflow:hidden;text-overflow:ellipsis}
+/* câmbio + total convertido (Amsterdam) */
+.cambio-line{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin:14px 0 24px;padding:12px 16px;background:var(--surface);border-radius:12px}
+.cambio-line .cx{font-size:12px;color:var(--lo);display:flex;align-items:center;gap:9px}
+.cambio-line .cambio-in{width:82px;padding:6px 8px;font-size:13px}
+.cambio-line .gtot{font-size:13px;color:var(--mid)}
+.cambio-line .gtot b{color:var(--hi);font-weight:600;font-size:16px}
+.cambio-line .gtot small{color:var(--lo)}
+/* toque rápido (flutuante) — canto inferior direito, junto do "Copiar patch" */
+#qtoque{position:fixed;right:26px;bottom:26px;background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:10px 15px;font-size:13px;color:var(--mid);z-index:40;display:flex;align-items:center;gap:8px;transition:.15s}
+#qtoque:hover{color:var(--hi);border-color:var(--mid)}
+#qtoque .plus{font-size:15px;line-height:1;color:var(--accent)}
+#qtpanel{position:fixed;right:26px;bottom:74px;width:min(288px,86vw);background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;z-index:42;display:flex;flex-direction:column;gap:10px;box-shadow:0 16px 48px rgba(0,0,0,.45)}
+#qtpanel .qtbar{display:flex;gap:10px;justify-content:flex-end;margin-top:4px}
 
 /* FRENTES */
 .frentes{display:flex;flex-direction:column;gap:14px}
@@ -339,7 +386,7 @@ select{cursor:pointer}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto}
 #toast .m{font-size:14px}
 #toast .u{font-size:13px;color:var(--accent);font-weight:600}
-#patchbtn{position:fixed;right:26px;bottom:26px;background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:10px 16px;font-size:13px;color:var(--mid);z-index:40;display:none;align-items:center;gap:9px;transition:.15s}
+#patchbtn{position:fixed;right:26px;bottom:76px;background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:10px 16px;font-size:13px;color:var(--mid);z-index:40;display:none;align-items:center;gap:9px;transition:.15s}
 #patchbtn:hover{color:var(--hi);border-color:var(--mid)}
 #patchbtn.show{display:flex}
 #patchbtn .bd{width:7px;height:7px;border-radius:50%;background:var(--accent)}
@@ -358,7 +405,7 @@ select{cursor:pointer}
   .heat-row .wk{grid-column:2;text-align:left}
 }
 </style>
-<script>window.__DATA__ = {"projetos":[{"id":"brand-hub-gamesmart","nome":"Brand Hub — GameSmart","cliente":"GameSmart","tipo":"freela","status":"ativo","cadenciaEsperada":3,"ultimoToque":"2026-07-17","inicio":"2026-06-16","previsaoFim":"2026-08-15","notas":"Reposicionamento das marcas RMG / Club / Social. Weekly às quartas 10h com Clarissa, Gabriel e Isabel.","marcos":[{"id":"bhg-m1","titulo":"Board: novo posicionamento RMG/Club/Social","data":"2026-07-28","feito":false},{"id":"bhg-m2","titulo":"Kickoff de naming — Club","data":"2026-08-11","feito":false}]},{"id":"banco-atlantico","nome":"Banco Atlântico","cliente":"Marcas com Sal","tipo":"agencia","status":"ativo","cadenciaEsperada":3,"ultimoToque":"2026-07-15","inicio":"2026-07-01","previsaoFim":"2026-08-14","notas":"18 benchmarks internacionais + concorrentes locais. CP semanal quartas 15h.","marcos":[{"id":"ba-m1","titulo":"Entregar deck de benchmarks","data":"2026-07-24","feito":false},{"id":"ba-m2","titulo":"Aprendizados dos benchmarks","data":"2026-07-30","feito":false},{"id":"ba-m3","titulo":"Recomendações finais","data":"2026-08-14","feito":false}]},{"id":"samarco-inpress","nome":"Samarco","cliente":"InPress","tipo":"agencia","status":"ativo","cadenciaEsperada":4,"ultimoToque":"2026-07-20","inicio":"2026-07-21","previsaoFim":"2026-08-29","notas":"Kickoff com Tasso. Coletar briefing e documentos; primeira versão de planejamento até 24/07.","marcos":[{"id":"sam-m1","titulo":"1ª versão do planejamento","data":"2026-07-24","feito":false}]},{"id":"modelo-freela-1","nome":"[modelo] Freela — marca de varejo","cliente":"Cliente a definir","tipo":"freela","status":"ativo","cadenciaEsperada":5,"ultimoToque":"2026-07-12","inicio":"2026-07-10","previsaoFim":"2026-08-20","notas":"Card-modelo. Substitua pelos dados reais desta frente.","marcos":[{"id":"fr1-m1","titulo":"Definir próximo marco","data":"2026-07-30","feito":false}]},{"id":"modelo-freela-2","nome":"[modelo] Projeto pessoal","cliente":"—","tipo":"pessoal","status":"ativo","cadenciaEsperada":7,"ultimoToque":"2026-07-14","inicio":"2026-07-14","previsaoFim":"2026-09-05","notas":"Card-modelo. Use para uma frente de menor cadência (semanal).","marcos":[{"id":"fr2-m1","titulo":"Definir próximo marco","data":"2026-08-05","feito":false}]}],"rotina":{"habitos":[{"id":"musculacao","nome":"Musculação","meta":{"tipo":"semanal","alvo":4}},{"id":"basquete","nome":"Basquete","meta":{"tipo":"semanal","alvo":1}},{"id":"usp","nome":"Ciências Sociais","meta":{"tipo":"semanal","alvo":3}},{"id":"holandes","nome":"Holandês","meta":{"tipo":"semanal","alvo":2}}],"registros":{"2026-06-02":["musculacao","usp"],"2026-06-03":["holandes"],"2026-06-04":["musculacao","usp"],"2026-06-06":["basquete","musculacao"],"2026-06-09":["musculacao","holandes"],"2026-06-11":["usp","musculacao"],"2026-06-13":["basquete"],"2026-06-16":["musculacao","usp","holandes"],"2026-06-18":["musculacao","usp"],"2026-06-20":["basquete","musculacao"],"2026-06-23":["musculacao","holandes"],"2026-06-25":["usp","musculacao"],"2026-06-30":["musculacao","usp"],"2026-07-02":["musculacao","holandes"],"2026-07-04":["basquete","musculacao"],"2026-07-07":["musculacao","usp"],"2026-07-09":["usp","holandes"],"2026-07-11":["basquete","musculacao"],"2026-07-13":["musculacao","usp"],"2026-07-14":["musculacao","holandes"],"2026-07-15":["usp","basquete"],"2026-07-16":["musculacao","usp"],"2026-07-17":["holandes"]}},"carreira":[{"id":"passaporte","categoria":"documentacao","titulo":"Passaporte válido (renovar se < 6 meses)","estado":"nao_iniciado","bloqueia":[],"nota":""},{"id":"autorizacao-eu","categoria":"documentacao","titulo":"Autorização de trabalho na UE","estado":"em_andamento","bloqueia":["aplicacoes"],"nota":"Verificar via de cidadania / visto de busca de emprego (zoekjaar)."},{"id":"apostilamento","categoria":"documentacao","titulo":"Apostilamento de certidões (nascimento etc.)","estado":"nao_iniciado","bloqueia":[],"nota":""},{"id":"reconhecimento-diploma","categoria":"documentacao","titulo":"Reconhecimento do diploma","estado":"nao_iniciado","bloqueia":[],"nota":""},{"id":"bsn-registro","categoria":"documentacao","titulo":"BSN / registro na prefeitura (gemeente)","estado":"nao_iniciado","bloqueia":[],"nota":"Só após ter endereço fixo em Amsterdam."},{"id":"cv-portfolio","categoria":"carreira","titulo":"CV e portfólio em inglês","estado":"nao_iniciado","bloqueia":["aplicacoes"],"nota":""},{"id":"aplicacoes","categoria":"carreira","titulo":"Aplicações para vagas","estado":"nao_iniciado","bloqueia":["entrevistas"],"nota":""},{"id":"entrevistas","categoria":"carreira","titulo":"Rodada de entrevistas","estado":"nao_iniciado","bloqueia":["contrato-caucao","passagem"],"nota":""},{"id":"networking","categoria":"carreira","titulo":"Networking / LinkedIn ativo","estado":"nao_iniciado","bloqueia":[],"nota":""},{"id":"pesquisa-moradia","categoria":"moradia","titulo":"Pesquisa de moradia","estado":"nao_iniciado","bloqueia":["contrato-caucao"],"nota":""},{"id":"contrato-caucao","categoria":"moradia","titulo":"Contrato de aluguel + caução","estado":"nao_iniciado","bloqueia":["bsn-registro"],"nota":""},{"id":"mobilia","categoria":"moradia","titulo":"Mobília inicial","estado":"nao_iniciado","bloqueia":[],"nota":""},{"id":"envio-pertences","categoria":"moradia","titulo":"Envio de pertences / o que trazer","estado":"nao_iniciado","bloqueia":[],"nota":""},{"id":"passagem","categoria":"moradia","titulo":"Passagem e data da mudança","estado":"nao_iniciado","bloqueia":[],"nota":""},{"id":"conta-internacional","categoria":"financeiro","titulo":"Conta bancária internacional (Wise/N26)","estado":"nao_iniciado","bloqueia":[],"nota":""},{"id":"cambio-reserva","categoria":"financeiro","titulo":"Câmbio + reserva de emergência","estado":"nao_iniciado","bloqueia":[],"nota":""},{"id":"seguro-saude","categoria":"financeiro","titulo":"Seguro saúde","estado":"nao_iniciado","bloqueia":[],"nota":""},{"id":"impostos","categoria":"financeiro","titulo":"Situação fiscal no Brasil (saída definitiva)","estado":"nao_iniciado","bloqueia":[],"nota":""}],"agenda":[],"log":[{"data":"2026-07-15","projeto":"banco-atlantico","texto":"Fechei a lista dos 18 benchmarks internacionais e comecei o mapa de concorrentes locais."},{"data":"2026-07-16","projeto":"brand-hub-gamesmart","texto":"Rascunho do território de posicionamento para RMG antes do board."},{"data":"2026-07-17","projeto":"brand-hub-gamesmart","texto":"Review geral do projeto de marca com a Clarissa."}],"tarefas":[{"id":"tk-0","projeto":"brand-hub-gamesmart","titulo":"Review geral do projeto de marca com a Clarissa","descricao":"","data":"2026-07-17","dataFim":"","prioridade":"media","status":"feito","criadaEm":"2026-07-16"},{"id":"tk-1","projeto":"banco-atlantico","titulo":"Finalizar deck de benchmarks","descricao":"Consolidar 18 internacionais + concorrentes locais em slides.","data":"2026-07-22","dataFim":"2026-07-24","prioridade":"alta","status":"fazendo","criadaEm":"2026-07-15"},{"id":"tk-2","projeto":"brand-hub-gamesmart","titulo":"Rascunhar território de posicionamento RMG","descricao":"Base para o board de 28/07.","data":"2026-07-21","dataFim":"2026-07-22","prioridade":"alta","status":"a_fazer","criadaEm":"2026-07-16"},{"id":"tk-3","projeto":"brand-hub-gamesmart","titulo":"Montar deck do board","descricao":"","data":"2026-07-27","dataFim":"","prioridade":"alta","status":"a_fazer","criadaEm":"2026-07-16"},{"id":"tk-4","projeto":"banco-atlantico","titulo":"Preparar aprendizados dos benchmarks","descricao":"","data":"2026-07-29","dataFim":"","prioridade":"media","status":"a_fazer","criadaEm":"2026-07-16"},{"id":"tk-drbingo-slides","projeto":"brand-hub-gamesmart","titulo":"Montar 2 slides do board (Dr. Bingo) e enviar ao GG","descricao":"Dois slides da apresentação do board, enviar ao Gabriel (GG).","data":"2026-07-21","dataFim":"","prioridade":"alta","status":"a_fazer","criadaEm":"2026-07-20"},{"id":"tk-ba-revisar","projeto":"banco-atlantico","titulo":"Revisar e ajustar a apresentação","descricao":"Terminar a revisão e os ajustes até quarta (22/07).","data":"2026-07-21","dataFim":"2026-07-22","prioridade":"alta","status":"a_fazer","criadaEm":"2026-07-20"},{"id":"tk-samarco-kickoff","projeto":"samarco-inpress","titulo":"Kickoff do projeto com o Tasso","descricao":"","data":"2026-07-21","dataFim":"","prioridade":"alta","status":"a_fazer","criadaEm":"2026-07-20"},{"id":"tk-samarco-docs","projeto":"samarco-inpress","titulo":"Pedir os documentos do projeto (briefing etc.)","descricao":"","data":"2026-07-21","dataFim":"","prioridade":"media","status":"a_fazer","criadaEm":"2026-07-20"},{"id":"tk-samarco-plan","projeto":"samarco-inpress","titulo":"Subir a 1ª versão do planejamento","descricao":"Entregar até sexta (24/07).","data":"2026-07-22","dataFim":"2026-07-24","prioridade":"alta","status":"a_fazer","criadaEm":"2026-07-20"}],"gastos":[{"id":"gt-1","item":"Passagem aérea (só ida)","categoria":"Viagem","estimadoBRL":6000,"estimadoEUR":1000,"pagoBRL":0,"pagoEUR":0,"nota":"[estimativa]"},{"id":"gt-2","item":"Reconhecimento de diploma (IDW)","categoria":"Legal","estimadoBRL":1500,"estimadoEUR":250,"pagoBRL":0,"pagoEUR":0,"nota":"[estimativa]"},{"id":"gt-3","item":"Seguro saúde inicial","categoria":"Legal","estimadoBRL":900,"estimadoEUR":150,"pagoBRL":0,"pagoEUR":0,"nota":"[estimativa]"},{"id":"gt-4","item":"Caução + 1º aluguel","categoria":"Moradia","estimadoBRL":21000,"estimadoEUR":3500,"pagoBRL":0,"pagoEUR":0,"nota":"[estimativa]"},{"id":"gt-5","item":"Mobília inicial","categoria":"Moradia","estimadoBRL":6000,"estimadoEUR":1000,"pagoBRL":0,"pagoEUR":0,"nota":"[estimativa]"},{"id":"gt-6","item":"Reserva de emergência (3 meses)","categoria":"Reserva","estimadoBRL":30000,"estimadoEUR":5000,"pagoBRL":0,"pagoEUR":0,"nota":"[estimativa]"},{"id":"gt-7","item":"Curso de holandês","categoria":"Educação","estimadoBRL":1800,"estimadoEUR":300,"pagoBRL":600,"pagoEUR":100,"nota":"[estimativa] — já paguei a 1ª parcela"}],"leitura":{"titulo":"Kitchen Confidential","autor":"Anthony Bourdain","subtitulo":"Adventures in the Culinary Underbelly","capa":"","totalPaginas":385,"paginaAtual":0,"registros":{}},"geradoEm":"2026-07-24T15:35:54.164Z"};</script>
+<script>window.__DATA__ = {"projetos":[{"id":"brand-hub-gamesmart","nome":"Brand Hub — GameSmart","cliente":"GameSmart","tipo":"freela","status":"ativo","cadenciaEsperada":3,"ultimoToque":"2026-07-17","inicio":"2026-06-16","previsaoFim":"2026-08-15","notas":"Reposicionamento das marcas RMG / Club / Social. Weekly às quartas 10h com Clarissa, Gabriel e Isabel.","marcos":[{"id":"bhg-m1","titulo":"Board: novo posicionamento RMG/Club/Social","data":"2026-07-28","feito":false},{"id":"bhg-m2","titulo":"Kickoff de naming — Club","data":"2026-08-11","feito":false}]},{"id":"banco-atlantico","nome":"Banco Atlântico","cliente":"Marcas com Sal","tipo":"agencia","status":"ativo","cadenciaEsperada":3,"ultimoToque":"2026-07-15","inicio":"2026-07-01","previsaoFim":"2026-08-14","notas":"18 benchmarks internacionais + concorrentes locais. CP semanal quartas 15h.","marcos":[{"id":"ba-m1","titulo":"Entregar deck de benchmarks","data":"2026-07-24","feito":false},{"id":"ba-m2","titulo":"Aprendizados dos benchmarks","data":"2026-07-30","feito":false},{"id":"ba-m3","titulo":"Recomendações finais","data":"2026-08-14","feito":false}]},{"id":"samarco-inpress","nome":"Samarco","cliente":"InPress","tipo":"agencia","status":"ativo","cadenciaEsperada":4,"ultimoToque":"2026-07-20","inicio":"2026-07-21","previsaoFim":"2026-08-29","notas":"Kickoff com Tasso. Coletar briefing e documentos; primeira versão de planejamento até 24/07.","marcos":[{"id":"sam-m1","titulo":"1ª versão do planejamento","data":"2026-07-24","feito":false}]},{"id":"modelo-freela-1","nome":"[modelo] Freela — marca de varejo","cliente":"Cliente a definir","tipo":"freela","status":"ativo","cadenciaEsperada":5,"ultimoToque":"2026-07-12","inicio":"2026-07-10","previsaoFim":"2026-08-20","notas":"Card-modelo. Substitua pelos dados reais desta frente.","marcos":[{"id":"fr1-m1","titulo":"Definir próximo marco","data":"2026-07-30","feito":false}]},{"id":"modelo-freela-2","nome":"[modelo] Projeto pessoal","cliente":"—","tipo":"pessoal","status":"ativo","cadenciaEsperada":7,"ultimoToque":"2026-07-14","inicio":"2026-07-14","previsaoFim":"2026-09-05","notas":"Card-modelo. Use para uma frente de menor cadência (semanal).","marcos":[{"id":"fr2-m1","titulo":"Definir próximo marco","data":"2026-08-05","feito":false}]}],"rotina":{"habitos":[{"id":"musculacao","nome":"Musculação","meta":{"tipo":"semanal","alvo":4}},{"id":"basquete","nome":"Basquete","meta":{"tipo":"semanal","alvo":1}},{"id":"usp","nome":"Ciências Sociais","meta":{"tipo":"semanal","alvo":3}},{"id":"holandes","nome":"Holandês","meta":{"tipo":"semanal","alvo":2}}],"registros":{"2026-06-02":["musculacao","usp"],"2026-06-03":["holandes"],"2026-06-04":["musculacao","usp"],"2026-06-06":["basquete","musculacao"],"2026-06-09":["musculacao","holandes"],"2026-06-11":["usp","musculacao"],"2026-06-13":["basquete"],"2026-06-16":["musculacao","usp","holandes"],"2026-06-18":["musculacao","usp"],"2026-06-20":["basquete","musculacao"],"2026-06-23":["musculacao","holandes"],"2026-06-25":["usp","musculacao"],"2026-06-30":["musculacao","usp"],"2026-07-02":["musculacao","holandes"],"2026-07-04":["basquete","musculacao"],"2026-07-07":["musculacao","usp"],"2026-07-09":["usp","holandes"],"2026-07-11":["basquete","musculacao"],"2026-07-13":["musculacao","usp"],"2026-07-14":["musculacao","holandes"],"2026-07-15":["usp","basquete"],"2026-07-16":["musculacao","usp"],"2026-07-17":["holandes"]}},"carreira":[{"id":"passaporte","categoria":"documentacao","titulo":"Passaporte válido (renovar se < 6 meses)","estado":"nao_iniciado","bloqueia":[],"nota":""},{"id":"autorizacao-eu","categoria":"documentacao","titulo":"Autorização de trabalho na UE","estado":"em_andamento","bloqueia":["aplicacoes"],"nota":"Verificar via de cidadania / visto de busca de emprego (zoekjaar)."},{"id":"apostilamento","categoria":"documentacao","titulo":"Apostilamento de certidões (nascimento etc.)","estado":"nao_iniciado","bloqueia":[],"nota":""},{"id":"reconhecimento-diploma","categoria":"documentacao","titulo":"Reconhecimento do diploma","estado":"nao_iniciado","bloqueia":[],"nota":""},{"id":"bsn-registro","categoria":"documentacao","titulo":"BSN / registro na prefeitura (gemeente)","estado":"nao_iniciado","bloqueia":[],"nota":"Só após ter endereço fixo em Amsterdam."},{"id":"cv-portfolio","categoria":"carreira","titulo":"CV e portfólio em inglês","estado":"nao_iniciado","bloqueia":["aplicacoes"],"nota":""},{"id":"aplicacoes","categoria":"carreira","titulo":"Aplicações para vagas","estado":"nao_iniciado","bloqueia":["entrevistas"],"nota":""},{"id":"entrevistas","categoria":"carreira","titulo":"Rodada de entrevistas","estado":"nao_iniciado","bloqueia":["contrato-caucao","passagem"],"nota":""},{"id":"networking","categoria":"carreira","titulo":"Networking / LinkedIn ativo","estado":"nao_iniciado","bloqueia":[],"nota":""},{"id":"pesquisa-moradia","categoria":"moradia","titulo":"Pesquisa de moradia","estado":"nao_iniciado","bloqueia":["contrato-caucao"],"nota":""},{"id":"contrato-caucao","categoria":"moradia","titulo":"Contrato de aluguel + caução","estado":"nao_iniciado","bloqueia":["bsn-registro"],"nota":""},{"id":"mobilia","categoria":"moradia","titulo":"Mobília inicial","estado":"nao_iniciado","bloqueia":[],"nota":""},{"id":"envio-pertences","categoria":"moradia","titulo":"Envio de pertences / o que trazer","estado":"nao_iniciado","bloqueia":[],"nota":""},{"id":"passagem","categoria":"moradia","titulo":"Passagem e data da mudança","estado":"nao_iniciado","bloqueia":[],"nota":""},{"id":"conta-internacional","categoria":"financeiro","titulo":"Conta bancária internacional (Wise/N26)","estado":"nao_iniciado","bloqueia":[],"nota":""},{"id":"cambio-reserva","categoria":"financeiro","titulo":"Câmbio + reserva de emergência","estado":"nao_iniciado","bloqueia":[],"nota":""},{"id":"seguro-saude","categoria":"financeiro","titulo":"Seguro saúde","estado":"nao_iniciado","bloqueia":[],"nota":""},{"id":"impostos","categoria":"financeiro","titulo":"Situação fiscal no Brasil (saída definitiva)","estado":"nao_iniciado","bloqueia":[],"nota":""}],"agenda":[],"log":[{"data":"2026-07-15","projeto":"banco-atlantico","texto":"Fechei a lista dos 18 benchmarks internacionais e comecei o mapa de concorrentes locais."},{"data":"2026-07-16","projeto":"brand-hub-gamesmart","texto":"Rascunho do território de posicionamento para RMG antes do board."},{"data":"2026-07-17","projeto":"brand-hub-gamesmart","texto":"Review geral do projeto de marca com a Clarissa."}],"tarefas":[{"id":"tk-0","projeto":"brand-hub-gamesmart","titulo":"Review geral do projeto de marca com a Clarissa","descricao":"","data":"2026-07-17","dataFim":"","prioridade":"media","status":"feito","criadaEm":"2026-07-16"},{"id":"tk-1","projeto":"banco-atlantico","titulo":"Finalizar deck de benchmarks","descricao":"Consolidar 18 internacionais + concorrentes locais em slides.","data":"2026-07-22","dataFim":"2026-07-24","prioridade":"alta","status":"fazendo","criadaEm":"2026-07-15"},{"id":"tk-2","projeto":"brand-hub-gamesmart","titulo":"Rascunhar território de posicionamento RMG","descricao":"Base para o board de 28/07.","data":"2026-07-21","dataFim":"2026-07-22","prioridade":"alta","status":"a_fazer","criadaEm":"2026-07-16"},{"id":"tk-3","projeto":"brand-hub-gamesmart","titulo":"Montar deck do board","descricao":"","data":"2026-07-27","dataFim":"","prioridade":"alta","status":"a_fazer","criadaEm":"2026-07-16"},{"id":"tk-4","projeto":"banco-atlantico","titulo":"Preparar aprendizados dos benchmarks","descricao":"","data":"2026-07-29","dataFim":"","prioridade":"media","status":"a_fazer","criadaEm":"2026-07-16"},{"id":"tk-drbingo-slides","projeto":"brand-hub-gamesmart","titulo":"Montar 2 slides do board (Dr. Bingo) e enviar ao GG","descricao":"Dois slides da apresentação do board, enviar ao Gabriel (GG).","data":"2026-07-21","dataFim":"","prioridade":"alta","status":"a_fazer","criadaEm":"2026-07-20"},{"id":"tk-ba-revisar","projeto":"banco-atlantico","titulo":"Revisar e ajustar a apresentação","descricao":"Terminar a revisão e os ajustes até quarta (22/07).","data":"2026-07-21","dataFim":"2026-07-22","prioridade":"alta","status":"a_fazer","criadaEm":"2026-07-20"},{"id":"tk-samarco-kickoff","projeto":"samarco-inpress","titulo":"Kickoff do projeto com o Tasso","descricao":"","data":"2026-07-21","dataFim":"","prioridade":"alta","status":"a_fazer","criadaEm":"2026-07-20"},{"id":"tk-samarco-docs","projeto":"samarco-inpress","titulo":"Pedir os documentos do projeto (briefing etc.)","descricao":"","data":"2026-07-21","dataFim":"","prioridade":"media","status":"a_fazer","criadaEm":"2026-07-20"},{"id":"tk-samarco-plan","projeto":"samarco-inpress","titulo":"Subir a 1ª versão do planejamento","descricao":"Entregar até sexta (24/07).","data":"2026-07-22","dataFim":"2026-07-24","prioridade":"alta","status":"a_fazer","criadaEm":"2026-07-20"}],"gastos":[{"id":"gt-1","item":"Passagem aérea (só ida)","categoria":"Viagem","estimadoBRL":6000,"estimadoEUR":1000,"pagoBRL":0,"pagoEUR":0,"nota":"[estimativa]"},{"id":"gt-2","item":"Reconhecimento de diploma (IDW)","categoria":"Legal","estimadoBRL":1500,"estimadoEUR":250,"pagoBRL":0,"pagoEUR":0,"nota":"[estimativa]"},{"id":"gt-3","item":"Seguro saúde inicial","categoria":"Legal","estimadoBRL":900,"estimadoEUR":150,"pagoBRL":0,"pagoEUR":0,"nota":"[estimativa]"},{"id":"gt-4","item":"Caução + 1º aluguel","categoria":"Moradia","estimadoBRL":21000,"estimadoEUR":3500,"pagoBRL":0,"pagoEUR":0,"nota":"[estimativa]"},{"id":"gt-5","item":"Mobília inicial","categoria":"Moradia","estimadoBRL":6000,"estimadoEUR":1000,"pagoBRL":0,"pagoEUR":0,"nota":"[estimativa]"},{"id":"gt-6","item":"Reserva de emergência (3 meses)","categoria":"Reserva","estimadoBRL":30000,"estimadoEUR":5000,"pagoBRL":0,"pagoEUR":0,"nota":"[estimativa]"},{"id":"gt-7","item":"Curso de holandês","categoria":"Educação","estimadoBRL":1800,"estimadoEUR":300,"pagoBRL":600,"pagoEUR":100,"nota":"[estimativa] — já paguei a 1ª parcela"}],"leitura":{"titulo":"Kitchen Confidential","autor":"Anthony Bourdain","subtitulo":"Adventures in the Culinary Underbelly","capa":"","totalPaginas":385,"paginaAtual":0,"registros":{}},"geradoEm":"2026-07-24T17:57:58.589Z"};</script>
 <script>
 (function(){
   'use strict';
@@ -450,8 +497,28 @@ select{cursor:pointer}
     var ms=(p.marcos||[]).filter(function(m){return !m.feito;}).sort(function(a,b){return a.data<b.data?-1:1;});
     return ms[0]||null;
   }
-  function tempOf(p){ var dias=Math.max(0, daysBetween(p.ultimoToque, TODAY)); var cad=p.cadenciaEsperada||1; var ratio=dias/cad;
+  function tempOf(p){ var lt=p.ultimoToque||p.inicio||TODAY; var dias=Math.max(0, daysBetween(lt, TODAY)); var cad=p.cadenciaEsperada||1; var ratio=dias/cad;
     return { dias:dias, ratio:ratio, state: ratio>2?'quente':(ratio>1?'ambar':'neutro') }; }
+  // frentes fora da cadência (âmbar/quente), mais urgentes primeiro
+  function coolingFrentes(){ return mergedProjetos().map(function(p){ return {p:p, t:tempOf(p)}; })
+    .filter(function(x){ return x.t.state!=='neutro'; })
+    .sort(function(a,b){ return b.t.ratio-a.t.ratio; }); }
+  function tocadoHoje(pid){ return mergedLog().some(function(l){ return l.projeto===pid && l.data===TODAY; }); }
+  // casa um compromisso da agenda a uma frente (nome/cliente), pra sugerir toque
+  function matchFrente(titulo){ var tl=(titulo||'').toLowerCase(); if(!tl) return null; var best=null;
+    mergedProjetos().forEach(function(p){ if(best) return;
+      [p.nome, p.cliente].forEach(function(nm){ if(best||!nm) return; var n=nm.toLowerCase();
+        if(n.length>=3 && tl.indexOf(n)>=0){ best=p; return; }
+        n.split(/[^a-z0-9]+/).forEach(function(w){ if(!best && w.length>=4 && tl.indexOf(w)>=0) best=p; });
+      }); });
+    return best; }
+  // ritmo de leitura: média de páginas nos dias em que leu (janela recente)
+  function readingPace(L){ var regs=(L&&L.registros)||{}; var keys=Object.keys(regs).filter(function(k){return regs[k]>0;}).sort();
+    if(!keys.length) return 0; var cut=ymd(addDays(new Date(),-13)); var recent=keys.filter(function(k){return k>=cut;});
+    if(recent.length<1) recent=keys.slice(-5); var sum=0; recent.forEach(function(k){ sum+=regs[k]; }); return sum/recent.length; }
+  // câmbio €→R$ (preferência local, como o tema — não é fonte da verdade)
+  function getCambio(){ try{ var v=parseFloat(localStorage.getItem('atencao_cambio')); return (v>0)?v:5.8; }catch(e){ return 5.8; } }
+  function setCambio(v){ try{ localStorage.setItem('atencao_cambio', String(v)); }catch(e){} }
 
   // ---- toast / patch ----
   var toastEl, toastTimer, patchBtn;
@@ -491,16 +558,26 @@ select{cursor:pointer}
       el('div',{class:'big',html:'<b>'+DIAS[d.getDay()]+'</b>, '+d.getDate()+' de '+MESES[d.getMonth()]}) ]) ]));
     var grid=el('div',{class:'hoje-grid'});
     var col=el('div',{});
+    // atenção esfriando (a segunda metade da pergunta do painel)
+    var cool=coolStrip(); if(cool) col.appendChild(cool);
     // prioridades
-    col.appendChild(el('div',{class:'block-title',text:'Prioridades'}));
+    col.appendChild(el('div',{class:'block-title'+(cool?' spaced':''),text:'Prioridades'}));
     if(!BUF.prioridades) BUF.prioridades=[{texto:'',feito:false},{texto:'',feito:false},{texto:'',feito:false}];
     var listNode=el('div',{});
     BUF.prioridades.forEach(function(p,i){ listNode.appendChild(prioRow(p,i)); });
     col.appendChild(listNode);
+    // tarefas atrasadas (dívida invisível não pode sumir)
+    var atrasadas=mergedTarefas().filter(function(t){ return t.data && t.data<TODAY && t.status!=='feito'; }).sort(function(a,b){ return a.data<b.data?-1:1; });
+    if(atrasadas.length){
+      col.appendChild(el('div',{class:'block-title spaced',text:'Atrasadas · '+atrasadas.length}));
+      var an=el('div',{});
+      atrasadas.forEach(function(t){ an.appendChild(overdueRow(t)); });
+      col.appendChild(an);
+    }
     // tarefas de hoje
     var hojeTasks=mergedTarefas().filter(function(t){return t.data===TODAY;}).sort(function(a,b){return PRANK[a.prioridade]-PRANK[b.prioridade];});
     if(hojeTasks.length){
-      col.appendChild(el('div',{class:'block-title',style:'margin-top:28px',text:'Tarefas de hoje'}));
+      col.appendChild(el('div',{class:'block-title spaced',text:'Tarefas de hoje'}));
       var tn=el('div',{});
       hojeTasks.forEach(function(t){ tn.appendChild(todayTaskRow(t)); });
       col.appendChild(tn);
@@ -511,10 +588,40 @@ select{cursor:pointer}
     ag.appendChild(calStatusNode());
     var hoje=agendaEvents().filter(function(e){ return String(e.inicio).slice(0,10)===TODAY; }).sort(function(a,b){return a.inicio<b.inicio?-1:1;});
     if(!hoje.length) ag.appendChild(el('div',{class:'agenda-empty',text:'Sem compromissos hoje.'}));
-    hoje.forEach(function(e){ ag.appendChild(el('div',{class:'agenda-item'},[
-      el('div',{class:'hora',text: e.diaInteiro?'dia inteiro':(hhmm(e.inicio)+' – '+hhmm(e.fim))}), el('div',{class:'tit',text:e.titulo}) ])); });
+    hoje.forEach(function(e){
+      var item=el('div',{class:'agenda-item'},[
+        el('div',{class:'hora',text: e.diaInteiro?'dia inteiro':(hhmm(e.inicio)+' – '+hhmm(e.fim))}), el('div',{class:'tit',text:e.titulo}) ]);
+      var mp=matchFrente(e.titulo);
+      if(mp){ item.appendChild(tocadoHoje(mp.id)
+        ? el('div',{class:'ag-toque done',text:mp.nome+' · tocada hoje ✓'})
+        : el('button',{class:'ag-toque',text:'↳ registrar toque em '+mp.nome,onclick:function(){ quickToque(mp, e.titulo); }})); }
+      ag.appendChild(item);
+    });
     grid.appendChild(ag);
     root.appendChild(grid);
+  }
+  function coolStrip(){
+    var cool=coolingFrentes(); if(!cool.length) return null;
+    var wrap=el('div',{class:'cool'});
+    wrap.appendChild(el('div',{class:'block-title',text:'Atenção esfriando'}));
+    cool.forEach(function(x){ var p=x.p, t=x.t, touched=tocadoHoje(p.id), pm=proximoMarco(p);
+      wrap.appendChild(el('div',{class:'cool-row '+t.state},[
+        el('span',{class:'tdot'}),
+        el('div',{class:'ci'},[ el('div',{class:'cn',text:p.nome}),
+          el('div',{class:'cm',text:'há '+t.dias+(t.dias===1?' dia':' dias')+' · cadência '+(p.cadenciaEsperada||1)+'d'+(pm?(' · marco '+fmtData(pm.data)):'')}) ]),
+        touched ? el('span',{class:'ctag',text:'tocada hoje ✓'})
+                : el('button',{class:'iconbtn',text:'Tocar',onclick:function(){ registrarToque(p); }})
+      ]));
+    });
+    return wrap;
+  }
+  function overdueRow(t){
+    var chk=el('button',{class:'check',text:'✓',title:'Concluir',onclick:function(){ patchItem('tarefas',t.id,{status:'feito'}); renderCurrent(); }});
+    var atraso=daysBetween(t.data,TODAY);
+    return el('div',{class:'overdue-task'},[ chk, el('span',{class:'pdot '+t.prioridade}),
+      el('div',{class:'tt',text:t.titulo}),
+      el('span',{class:'od',text: atraso+(atraso===1?'d':'d')+' atrás'}),
+      el('button',{class:'iconbtn',text:'Hoje',title:'Mover para hoje',onclick:function(){ patchItem('tarefas',t.id,{data:TODAY}); renderCurrent(); toast('Movida para hoje.'); }}) ]);
   }
   function prioRow(p,i){
     var txt=el('div',{class:'txt'+(p.texto?'':' empty')+(p.feito?' done':''),contenteditable:'true',text:p.texto||'Escreva uma prioridade…'});
@@ -746,9 +853,10 @@ select{cursor:pointer}
     if(!logs.length){ node.appendChild(el('div',{class:'empty',text:'Nenhum toque registrado ainda.'})); }
     logs.forEach(function(l){ node.appendChild(el('div',{class:'lg'},[ el('span',{class:'d',text:fmtData(l.data)}), el('span',{text:l.texto}) ])); });
   }
-  function registrarToque(p){ var texto=prompt('O que voce tocou em "'+p.nome+'" hoje?'); if(texto==null) return; texto=texto.trim()||'Toque registrado.';
+  function quickToque(p, texto){ texto=(texto||'').trim()||'Toque registrado.';
     var entry={data:TODAY,projeto:p.id,texto:texto}; BUF.toques.push(entry); saveBuf(); renderCurrent();
     toast('Toque registrado em '+p.nome+'.', function(){ var i=BUF.toques.indexOf(entry); if(i>=0)BUF.toques.splice(i,1); saveBuf(); renderCurrent(); }); }
+  function registrarToque(p){ var texto=prompt('O que voce tocou em "'+p.nome+'" hoje?'); if(texto==null) return; quickToque(p, texto); }
   function delFrente(p){ removeItem('projetos',p.id); renderCurrent(); toast('Frente removida.', function(){ var r=BUF.projetos; var i=r.remove.indexOf(p.id); if(i>=0){r.remove.splice(i,1);saveBuf();} else { addItem('projetos',p);} renderCurrent(); }); }
 
   // =================== TIMELINE ===================
@@ -834,10 +942,12 @@ select{cursor:pointer}
       : el('div',{class:'book-cover'},[ el('div',{class:'book-ph'},[ el('div',{class:'bt',text:L.titulo}), L.autor?el('div',{class:'ba',text:L.autor}):null ]) ]);
     var inNum=el('input',{type:'number',min:'1',placeholder:'páginas'});
     function reg(){ var n=parseInt(inNum.value,10); if(!n||n<1){ toast('Quantas páginas?'); return; } logPaginas(n); }
+    var pace=readingPace(L); var projDias=(pace>0 && faltam>0)?Math.ceil(faltam/pace):0;
     var info=el('div',{class:'book-info'},[
       el('div',{class:'bttl',text:L.titulo}), L.autor?el('div',{class:'baut',text:L.autor+(L.subtitulo?(' · '+L.subtitulo):'')}):null,
       el('div',{class:'book-bar'},[ el('i',{style:'width:'+pctv+'%'}) ]),
       el('div',{class:'book-stats',text: total>0 ? ('página '+atual+' de '+total+' · '+pctv+'% · faltam '+faltam) : ('página '+atual) }),
+      projDias ? el('div',{class:'book-proj',text:'no ritmo de '+Math.round(pace)+' pág/dia de leitura, termina em ~'+projDias+(projDias===1?' dia':' dias')+' ('+fmtData(ymd(addDays(new Date(),projDias)))+')'}) : null,
       el('div',{class:'book-log'},[
         inNum,
         el('button',{class:'btn ghost',text:'Registrar',onclick:reg}),
@@ -1010,6 +1120,14 @@ select{cursor:pointer}
     var gs=mergedGastos();
     var estBRL=0,estEUR=0,pagBRL=0,pagEUR=0; gs.forEach(function(g){ estBRL+=+g.estimadoBRL||0; estEUR+=+g.estimadoEUR||0; pagBRL+=+g.pagoBRL||0; pagEUR+=+g.pagoEUR||0; });
     root.appendChild(el('div',{class:'gastos-tot'},[ totBlock('Reais',pagBRL,estBRL,'BRL'), totBlock('Euros',pagEUR,estEUR,'EUR') ]));
+    if(estEUR>0 || pagEUR>0){
+      var cambio=getCambio(); var pagTot=pagBRL+pagEUR*cambio, estTot=estBRL+estEUR*cambio;
+      var iCambio=el('input',{type:'number',step:'0.01',min:'0',value:cambio,class:'cambio-in'});
+      iCambio.addEventListener('change',function(){ var v=parseFloat(iCambio.value); if(v>0){ setCambio(v); renderCurrent(); } });
+      root.appendChild(el('div',{class:'cambio-line'},[
+        el('div',{class:'cx'},[ document.createTextNode('Câmbio €→R$'), iCambio ]),
+        el('div',{class:'gtot',html:'Total pago (convertido) <b>'+money(pagTot,'BRL')+'</b> <small>de '+money(estTot,'BRL')+'</small>'}) ]));
+    }
     var table=el('div',{class:'gtable'});
     table.appendChild(el('div',{class:'grow gh'},[ el('div',{text:'Item'}), el('div',{class:'gm',text:'Reais (pago/est.)'}), el('div',{class:'gm',text:'Euros (pago/est.)'}), el('div',{}) ]));
     gs.forEach(function(g){ table.appendChild(gastoRow(g,root)); });
@@ -1064,6 +1182,53 @@ select{cursor:pointer}
         el('button',{class:'btn primary',text:'Salvar',onclick:function(){ if(!iT.value.trim()){toast('Título?');return;}
           var obj={titulo:iT.value.trim(),categoria:iCat.value,estado:iE.value,nota:iN.value.trim()};
           if(it){ patchItem('carreira',it.id,obj); } else { obj.id=newId('car'); obj.bloqueia=[]; addItem('carreira',obj); } renderCurrent(); toast('Etapa salva.'); }}) ]) ]));
+  }
+
+  // =================== REVISÃO (a semana em um olhar) ===================
+  function renderRevisao(root){
+    clear(root);
+    root.appendChild(el('div',{class:'vhead'},[ el('div',{},[ el('h1',{text:'Revisão'}), el('div',{class:'big',html:'Os últimos <b>7 dias</b>'}) ]) ]));
+    var since=ymd(addDays(new Date(),-6));
+    // frentes tocadas nos últimos 7 dias
+    var logs=mergedLog().filter(function(l){ return l.data>=since; });
+    var byP={}, order=[]; logs.forEach(function(l){ if(!byP[l.projeto]){ byP[l.projeto]={n:0,last:'',texto:''}; order.push(l.projeto); }
+      var o=byP[l.projeto]; o.n++; if(l.data>=o.last){ o.last=l.data; o.texto=l.texto; } });
+    order.sort(function(a,b){ return byP[b].n-byP[a].n; });
+    root.appendChild(el('div',{class:'block-title',text:'Frentes tocadas · '+logs.length+(logs.length===1?' toque':' toques')}));
+    if(!order.length) root.appendChild(el('div',{class:'empty',text:'Nenhum toque nos últimos 7 dias.'}));
+    var rl=el('div',{class:'rev-list'});
+    order.forEach(function(pid){ var o=byP[pid];
+      rl.appendChild(el('div',{class:'rev-row'},[
+        el('div',{class:'rv-n',text:o.n}),
+        el('div',{class:'rv-b'},[ el('div',{class:'rv-name',text:projNome(pid)}),
+          el('div',{class:'rv-sub',text:'último: '+fmtData(o.last)+' · '+o.texto}) ]) ]));
+    });
+    root.appendChild(rl);
+    // esfriando (mesmo sistema de temperatura da Hoje)
+    var cool=coolingFrentes();
+    root.appendChild(el('div',{class:'block-title spaced',text:'Esfriando'}));
+    if(!cool.length) root.appendChild(el('div',{class:'empty',text:'Tudo dentro da cadência.'}));
+    else { var cs=el('div',{class:'cool'});
+      cool.forEach(function(x){ var p=x.p, t=x.t, pm=proximoMarco(p);
+        cs.appendChild(el('div',{class:'cool-row '+t.state},[ el('span',{class:'tdot'}),
+          el('div',{class:'ci'},[ el('div',{class:'cn',text:p.nome}),
+            el('div',{class:'cm',text:'há '+t.dias+(t.dias===1?' dia':' dias')+' · cadência '+(p.cadenciaEsperada||1)+'d'+(pm?(' · marco '+fmtData(pm.data)):'')}) ]),
+          el('button',{class:'iconbtn',text:'Tocar',onclick:function(){ registrarToque(p); }}) ]));
+      });
+      root.appendChild(cs);
+    }
+    // hábitos da semana (reaproveita o tracker da Rotina)
+    root.appendChild(el('div',{class:'block-title spaced',text:'Hábitos da semana'}));
+    renderSemanaTracker(root);
+    // tarefas desta semana
+    var mon=mondayOf(new Date()), sun=addDays(mon,6); var ms=ymd(mon), ss=ymd(sun);
+    var wt=mergedTarefas().filter(function(t){ return t.data && t.data>=ms && t.data<=ss; });
+    if(wt.length){ var wf=wt.filter(function(t){return t.status==='feito';}).length; var pctw=Math.round(wf/wt.length*100);
+      root.appendChild(el('div',{class:'block-title spaced',text:'Tarefas desta semana'}));
+      root.appendChild(el('div',{class:'wtrack'},[ el('div',{class:'wtrow'+(wf===wt.length?' done':'')},[
+        el('div',{class:'wn',text:'Concluídas'}), el('div',{class:'wb'},[ el('i',{style:'width:'+pctw+'%'}) ]),
+        el('div',{class:'wv'},[ el('b',{text:wf}), document.createTextNode('/'+wt.length), document.createTextNode(' · '+pctw+'%') ]) ]) ]));
+    }
   }
 
   // =================== LOG ===================
@@ -1147,6 +1312,7 @@ select{cursor:pointer}
   // =================== NAV / BOOT ===================
   var VIEWS=[
     {id:'hoje',nome:'Hoje',render:renderHoje},
+    {id:'revisao',nome:'Revisão',render:renderRevisao},
     {id:'tarefas',nome:'Tarefas',render:renderTarefas},
     {id:'frentes',nome:'Frentes',render:renderFrentes},
     {id:'timeline',nome:'Timeline',render:renderTimeline},
@@ -1170,7 +1336,25 @@ select{cursor:pointer}
     app.appendChild(nav); app.appendChild(main); document.body.appendChild(app);
     toastEl=el('div',{id:'toast'}); document.body.appendChild(toastEl);
     patchBtn=el('button',{id:'patchbtn',onclick:copyPatch},[ el('span',{class:'bd'}), el('span',{text:'Copiar patch'}) ]); document.body.appendChild(patchBtn);
+    document.body.appendChild(el('button',{id:'qtoque',title:'Registrar toque em uma frente',onclick:toggleQuickToque},[ el('span',{class:'plus',text:'+'}), el('span',{text:'Toque'}) ]));
     refreshPatchBtn(); show('hoje'); initCalendar();
+  }
+  // ---- toque rápido (de qualquer view) ----
+  var qtPanel=null;
+  function closeQuickToque(){ if(qtPanel&&qtPanel.parentNode) qtPanel.parentNode.removeChild(qtPanel); qtPanel=null; }
+  function toggleQuickToque(){ if(qtPanel){ closeQuickToque(); return; }
+    var projs=mergedProjetos(); if(!projs.length){ toast('Nenhuma frente para tocar.'); return; }
+    var sel=selectEl(projs.map(function(p){return [p.id,p.nome];}), projs[0].id);
+    var txt=inp(''); txt.setAttribute('placeholder','O que você tocou?');
+    function go(){ var p=mergedProjetos().filter(function(x){return x.id===sel.value;})[0]; if(p) quickToque(p, txt.value); closeQuickToque(); }
+    txt.addEventListener('keydown',function(ev){ if(ev.key==='Enter') go(); if(ev.key==='Escape') closeQuickToque(); });
+    qtPanel=el('div',{id:'qtpanel'},[
+      el('div',{class:'label',text:'Registrar toque'}),
+      el('div',{class:'qtrow'},[sel]), el('div',{class:'qtrow'},[txt]),
+      el('div',{class:'qtbar'},[ el('button',{class:'btn ghost',text:'Fechar',onclick:closeQuickToque}),
+        el('button',{class:'btn primary',text:'Registrar',onclick:go}) ])
+    ]);
+    document.body.appendChild(qtPanel); setTimeout(function(){ txt.focus(); },30);
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot); else boot();
 })();

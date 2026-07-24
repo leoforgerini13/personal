@@ -48,17 +48,18 @@ O runtime detecta `window.claude.mcp`: se existir (Artifact), puxa ao vivo; sen�
 
 Ao republicar o Artifact (mesma URL), rode `node build.js` e reenvie `artifact.html` com o mesmo `file_path` nesta conversa, mantendo `capabilities` e `favicon` estáveis.
 
-## Módulos (7 itens de navegação, um nível só)
+## Módulos (8 itens de navegação, um nível só)
 
-1. **Hoje** — data por extenso, 3 prioridades manuais, tarefas de hoje, compromissos do dia.
-2. **Tarefas** — segmentada em **Semana** (tarefas por dia), **Gantt** (barras da semana por projeto) e **Board** (colunas A fazer / Fazendo / Feito, com **arrastar** entre colunas). A segmentação é filtro dentro da view, **não** sub-abas na navegação.
-3. **Frentes** — cartões de projetos **ativos** (nome, cliente, período, próximo marco). Sem indicador de "dias sem toque". Ordenados por próximo marco.
-4. **Timeline** — visão **macro**: barra início → previsão de fim por projeto, marcos como diamantes + gestor de marcos editável.
-5. **Rotina** — **widget de leitura** no topo (capa, progresso, logger de páginas/dia) + **Progresso da semana** (barra por hábito: cumprido vs. meta semanal, quantas metas batidas) + **calendário mensal** navegável de hábitos (cada dia marca os hábitos por inicial, clicável; legenda com contagem do mês + meta semanal). Hábitos editáveis (adicionar/editar meta/excluir).
-6. **Amsterdam** — checklist **por clusters** (Documentação & Legal, Trabalho & Carreira, Moradia & Mudança, Financeiro & Seguros), com dependências, + **gastos da mudança** (R$ e €).
-7. **Log** — timeline reversa, agrupada por semana, filtrável por frente.
+1. **Hoje** — data por extenso; **Atenção esfriando** no topo (tira com as frentes fora da cadência — sistema de temperatura — ordenadas por urgência, cada uma com "há X dias / cadência" e botão **Tocar**); 3 prioridades manuais; **Atrasadas** (tarefas com data no passado e não-feitas, com botão "Hoje" para remarcar); tarefas de hoje; compromissos do dia. Cada compromisso que **casa com uma frente** (nome/cliente) ganha um atalho **"↳ registrar toque"** — a reunião conta como atenção.
+2. **Revisão** — a semana em um olhar (`/semana` como view): frentes tocadas nos últimos 7 dias (contagem + último toque), **Esfriando** (temperatura), **Progresso da semana** de hábitos (reaproveita o tracker da Rotina) e conclusão das tarefas da semana.
+3. **Tarefas** — segmentada em **Semana** (tarefas por dia, com **arrastar entre dias**), **Gantt** (barras da semana por projeto) e **Board** (colunas A fazer / Fazendo / Feito, com **arrastar** entre colunas). A segmentação é filtro dentro da view, **não** sub-abas na navegação.
+4. **Frentes** — cartões de projetos **ativos** (nome, cliente, período, próximo marco). Sem indicador de "dias sem toque". Ordenados por próximo marco.
+5. **Timeline** — visão **macro**: barra início → previsão de fim por projeto, marcos como diamantes + gestor de marcos editável.
+6. **Rotina** — **widget de leitura** no topo (capa, progresso, logger de páginas/dia, **projeção de término** no ritmo recente) + **Progresso da semana** (barra por hábito: cumprido vs. meta semanal, quantas metas batidas) + **calendário mensal** navegável de hábitos (cada dia marca os hábitos por inicial, clicável; legenda com contagem do mês + meta semanal). Hábitos editáveis (adicionar/editar meta/excluir).
+7. **Amsterdam** — checklist **por clusters** (Documentação & Legal, Trabalho & Carreira, Moradia & Mudança, Financeiro & Seguros), com dependências, + **gastos da mudança** (R$ e €, com câmbio €→R$ editável e **total convertido**).
+8. **Log** — timeline reversa, agrupada por semana, filtrável por frente.
 
-Tudo é editável/adicionável no próprio dashboard (botão "+ …" em cada view, editar/excluir por item), gravando no buffer → "Copiar patch" → `/sync`.
+Tudo é editável/adicionável no próprio dashboard (botão "+ …" em cada view, editar/excluir por item), gravando no buffer → "Copiar patch" → `/sync`. Um botão flutuante **"+ Toque"** (canto inferior direito) registra um toque em qualquer frente de qualquer view. O câmbio €→R$ é preferência local (`localStorage`, como o tema) — **não** é fonte da verdade.
 
 ## Regras duras (não desviar)
 
@@ -88,7 +89,8 @@ Tudo é editável/adicionável no próprio dashboard (botão "+ …" em cada vie
   - Timeline → o marco próximo (próximo marco não-feito com data ≥ hoje).
   - Rotina → a célula de hoje quando cumprida.
   - Amsterdam → o próximo item desbloqueado e não-feito (as barras de gasto ficam em cinza).
-  - Hoje / Frentes / Timeline (gestor) / Log → sem acento.
+  - Hoje / Revisão → o **sistema de temperatura das frentes** na tira "Atenção esfriando"/"Esfriando": *dot* âmbar (`--ambar`) para 1× acima da cadência, *dot* do acento (`--accent`) para 2× acima. É o alerta central do painel — aponta o que está dormente, não decora. O resto da view (atrasadas, prioridades, agenda) fica em cinza.
+  - Frentes / Timeline (gestor) / Log → sem acento.
   - Exceção deliberada (pedido do usuário): em **Tarefas**, a prioridade `alta` recebe um pequeno *dot* do acento — é sinal de leitura, mantido discreto (só o ponto, nunca a linha inteira).
 - Hierarquia por **contraste de escala tipográfica**, não por bordas/sombras/caixas aninhadas.
   Número grande em peso alto; label minúsculo em caixa alta com tracking aberto.
