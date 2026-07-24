@@ -50,7 +50,7 @@ Ao republicar o Artifact (mesma URL), rode `node build.js` e reenvie `artifact.h
 
 ## Módulos (8 itens de navegação, um nível só)
 
-1. **Hoje** — data por extenso; **Atenção esfriando** no topo (tira com as frentes fora da cadência — sistema de temperatura — ordenadas por urgência, cada uma com "há X dias / cadência" e botão **Tocar**); 3 prioridades manuais; **Atrasadas** (tarefas com data no passado e não-feitas, com botão "Hoje" para remarcar); tarefas de hoje; compromissos do dia. Cada compromisso que **casa com uma frente** (nome/cliente) ganha um atalho **"↳ registrar toque"** — a reunião conta como atenção.
+1. **Hoje** — data por extenso; **Atenção esfriando** no topo (tira com as frentes fora da cadência — sistema de temperatura — ordenadas por urgência, cada uma com "há X dias / cadência" e botão **Tocar**); 3 prioridades manuais; **Atrasadas** (tarefas com data no passado e não-feitas, com botão "Hoje" para remarcar); tarefas de hoje; compromissos do dia. Cada compromisso que **casa com uma frente** (nome/cliente) ganha um atalho **"↳ registrar toque"** — a reunião conta como atenção. **Alarme de reunião:** 5 min antes de cada compromisso com hora, um overlay em tela cheia toca um som insistente (Web Audio sintetizado, sem arquivo externo) e **só desliga no botão** ("Desligar alarme") — obriga a reconhecer a reunião. Barra de status na coluna da agenda ("Ativar som"/"Testar"); o navegador exige um clique para liberar áudio. **Só toca com a aba aberta e ativa** (iOS suspende JS/áudio em segundo plano — não substitui a notificação nativa do Calendar). Alarmes já desligados no dia ficam em `localStorage` (`atencao_alarms`, por evento, expira no dia).
 2. **Revisão** — a semana em um olhar (`/semana` como view): frentes tocadas nos últimos 7 dias (contagem + último toque), **Esfriando** (temperatura), **Progresso da semana** de hábitos (reaproveita o tracker da Rotina) e conclusão das tarefas da semana.
 3. **Tarefas** — segmentada em **Semana** (tarefas por dia, com **arrastar entre dias**), **Gantt** (barras da semana por projeto) e **Board** (colunas A fazer / Fazendo / Feito, com **arrastar** entre colunas). A segmentação é filtro dentro da view, **não** sub-abas na navegação.
 4. **Frentes** — cartões de projetos **ativos** (nome, cliente, período, próximo marco). Sem indicador de "dias sem toque". Ordenados por próximo marco.
@@ -79,6 +79,11 @@ Tudo é editável/adicionável no próprio dashboard (botão "+ …" em cada vie
    podem reconstruir só a section afetada via `createElement` (nunca via `innerHTML` de string).
 6. **Nada de `alert()` / `confirm()` para feedback.** Use o toast com "Desfazer".
    (`prompt()` é usado só para captar o texto de um toque — aceitável.)
+   Exceção deliberada: o **overlay do alarme de reunião** (`#alarm-overlay`) é um modal
+   bloqueante de tela cheia por design — ele *tem* que interceptar tudo até o clique em
+   "Desligar alarme". É a única UI que trava a página; não trocar por toast. Ele e a
+   barra de status vivem no nível do `document` (fora das views) e usam o acento como
+   alerta (anel + botão) — é um *takeover*, não faz parte do layout da view.
 
 ## Direção visual (manter)
 

@@ -188,6 +188,22 @@ button.ag-toque:hover{color:var(--hi);border-color:var(--mid)}
 #qtoque .plus{font-size:15px;line-height:1;color:var(--accent)}
 #qtpanel{position:fixed;right:26px;bottom:74px;width:min(288px,86vw);background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;z-index:42;display:flex;flex-direction:column;gap:10px;box-shadow:0 16px 48px rgba(0,0,0,.45)}
 #qtpanel .qtbar{display:flex;gap:10px;justify-content:flex-end;margin-top:4px}
+/* alarme de reunião — barra de status (Hoje) + overlay tocando */
+.alarmbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:14px 0 6px;padding:10px 12px;background:var(--surface);border:1px solid var(--border);border-radius:11px}
+.alarmbar .ab-l{display:flex;align-items:center;gap:9px;font-size:11.5px;color:var(--lo);min-width:0}
+.alarmbar .ab-dot{width:8px;height:8px;border-radius:50%;background:var(--lo);flex:none}
+.alarmbar .ab-dot.on{background:#4a9e6b}
+#alarm-overlay{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(10,8,6,.72);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
+.alarm-card{background:var(--surface);border:1px solid var(--border);border-radius:22px;padding:40px 34px;max-width:400px;width:100%;text-align:center;box-shadow:0 30px 90px rgba(0,0,0,.6)}
+.al-ring{width:64px;height:64px;border-radius:50%;margin:0 auto 22px;border:3px solid var(--accent);animation:alarmpulse 1s ease-in-out infinite}
+@keyframes alarmpulse{0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(255,106,61,.5)}50%{transform:scale(1.08);box-shadow:0 0 0 14px rgba(255,106,61,0)}}
+.al-k{font-size:12px;text-transform:uppercase;letter-spacing:.16em;color:var(--accent);font-weight:600}
+.al-t{font-size:24px;font-weight:200;letter-spacing:-.02em;color:var(--hi);margin-top:12px;line-height:1.2}
+.al-w{font-size:13px;color:var(--lo);margin-top:8px;font-variant-numeric:tabular-nums}
+.al-off{margin-top:26px;background:var(--accent);color:#fff;font-size:15px;font-weight:600;padding:14px 28px;border-radius:13px;width:100%}
+.al-off:hover{filter:brightness(1.07)}
+.al-toque{margin-top:12px;font-size:12px;color:var(--mid);border:1px solid var(--border);border-radius:10px;padding:9px 12px;width:100%}
+.al-toque:hover{color:var(--hi);border-color:var(--mid)}
 
 /* FRENTES */
 .frentes{display:flex;flex-direction:column;gap:14px}
@@ -624,6 +640,7 @@ const APP = `
     ag.appendChild(el('div',{class:'block-title',text:'Compromissos de hoje'}));
     ag.appendChild(calStatusNode());
     var hoje=agendaEvents().filter(function(e){ return String(e.inicio).slice(0,10)===TODAY; }).sort(function(a,b){return a.inicio<b.inicio?-1:1;});
+    if(hoje.some(function(e){ return !e.diaInteiro && e.inicio; })) ag.appendChild(alarmStatusNode());
     if(!hoje.length) ag.appendChild(el('div',{class:'agenda-empty',text:'Sem compromissos hoje.'}));
     hoje.forEach(function(e){
       var item=el('div',{class:'agenda-item'},[
@@ -1334,8 +1351,60 @@ const APP = `
         else if(ev.type==='error'){ var code=(ev.error&&ev.error.code)||'upstream_error'; calStatus={code:code};
           if(code==='needs_reauth'||code==='server_not_connected'||code==='not_granted'||code==='capability_disabled') { /* mantém snapshot */ } }
         if(CURRENT==='hoje') renderCurrent();
+        checkAlarms();
       }, { refetchInterval:300000 });
     }catch(e){ calStatus={code:'upstream_error'}; }
+  }
+
+  // =================== ALARME DE REUNIÃO (5 min antes) ===================
+  // Só toca com a aba aberta e ativa — iOS suspende JS/áudio em segundo plano.
+  // Só desliga no botão (manual). Som sintetizado via Web Audio (sem arquivo externo).
+  var ALARM_LEAD=5*60*1000, ALARM_GRACE=90*1000;
+  var alarmCtx=null, activeAlarm=null, alarmLoop=null, alarmDismissed={};
+  function loadDismissed(){ try{ var o=JSON.parse(localStorage.getItem('atencao_alarms')||'{}'); var out={};
+    for(var k in o){ if(o[k]===TODAY) out[k]=o[k]; } alarmDismissed=out; localStorage.setItem('atencao_alarms',JSON.stringify(out)); }catch(e){ alarmDismissed={}; } }
+  function saveDismissed(){ try{ localStorage.setItem('atencao_alarms',JSON.stringify(alarmDismissed)); }catch(e){} }
+  function ensureCtx(){ if(!alarmCtx){ try{ alarmCtx=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ alarmCtx=null; } } return alarmCtx; }
+  function soundReady(){ return !!(alarmCtx && alarmCtx.state==='running'); }
+  function unlockAudio(){ var c=ensureCtx(); if(!c) return; if(c.state==='suspended'){ c.resume().then(function(){ if(CURRENT==='hoje') renderCurrent(); },function(){}); } }
+  function beep(c,freq,t,dur){ var o=c.createOscillator(), g=c.createGain(); o.type='triangle'; o.frequency.value=freq;
+    g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(0.34,t+0.012); g.gain.setValueAtTime(0.34,t+dur-0.04); g.gain.linearRampToValueAtTime(0,t+dur);
+    o.connect(g); g.connect(c.destination); o.start(t); o.stop(t+dur+0.03); }
+  function alarmBurst(){ var c=ensureCtx(); if(!c) return; if(c.state==='suspended') c.resume(); var t=c.currentTime+0.03;
+    beep(c,988,t,0.16); beep(c,1319,t+0.20,0.16); beep(c,988,t+0.46,0.16); beep(c,1319,t+0.66,0.24); }
+  function testChirp(){ unlockAudio(); var c=ensureCtx(); if(!c) return; var t=c.currentTime+0.03; beep(c,988,t,0.14); beep(c,1319,t+0.18,0.18); }
+  function eventKey(e){ return String(e.inicio)+'|'+e.titulo; }
+  function checkAlarms(){ if(activeAlarm) return; var now=Date.now();
+    var evs=agendaEvents().filter(function(e){ return e && !e.diaInteiro && e.inicio; });
+    for(var i=0;i<evs.length;i++){ var e=evs[i]; var st=Date.parse(e.inicio); if(isNaN(st)) continue;
+      if(now>=st-ALARM_LEAD && now<st+ALARM_GRACE && !alarmDismissed[eventKey(e)]){ fireAlarm(e); return; } } }
+  function fireAlarm(e){ activeAlarm=e; unlockAudio(); alarmBurst(); if(alarmLoop) clearInterval(alarmLoop); alarmLoop=setInterval(alarmBurst,1500);
+    var ov=document.getElementById('alarm-overlay'); if(ov&&ov.parentNode) ov.parentNode.removeChild(ov); document.body.appendChild(buildAlarmOverlay(e)); }
+  function stopAlarm(dismiss){ if(alarmLoop){ clearInterval(alarmLoop); alarmLoop=null; }
+    var ov=document.getElementById('alarm-overlay'); if(ov&&ov.parentNode) ov.parentNode.removeChild(ov);
+    if(dismiss && activeAlarm){ alarmDismissed[eventKey(activeAlarm)]=TODAY; saveDismissed(); }
+    activeAlarm=null; if(CURRENT==='hoje') renderCurrent(); setTimeout(checkAlarms,500); }
+  function buildAlarmOverlay(e){ var mins=Math.max(0, Math.round((Date.parse(e.inicio)-Date.now())/60000)); var mp=matchFrente(e.titulo);
+    var card=el('div',{class:'alarm-card'},[
+      el('div',{class:'al-ring'}),
+      el('div',{class:'al-k',text: mins>0?('Reunião em '+mins+(mins===1?' minuto':' minutos')):'Reunião começando'}),
+      el('div',{class:'al-t',text:e.titulo}),
+      el('div',{class:'al-w',text:'começa '+hhmm(e.inicio)}),
+      el('button',{class:'al-off',text:'Desligar alarme',onclick:function(){ stopAlarm(true); }})
+    ]);
+    if(mp) card.appendChild(el('button',{class:'al-toque',text:'↳ registrar toque em '+mp.nome,onclick:function(){ quickToque(mp,e.titulo); }}));
+    return el('div',{id:'alarm-overlay'},[card]);
+  }
+  function alarmStatusNode(){ var on=soundReady();
+    return el('div',{class:'alarmbar'},[
+      el('div',{class:'ab-l'},[ el('span',{class:'ab-dot'+(on?' on':'')}),
+        document.createTextNode(on?'Alarme sonoro 5 min antes de cada reunião · ativo':'Alarme 5 min antes — ative o som (o navegador exige um clique)') ]),
+      el('button',{class:'iconbtn',text: on?'Testar':'Ativar som',onclick:function(){ testChirp(); if(CURRENT==='hoje') renderCurrent(); }})
+    ]);
+  }
+  function setupAlarms(){ loadDismissed();
+    ['pointerdown','keydown','touchstart'].forEach(function(ev){ document.addEventListener(ev, unlockAudio, {passive:true}); });
+    setInterval(checkAlarms, 20000); checkAlarms();
   }
 
   // =================== TEMA ===================
@@ -1374,7 +1443,7 @@ const APP = `
     toastEl=el('div',{id:'toast'}); document.body.appendChild(toastEl);
     patchBtn=el('button',{id:'patchbtn',onclick:copyPatch},[ el('span',{class:'bd'}), el('span',{text:'Copiar patch'}) ]); document.body.appendChild(patchBtn);
     document.body.appendChild(el('button',{id:'qtoque',title:'Registrar toque em uma frente',onclick:toggleQuickToque},[ el('span',{class:'plus',text:'+'}), el('span',{text:'Toque'}) ]));
-    refreshPatchBtn(); show('hoje'); initCalendar();
+    refreshPatchBtn(); show('hoje'); initCalendar(); setupAlarms();
   }
   // ---- toque rápido (de qualquer view) ----
   var qtPanel=null;
