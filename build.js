@@ -178,8 +178,10 @@ select{cursor:pointer}
 .day .dh .dn{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--lo);font-weight:600}
 .day .dh .dd{font-size:13px;color:var(--mid);font-variant-numeric:tabular-nums}
 .day.is-today .dh .dd{color:var(--accent)}
-.tsk{background:var(--surface-2);border-radius:10px;padding:9px 10px;display:flex;flex-direction:column;gap:5px;cursor:pointer}
+.tsk{background:var(--surface-2);border-radius:10px;padding:9px 10px;display:flex;flex-direction:column;gap:5px;cursor:grab}
 .tsk:hover{outline:1px solid var(--border)}
+.tsk.dragging{opacity:.4}
+.day.dragover{outline:2px dashed var(--accent);outline-offset:-2px}
 .tsk .l1{display:flex;align-items:center;gap:7px}
 .tsk .l1 .tx{font-size:13px;line-height:1.3}
 .tsk.done .tx{text-decoration:line-through;color:var(--lo)}
@@ -617,6 +619,12 @@ const APP = `
     for(var i=0;i<7;i++){ (function(dayDate){
       var ds=ymd(dayDate); var isToday=ds===TODAY;
       var box=el('div',{class:'day'+(isToday?' is-today':'')});
+      box.addEventListener('dragover',function(ev){ ev.preventDefault(); box.classList.add('dragover'); if(ev.dataTransfer)ev.dataTransfer.dropEffect='move'; });
+      box.addEventListener('dragleave',function(ev){ if(!box.contains(ev.relatedTarget)) box.classList.remove('dragover'); });
+      box.addEventListener('drop',function(ev){ ev.preventDefault(); box.classList.remove('dragover');
+        var id=dragTaskId||(ev.dataTransfer&&ev.dataTransfer.getData('text/plain'));
+        if(id){ var cur=mergedTarefas().filter(function(x){return x.id===id;})[0];
+          if(cur && cur.data!==ds){ var fields={data:ds}; if(cur.dataFim && cur.dataFim<ds) fields.dataFim=ds; patchItem('tarefas',id,fields); renderCurrent(); toast('Movida para '+fmtData(ds)+'.'); } } });
       box.appendChild(el('div',{class:'dh'},[ el('div',{class:'dn',text:DIAS_ABREV[dayDate.getDay()]}), el('div',{class:'dd',text:dayDate.getDate()}) ]));
       var dayTasks=all.filter(function(t){return t.data===ds;}).sort(function(a,b){return PRANK[a.prioridade]-PRANK[b.prioridade];});
       dayTasks.forEach(function(t){ box.appendChild(taskChip(t)); });
@@ -631,10 +639,13 @@ const APP = `
   }
   function taskChip(t){
     var done=t.status==='feito';
-    return el('div',{class:'tsk'+(done?' done':''),onclick:function(){ taskDetail(t); }},[
+    var chip=el('div',{class:'tsk'+(done?' done':''),draggable:'true',onclick:function(){ taskDetail(t); }},[
       el('div',{class:'l1'},[ el('span',{class:'pdot '+t.prioridade}), el('div',{class:'tx',text:t.titulo}) ]),
       el('div',{class:'l2'},[ el('span',{text:projNome(t.projeto)}), el('span',{text:statusLabel(t.status)}) ])
     ]);
+    chip.addEventListener('dragstart',function(ev){ dragTaskId=t.id; chip.classList.add('dragging'); if(ev.dataTransfer){ ev.dataTransfer.effectAllowed='move'; try{ev.dataTransfer.setData('text/plain',t.id);}catch(e){} } });
+    chip.addEventListener('dragend',function(){ dragTaskId=null; chip.classList.remove('dragging'); });
+    return chip;
   }
   // ---- GANTT semanal ----
   function renderGantt(body){
