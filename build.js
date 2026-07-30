@@ -28,6 +28,7 @@ function readData() {
     tarefas: readJSON('tarefas.json', []),
     gastos: readJSON('gastos.json', []),
     leitura: readJSON('leitura.json', { titulo: '', autor: '', subtitulo: '', capa: '', totalPaginas: 0, paginaAtual: 0, registros: {} }),
+    agua: readJSON('agua.json', { metaMl: 3000, copoMl: 250, garrafaMl: 500, lembretes: ['09:00','11:00','13:00','15:00','17:00','19:00','21:00'], registros: {} }),
     geradoEm: new Date().toISOString()
   };
 }
@@ -204,6 +205,25 @@ button.ag-toque:hover{color:var(--hi);border-color:var(--mid)}
 .al-off:hover{filter:brightness(1.07)}
 .al-toque{margin-top:12px;font-size:12px;color:var(--mid);border:1px solid var(--border);border-radius:10px;padding:9px 12px;width:100%}
 .al-toque:hover{color:var(--hi);border-color:var(--mid)}
+/* água — garrafinha na Home (cinza no dia a dia, acento ao bater a meta) */
+.agua{display:flex;gap:16px;align-items:center;padding:16px;background:var(--surface);border:1px solid var(--border);border-radius:16px;margin-bottom:22px}
+.agua .ag-bottle{flex:none;line-height:0}
+.agua .ag-b{min-width:0}
+.agua .ag-lbl{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--lo);font-weight:600;margin-bottom:5px}
+.agua .ag-n{font-size:25px;font-weight:200;letter-spacing:-.02em;color:var(--hi)}
+.agua .ag-n b{font-weight:600}
+.agua .ag-sub{font-size:11.5px;color:var(--lo);margin-top:3px}
+.agua.full .ag-sub{color:var(--accent);font-weight:600}
+.agua .ag-add{display:flex;gap:7px;margin-top:13px;flex-wrap:wrap}
+.agua .ag-add .addbtn{padding:6px 11px;font-size:11.5px}
+.agua .ag-add .iconbtn{padding:6px 11px}
+/* lembrete de água — pop-up não-bloqueante que desce do topo */
+#agua-reminder{position:fixed;top:0;left:50%;transform:translateX(-50%) translateY(-130%);background:var(--surface);border:1px solid var(--border);border-top:none;border-radius:0 0 16px 16px;padding:15px 20px;display:flex;align-items:center;gap:22px;z-index:60;box-shadow:0 16px 44px rgba(0,0,0,.45);transition:transform .28s ease;max-width:calc(100vw - 28px)}
+#agua-reminder.show{transform:translateX(-50%) translateY(0)}
+#agua-reminder .ar-t{font-size:14.5px;font-weight:600;color:var(--hi)}
+#agua-reminder .ar-s{font-size:11.5px;color:var(--lo);margin-top:2px}
+#agua-reminder .ar-a{display:flex;gap:8px;flex:none}
+#agua-reminder .ar-a .btn{font-size:12.5px;padding:7px 13px}
 
 /* FRENTES */
 .frentes{display:flex;flex-direction:column;gap:14px}
@@ -486,8 +506,9 @@ const APP = `
   function emptyColl(){ return {add:[],update:{},remove:[]}; }
   function emptyBuf(){ return { registros:{}, toques:[], prioridades:null,
     projetos:emptyColl(), tarefas:emptyColl(), gastos:emptyColl(), carreira:emptyColl(), habitos:emptyColl(),
-    leitura:{set:{},registros:{}} }; }
+    leitura:{set:{},registros:{}}, agua:{set:{},registros:{}} }; }
   function leituraEmpty(){ return !BUF.leitura || (Object.keys(BUF.leitura.set||{}).length===0 && Object.keys(BUF.leitura.registros||{}).length===0); }
+  function aguaEmpty(){ return !BUF.agua || (Object.keys(BUF.agua.set||{}).length===0 && Object.keys(BUF.agua.registros||{}).length===0); }
   function loadBuf(){ try{ var b=JSON.parse(localStorage.getItem(LS_KEY)); if(!b||typeof b!=='object') return emptyBuf();
       var e=emptyBuf(); for(var k in e){ if(b[k]!=null) e[k]=b[k]; } return e; }catch(err){ return emptyBuf(); } }
   var BUF = loadBuf();
@@ -495,7 +516,7 @@ const APP = `
   function collEmpty(c){ return !c || (c.add.length===0 && Object.keys(c.update).length===0 && c.remove.length===0); }
   function bufEmpty(){
     return Object.keys(BUF.registros).length===0 && BUF.toques.length===0 &&
-      collEmpty(BUF.projetos)&&collEmpty(BUF.tarefas)&&collEmpty(BUF.gastos)&&collEmpty(BUF.carreira)&&collEmpty(BUF.habitos) && leituraEmpty() &&
+      collEmpty(BUF.projetos)&&collEmpty(BUF.tarefas)&&collEmpty(BUF.gastos)&&collEmpty(BUF.carreira)&&collEmpty(BUF.habitos) && leituraEmpty() && aguaEmpty() &&
       (!BUF.prioridades || BUF.prioridades.every(function(p){return !p.texto && !p.feito;}));
   }
   function newId(pfx){ return (pfx||'new')+'-'+Date.now()+'-'+Math.floor(Math.random()*1000); }
@@ -543,6 +564,9 @@ const APP = `
     var o={}; for(var k in base)o[k]=base[k]; var s=(BUF.leitura&&BUF.leitura.set)||{}; for(var k2 in s)o[k2]=s[k2];
     o.registros=Object.assign({}, base.registros||{}, (BUF.leitura&&BUF.leitura.registros)||{}); return o; }
   function setLeitura(fields){ for(var k in fields)BUF.leitura.set[k]=fields[k]; saveBuf(); }
+  function mergedAgua(){ var base=D.agua||{metaMl:3000,copoMl:250,garrafaMl:500,lembretes:[],registros:{}};
+    var o={}; for(var k in base)o[k]=base[k]; var s=(BUF.agua&&BUF.agua.set)||{}; for(var k2 in s)o[k2]=s[k2];
+    o.registros=Object.assign({}, base.registros||{}, (BUF.agua&&BUF.agua.registros)||{}); return o; }
   function mergedLog(){ return D.log.concat(BUF.toques); }
   function getReg(date){ if(BUF.registros[date]) return BUF.registros[date].slice(); return (D.rotina.registros[date]||[]).slice(); }
   function projNome(id){ var p=mergedProjetos().filter(function(x){return x.id===id;})[0]; return p?p.nome:(id||'—'); }
@@ -586,6 +610,7 @@ const APP = `
     if(BUF.toques.length) out.toques=BUF.toques;
     ['projetos','tarefas','gastos','carreira','habitos'].forEach(function(c){ if(!collEmpty(BUF[c])) out[c]=BUF[c]; });
     if(!leituraEmpty()){ out.leitura={}; if(Object.keys(BUF.leitura.set).length)out.leitura.set=BUF.leitura.set; if(Object.keys(BUF.leitura.registros).length)out.leitura.registros=BUF.leitura.registros; }
+    if(!aguaEmpty()){ out.agua={}; if(Object.keys(BUF.agua.set).length)out.agua.set=BUF.agua.set; if(Object.keys(BUF.agua.registros).length)out.agua.registros=BUF.agua.registros; }
     if(BUF.prioridades && BUF.prioridades.some(function(p){return p.texto;})) out.prioridades=BUF.prioridades;
     var txt=JSON.stringify(out,null,2);
     function ok(){ toast('Patch copiado. Cole no Claude Code com /sync.'); }
@@ -602,6 +627,43 @@ const APP = `
 
   // ---- money ----
   function money(n,cur){ n=Math.round(n||0); var s=String(Math.abs(n)).replace(/\\B(?=(\\d{3})+(?!\\d))/g,'.'); return (n<0?'-':'')+(cur==='EUR'?'€ ':'R$ ')+s; }
+
+  // ---- água (widget da Home + log) ----
+  function fmtL(ml){ var n=(ml||0)/1000; var s=Math.round(n*10)/10; s=(s===Math.floor(s))?String(s):s.toFixed(1); return s.replace('.',','); }
+  var BOTTLE_PATH='M22 6 h16 v10 c0 5 6 8 6 16 v96 c0 8 -6 12 -14 12 h-16 c-8 0 -14 -4 -14 -12 v-96 c0 -8 6 -11 6 -16 v-10 z';
+  function aguaWidget(){
+    var A=mergedAgua(); var meta=+A.metaMl||3000; var hoje=(A.registros&&A.registros[TODAY])||0;
+    var pct=meta>0?Math.min(100,Math.round(hoje/meta*100)):0; var full=meta>0 && hoje>=meta;
+    var copo=+A.copoMl||250, garrafa=+A.garrafaMl||500;
+    var bodyTop=30, bottom=140, span=bottom-bodyTop; var wh=Math.round(pct/100*span); var fy=bottom-wh;
+    var fill= full?'var(--accent)':'var(--mid)';
+    var svg='<svg viewBox="0 0 60 150" width="66" height="150" aria-label="garrafa '+pct+' por cento">'
+      +'<defs><clipPath id="agclip"><path d="'+BOTTLE_PATH+'"/></clipPath></defs>'
+      +'<g clip-path="url(#agclip)"><rect x="0" y="'+fy+'" width="60" height="'+(wh+2)+'" fill="'+fill+'"/></g>'
+      +'<path d="'+BOTTLE_PATH+'" fill="none" stroke="var(--lo)" stroke-width="2.5"/>'
+      +'<rect x="21" y="2" width="18" height="6" rx="2" fill="none" stroke="var(--lo)" stroke-width="2.5"/></svg>';
+    return el('div',{class:'agua'+(full?' full':'')},[
+      el('div',{class:'ag-bottle',html:svg}),
+      el('div',{class:'ag-b'},[
+        el('div',{class:'ag-lbl',text:'Água hoje'}),
+        el('div',{class:'ag-n',html:'<b>'+fmtL(hoje)+'</b> / '+fmtL(meta)+' L'}),
+        el('div',{class:'ag-sub',text: full?'meta batida ✓':(pct+'% · faltam '+fmtL(meta-hoje)+' L')}),
+        el('div',{class:'ag-add'},[
+          el('button',{class:'addbtn',text:'+ copo',title:copo+' ml',onclick:function(){ logAgua(copo,true); }}),
+          el('button',{class:'addbtn',text:'+ 500 ml',onclick:function(){ logAgua(garrafa,true); }}),
+          el('button',{class:'iconbtn',text:'−',title:'Tirar um copo',onclick:function(){ logAgua(-copo,false); }})
+        ])
+      ])
+    ]);
+  }
+  function logAgua(ml, celebrate){
+    var A=mergedAgua(); var meta=+A.metaMl||3000; var cur=(A.registros&&A.registros[TODAY])||0; var novo=Math.max(0, cur+ml);
+    var prev=(BUF.agua.registros[TODAY]===undefined)?undefined:BUF.agua.registros[TODAY];
+    BUF.agua.registros[TODAY]=novo; saveBuf(); renderCurrent();
+    if(celebrate && novo>=meta && cur<meta){ toast('Meta de água batida — '+fmtL(meta)+' L hoje.'); return; }
+    var msg=(ml>=0?'+'+ml:'−'+Math.abs(ml))+' ml · '+fmtL(novo)+' L hoje';
+    toast(msg, function(){ if(prev===undefined) delete BUF.agua.registros[TODAY]; else BUF.agua.registros[TODAY]=prev; saveBuf(); renderCurrent(); });
+  }
 
   // =================== HOJE ===================
   function renderHoje(root){
@@ -637,6 +699,7 @@ const APP = `
     }
     grid.appendChild(col);
     var ag=el('div',{});
+    ag.appendChild(aguaWidget());
     ag.appendChild(el('div',{class:'block-title',text:'Compromissos de hoje'}));
     ag.appendChild(calStatusNode());
     var hoje=agendaEvents().filter(function(e){ return String(e.inicio).slice(0,10)===TODAY; }).sort(function(a,b){return a.inicio<b.inicio?-1:1;});
@@ -1402,9 +1465,34 @@ const APP = `
       el('button',{class:'iconbtn',text: on?'Testar':'Ativar som',onclick:function(){ testChirp(); if(CURRENT==='hoje') renderCurrent(); }})
     ]);
   }
-  function setupAlarms(){ loadDismissed();
+  // ---- lembrete de água (pop-up não-bloqueante, top-center) ----
+  var aguaShown={}, aguaReminderTimer=null;
+  function loadAguaShown(){ try{ var o=JSON.parse(localStorage.getItem('atencao_agua_lembretes')||'{}'); var out={};
+    for(var k in o){ if(o[k]===TODAY) out[k]=o[k]; } aguaShown=out; localStorage.setItem('atencao_agua_lembretes',JSON.stringify(out)); }catch(e){ aguaShown={}; } }
+  function saveAguaShown(){ try{ localStorage.setItem('atencao_agua_lembretes',JSON.stringify(aguaShown)); }catch(e){} }
+  function hmToMs(hm){ var p=String(hm).split(':'); var d=new Date(); d.setHours(+p[0]||0, +p[1]||0, 0, 0); return d.getTime(); }
+  function checkAgua(){ var A=mergedAgua(); var meta=+A.metaMl||3000; var hoje=(A.registros&&A.registros[TODAY])||0; if(meta>0 && hoje>=meta) return;
+    var lem=A.lembretes||[]; var now=Date.now(), GRACE=45*60*1000;
+    for(var i=0;i<lem.length;i++){ var t=hmToMs(lem[i]), key=TODAY+'|'+lem[i];
+      if(now>=t && now<t+GRACE && !aguaShown[key]){ aguaShown[key]=TODAY; saveAguaShown(); showAguaReminder(); return; } } }
+  function showAguaReminder(){ var A=mergedAgua(); var meta=+A.metaMl||3000; var hoje=(A.registros&&A.registros[TODAY])||0; var copo=+A.copoMl||250;
+    var ex=document.getElementById('agua-reminder'); if(ex&&ex.parentNode) ex.parentNode.removeChild(ex);
+    var box=el('div',{id:'agua-reminder'},[
+      el('div',{class:'ar-b'},[ el('div',{class:'ar-t',text:'Hora de beber água'}),
+        el('div',{class:'ar-s',text: fmtL(hoje)+' / '+fmtL(meta)+' L até agora · faltam '+fmtL(meta-hoje)+' L'}) ]),
+      el('div',{class:'ar-a'},[
+        el('button',{class:'btn primary',text:'+ copo',onclick:function(){ logAgua(copo,true); hideAguaReminder(); }}),
+        el('button',{class:'btn ghost',text:'Agora não',onclick:hideAguaReminder}) ])
+    ]);
+    document.body.appendChild(box); setTimeout(function(){ box.classList.add('show'); },20);
+    if(aguaReminderTimer) clearTimeout(aguaReminderTimer); aguaReminderTimer=setTimeout(hideAguaReminder, 30000);
+  }
+  function hideAguaReminder(){ var b=document.getElementById('agua-reminder'); if(b){ b.classList.remove('show'); setTimeout(function(){ if(b.parentNode) b.parentNode.removeChild(b); },250); }
+    if(aguaReminderTimer){ clearTimeout(aguaReminderTimer); aguaReminderTimer=null; } }
+
+  function setupAlarms(){ loadDismissed(); loadAguaShown();
     ['pointerdown','keydown','touchstart'].forEach(function(ev){ document.addEventListener(ev, unlockAudio, {passive:true}); });
-    setInterval(checkAlarms, 20000); checkAlarms();
+    setInterval(function(){ checkAlarms(); checkAgua(); }, 20000); checkAlarms(); checkAgua();
   }
 
   // =================== TEMA ===================

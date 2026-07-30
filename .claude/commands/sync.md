@@ -18,7 +18,8 @@ Coleções de itens usam o formato **`{ add:[], update:{id:{campos}}, remove:[id
   "gastos":      { "add": [ {schema gastos} ],  "update": { "id": {campos} }, "remove": ["id"] },
   "carreira":    { "add": [ {schema carreira} ],"update": { "id": {campos} }, "remove": ["id"] },
   "habitos":     { "add": [ {schema habito} ],  "update": { "id": {campos} }, "remove": ["id"] },
-  "leitura":     { "set": { campos do livro }, "registros": { "YYYY-MM-DD": <páginas> } }
+  "leitura":     { "set": { campos do livro }, "registros": { "YYYY-MM-DD": <páginas> } },
+  "agua":        { "set": { campos da meta }, "registros": { "YYYY-MM-DD": <ml> } }
 }
 ```
 
@@ -35,6 +36,7 @@ Reconciliação (o buffer é a intenção do usuário; os JSONs são a verdade a
    - **remove**: excluir os itens cujo `id` está na lista.
    - Se um `update`/`remove` citar um `id` que não existe, avisar e pular (não criar do nada).
 5b. **leitura** → em `data/leitura.json`: mesclar os campos de `set` (título, autor, capa base64, `totalPaginas`, `paginaAtual`); em `registros`, cada data é autoritativa (páginas lidas naquele dia).
+5c. **agua** → em `data/agua.json`: mesclar os campos de `set` (`metaMl`, `copoMl`, `garrafaMl`, `lembretes`); em `registros`, cada data é autoritativa (ml bebidos naquele dia).
 
 Depois:
 

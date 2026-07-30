@@ -17,6 +17,7 @@ frente não é % de progresso; é **há quantos dias eu não toco nela**.
 │   ├── carreira.json    ← checklist Amsterdam (com dependências)
 │   ├── gastos.json      ← custos da mudança (R$ e €, estimado vs. pago)
 │   ├── leitura.json     ← livro atual (capa base64, progresso, páginas/dia)
+│   ├── agua.json        ← meta diária de água (ml), copo, lembretes, registros/dia
 │   ├── agenda.json      ← gerado a partir do Google Calendar (/hoje)
 │   └── log.json         ← append-only, um objeto por toque
 ├── build.js             ← Node, sem dependências externas (exporta STYLE/APP/build)
@@ -50,7 +51,7 @@ Ao republicar o Artifact (mesma URL), rode `node build.js` e reenvie `artifact.h
 
 ## Módulos (8 itens de navegação, um nível só)
 
-1. **Hoje** — data por extenso; **Atenção esfriando** no topo (tira com as frentes fora da cadência — sistema de temperatura — ordenadas por urgência, cada uma com "há X dias / cadência" e botão **Tocar**); 3 prioridades manuais; **Atrasadas** (tarefas com data no passado e não-feitas, com botão "Hoje" para remarcar); tarefas de hoje; compromissos do dia. Cada compromisso que **casa com uma frente** (nome/cliente) ganha um atalho **"↳ registrar toque"** — a reunião conta como atenção. **Alarme de reunião:** 5 min antes de cada compromisso com hora, um overlay em tela cheia toca um som insistente (Web Audio sintetizado, sem arquivo externo) e **só desliga no botão** ("Desligar alarme") — obriga a reconhecer a reunião. Barra de status na coluna da agenda ("Ativar som"/"Testar"); o navegador exige um clique para liberar áudio. **Só toca com a aba aberta e ativa** (iOS suspende JS/áudio em segundo plano — não substitui a notificação nativa do Calendar). Alarmes já desligados no dia ficam em `localStorage` (`atencao_alarms`, por evento, expira no dia).
+1. **Hoje** — data por extenso; **Atenção esfriando** no topo (tira com as frentes fora da cadência — sistema de temperatura — ordenadas por urgência, cada uma com "há X dias / cadência" e botão **Tocar**); 3 prioridades manuais; **Atrasadas** (tarefas com data no passado e não-feitas, com botão "Hoje" para remarcar); tarefas de hoje; compromissos do dia. Cada compromisso que **casa com uma frente** (nome/cliente) ganha um atalho **"↳ registrar toque"** — a reunião conta como atenção. **Alarme de reunião:** 5 min antes de cada compromisso com hora, um overlay em tela cheia toca um som insistente (Web Audio sintetizado, sem arquivo externo) e **só desliga no botão** ("Desligar alarme") — obriga a reconhecer a reunião. Barra de status na coluna da agenda ("Ativar som"/"Testar"); o navegador exige um clique para liberar áudio. **Só toca com a aba aberta e ativa** (iOS suspende JS/áudio em segundo plano — não substitui a notificação nativa do Calendar). Alarmes já desligados no dia ficam em `localStorage` (`atencao_alarms`, por evento, expira no dia). **Água:** widget de **garrafinha** no topo da coluna da agenda — enche de baixo pra cima (cinza no dia a dia, vira acento ao bater a meta de 3 L), com "+ copo" (250 ml) / "+ 500 ml" / "−" e desfazer. **Lembretes** = pop-up **não-bloqueante** que desce do topo nos horários de `agua.lembretes` (padrão a cada 2 h, 9h–21h), com atalho "+ copo"; some sozinho, não repete o mesmo horário no dia (`localStorage` `atencao_agua_lembretes`) e não incomoda se a meta já foi batida. Também só aparece com a aba aberta.
 2. **Revisão** — a semana em um olhar (`/semana` como view): frentes tocadas nos últimos 7 dias (contagem + último toque), **Esfriando** (temperatura), **Progresso da semana** de hábitos (reaproveita o tracker da Rotina) e conclusão das tarefas da semana.
 3. **Tarefas** — segmentada em **Semana** (tarefas por dia, com **arrastar entre dias**), **Gantt** (barras da semana por projeto) e **Board** (colunas A fazer / Fazendo / Feito, com **arrastar** entre colunas). A segmentação é filtro dentro da view, **não** sub-abas na navegação.
 4. **Frentes** — cartões de projetos **ativos** (nome, cliente, período, próximo marco). Sem indicador de "dias sem toque". Ordenados por próximo marco.
@@ -96,6 +97,7 @@ Tudo é editável/adicionável no próprio dashboard (botão "+ …" em cada vie
   - Amsterdam → o próximo item desbloqueado e não-feito (as barras de gasto ficam em cinza).
   - Hoje / Revisão → o **sistema de temperatura das frentes** na tira "Atenção esfriando"/"Esfriando": *dot* âmbar (`--ambar`) para 1× acima da cadência, *dot* do acento (`--accent`) para 2× acima. É o alerta central do painel — aponta o que está dormente, não decora. O resto da view (atrasadas, prioridades, agenda) fica em cinza.
   - Frentes / Timeline (gestor) / Log → sem acento.
+  - **Água (Hoje)** → a garrafinha vive em **cinza** (`--mid`) e só recebe o acento quando a meta do dia é batida (recompensa pontual) — assim não disputa o acento com o alerta de temperatura no dia a dia. O pop-up de lembrete usa o acento só no botão "+ copo".
   - Exceção deliberada (pedido do usuário): em **Tarefas**, a prioridade `alta` recebe um pequeno *dot* do acento — é sinal de leitura, mantido discreto (só o ponto, nunca a linha inteira).
 - Hierarquia por **contraste de escala tipográfica**, não por bordas/sombras/caixas aninhadas.
   Número grande em peso alto; label minúsculo em caixa alta com tracking aberto.
@@ -158,6 +160,15 @@ Barra de progresso = `paginaAtual / totalPaginas`.
   "registros": { "YYYY-MM-DD": ["musculacao", "usp"] } }
 ```
 
+**agua.json** — meta diária de hidratação (objeto único):
+```json
+{ "metaMl": 3000, "copoMl": 250, "garrafaMl": 500,
+  "lembretes": ["09:00","11:00","13:00","15:00","17:00","19:00","21:00"],
+  "registros": { "YYYY-MM-DD": 1500 } }
+```
+`registros[data]` = ml bebidos naquele dia (a garrafinha = `registros[hoje] / metaMl`). `lembretes` são
+horários `HH:MM` do pop-up. `copoMl`/`garrafaMl` alimentam os botões de registro.
+
 **carreira.json** — array de (checklist com dependências, agrupado por cluster):
 ```json
 { "id": "autorizacao-eu", "categoria": "documentacao|carreira|moradia|financeiro",
@@ -187,7 +198,8 @@ Qualquer subconjunto do abaixo. Coleções de itens usam o formato
   "gastos":      { "add": [ {…} ], "update": { "id": {…} }, "remove": ["id"] },
   "carreira":    { "add": [ {…} ], "update": { "id": { "estado": "...", "nota": "..." } }, "remove": ["id"] },
   "habitos":     { "add": [ {…} ], "update": { "id": {…} }, "remove": ["id"] },
-  "leitura":     { "set": { "paginaAtual": 23, "totalPaginas": 385, "capa": "…" }, "registros": { "YYYY-MM-DD": 23 } }
+  "leitura":     { "set": { "paginaAtual": 23, "totalPaginas": 385, "capa": "…" }, "registros": { "YYYY-MM-DD": 23 } },
+  "agua":        { "set": { "metaMl": 3000, "lembretes": ["09:00","..."] }, "registros": { "YYYY-MM-DD": 1500 } }
 }
 ```
 `registros[data]` é autoritativo para aquele dia. `toques` viram entradas de `log.json` +
