@@ -48,14 +48,26 @@ o **modo WebSearch**, respeitando estas regras absolutas:
 
 ## Classificação (por argumento, não por veículo)
 `alinhado` · `adjacente` · `contraponto` · `exploratorio`. Quando a orientação política não for
-relevante, use `exploratorio` e diga isso em `relacaoPerfil` ("Alinhamento político pouco relevante
-para esta recomendação."). Não presuma concordância só porque é "alinhado".
+relevante, use `exploratorio`. Não presuma concordância só porque é "alinhado". A classificação é
+**interna** (alimenta o balanço) — **não aparece mais no card**.
+
+## Ajustes do leitor (jul/2026) — valem para toda edição
+- **Menos peça acadêmica/óbvia; mais cotidiano** político, social e cultural.
+- **Priorize colunas de opinião e reportagem de veículos de referência** (Folha, Estadão, O Globo, UOL,
+  Nexo, Piauí, CartaCapital, El País Brasil…). **Mas só com link real**: no modo WebSearch, se o veículo
+  bloquear o crawler ou não retornar link na busca, use um veículo aberto equivalente — nunca chute o link.
+- **Recência forte:** priorize publicações **da semana / do dia da rodada** (últimos ~7 dias) para
+  conjuntura, opinião e cultura. Reportagem de fôlego e cultura atemporal ainda entram.
+- **Nova seção `saopaulo` ("Em São Paulo"):** 3 a 5 rolês/eventos/indicações da semana, estilo agenda
+  (Veja SP, Time Out SP, Catraca Livre, Guia Folha, agenda oficial). Cada item: manchete, veículo/fonte,
+  link e uma frase dizendo o que é / onde / quando.
 
 ## Composição da edição
-4 a 5 itens. Pelo menos um de prioridade alta; pelo menos um cultural; no máximo um podcast; no máximo
-um livro/filme; no máximo um texto longo (e só se excepcional); no máximo um contraponto; **nunca uma
-edição inteiramente alinhada**; **pelo menos uma descoberta de fonte nova**. Cada item entra numa das
-seções: `essenciais`, `aprofundar`, `contrapontos`, `descobertas` (não force seções vazias).
+**5 a 8 itens editoriais** + a seção **Em São Paulo** (3–5). Pelo menos um de prioridade alta; pelo menos
+um cultural; no máximo um podcast; no máximo um livro/filme; no máximo um texto longo (e só se
+excepcional); no máximo um contraponto; **nunca uma edição inteiramente alinhada**; **pelo menos uma
+descoberta de fonte nova**. Seções: `essenciais`, `aprofundar`, `contrapontos`, `descobertas`,
+`saopaulo` (não force seções vazias).
 
 ## Saída — escreva em `data/curadoria.json`
 `data/curadoria.json` é um **array de edições, mais recente primeiro**. **Prepende** a nova edição no
@@ -69,21 +81,15 @@ início e mantenha no máximo as **40** últimas. Schema de uma edição:
   "itens": [
     {
       "id": "it-AAAA-MM-DD-1",
-      "secao": "essenciais|aprofundar|contrapontos|descobertas",
-      "titulo": "…",
-      "autor": "…",
+      "secao": "essenciais|aprofundar|contrapontos|descobertas|saopaulo",
+      "titulo": "A manchete real, tal como no veículo",
+      "autor": "…ou vazio se não confirmado",
       "veiculo": "…",
-      "dataPub": "AAAA-MM-DD",
-      "link": "https://… (verificado)",
+      "dataPub": "AAAA-MM-DD ou vazio",
+      "link": "https://… (real, verbatim da busca)",
       "tema": "…",
-      "formato": "reportagem|analise|ensaio|coluna|entrevista|pesquisa|podcast|livro|filme|outro",
       "classificacao": "alinhado|adjacente|contraponto|exploratorio",
-      "tempoLeitura": "8 min",
-      "paywall": "sim|nao|incerto",
-      "porque": "2–3 frases: por que se conecta aos interesses.",
-      "ideiaCentral": "O argumento principal, sem substituir a leitura.",
-      "relacaoPerfil": "Quais interesses/posições/preferências justificam.",
-      "pontoObservar": "Uma premissa, viés, limitação, controvérsia ou pergunta útil.",
+      "resumo": "UMA frase resumo. É o único texto editorial do card.",
       "verificado": true
     }
   ],

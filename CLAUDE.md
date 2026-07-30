@@ -62,7 +62,7 @@ Ao republicar o Artifact (mesma URL), rode `node build.js` e reenvie `artifact.h
 5. **Timeline** — visão **macro**: barra início → previsão de fim por projeto, marcos como diamantes + gestor de marcos editável.
 6. **Rotina** — **widget de leitura** no topo (capa, progresso, logger de páginas/dia, **projeção de término** no ritmo recente) + **Progresso da semana** (barra por hábito: cumprido vs. meta semanal, quantas metas batidas) + **calendário mensal** navegável de hábitos (cada dia marca os hábitos por inicial, clicável; legenda com contagem do mês + meta semanal). Hábitos editáveis (adicionar/editar meta/excluir).
 7. **Amsterdam** — checklist **por clusters** (Documentação & Legal, Trabalho & Carreira, Moradia & Mudança, Financeiro & Seguros), com dependências, + **gastos da mudança** (R$ e €, com câmbio €→R$ editável e **total convertido**).
-8. **Curadoria** — seleção **editorial pessoal** gerada 2–3×/semana pela rotina `/curadoria` a partir de `curadoria/perfil.md`. Mostra a edição atual (com navegação para as anteriores): *Visão geral* + seções **Essenciais / Para aprofundar / Contrapontos produtivos / Descobertas**, cada item num card com título (link), autor · veículo · data, classificação (alinhado/adjacente/contraponto/exploratório), formato, tempo, paywall e os blocos *Por que / Ideia central / Relação com o perfil / Ponto para observar*, mais *Equilíbrio da edição*. "Marcar lido" é **preferência local** (`localStorage` `atencao_curadoria_lidos`, como o tema/câmbio) — não vai pro patch. Só leitura: o conteúdo é dono da rotina, não editável no dashboard.
+8. **Curadoria** — seleção **editorial pessoal** gerada 2–3×/semana pela rotina `/curadoria` a partir de `curadoria/perfil.md`. Mostra a edição atual (com navegação para as anteriores): *Visão geral* + seções **Essenciais / Para aprofundar / Contrapontos produtivos / Descobertas / Em São Paulo** (rolês e eventos da semana, estilo Veja SP). **Card enxuto** (pedido do leitor): só **manchete (link), autor · veículo · data e uma frase de resumo** — nada de blocos longos nem chip de classificação (a classificação continua no JSON, mas é interna, alimenta só o *Equilíbrio da edição*). "Marcar lido" é **preferência local** (`localStorage` `atencao_curadoria_lidos`) — não vai pro patch. Só leitura: o conteúdo é dono da rotina, não editável no dashboard.
 9. **Log** — timeline reversa, agrupada por semana, filtrável por frente.
 
 Tudo é editável/adicionável no próprio dashboard (botão "+ …" em cada view, editar/excluir por item), gravando no buffer → "Copiar patch" → `/sync`. Um botão flutuante **"+ Toque"** (canto inferior direito) registra um toque em qualquer frente de qualquer view. O câmbio €→R$ é preferência local (`localStorage`, como o tema) — **não** é fonte da verdade.
@@ -103,7 +103,7 @@ Tudo é editável/adicionável no próprio dashboard (botão "+ …" em cada vie
   - Hoje / Revisão → o **sistema de temperatura das frentes** na tira "Atenção esfriando"/"Esfriando": *dot* âmbar (`--ambar`) para 1× acima da cadência, *dot* do acento (`--accent`) para 2× acima. É o alerta central do painel — aponta o que está dormente, não decora. O resto da view (atrasadas, prioridades, agenda) fica em cinza.
   - Frentes / Timeline (gestor) / Log → sem acento.
   - **Água (Hoje)** → a garrafinha vive em **cinza** (`--mid`) e só recebe o acento quando a meta do dia é batida (recompensa pontual) — assim não disputa o acento com o alerta de temperatura no dia a dia. O pop-up de lembrete usa o acento só no botão "+ copo".
-  - **Curadoria** → único elemento com acento é o *chip* de **Contraponto** (o item anti-bolha) — aponta a divergência qualificada. Todo o resto (classificações, links, seções) fica em cinza.
+  - **Curadoria** → **sem acento** (cards enxutos, tudo em cinza). O anti-bolha é garantido na *seleção* (proporções e regras do perfil), não por marcação visual no card.
   - Exceção deliberada (pedido do usuário): em **Tarefas**, a prioridade `alta` recebe um pequeno *dot* do acento — é sinal de leitura, mantido discreto (só o ponto, nunca a linha inteira).
 - Hierarquia por **contraste de escala tipográfica**, não por bordas/sombras/caixas aninhadas.
   Número grande em peso alto; label minúsculo em caixa alta com tracking aberto.
@@ -190,12 +190,10 @@ cita em `bloqueia` não estiver `feito`.
 **curadoria.json** — array de **edições** (mais recente primeiro, cap ~40), gerado pelo `/curadoria`:
 ```json
 { "id": "ed-AAAA-MM-DD", "data": "AAAA-MM-DD", "visaoGeral": "…",
-  "itens": [ { "id": "…", "secao": "essenciais|aprofundar|contrapontos|descobertas",
-    "titulo": "…", "autor": "…", "veiculo": "…", "dataPub": "AAAA-MM-DD", "link": "https://… (verificado)",
-    "tema": "…", "formato": "reportagem|analise|ensaio|coluna|entrevista|pesquisa|podcast|livro|filme|outro",
-    "classificacao": "alinhado|adjacente|contraponto|exploratorio", "tempoLeitura": "8 min",
-    "paywall": "sim|nao|incerto", "porque": "…", "ideiaCentral": "…", "relacaoPerfil": "…",
-    "pontoObservar": "…", "verificado": true } ],
+  "itens": [ { "id": "…", "secao": "essenciais|aprofundar|contrapontos|descobertas|saopaulo",
+    "titulo": "manchete", "autor": "…ou vazio", "veiculo": "…", "dataPub": "AAAA-MM-DD ou vazio",
+    "link": "https://… (real)", "tema": "…", "classificacao": "alinhado|adjacente|contraponto|exploratorio",
+    "resumo": "UMA frase — único texto editorial do card", "verificado": true } ],
   "equilibrio": { "alinhados": 0, "adjacentes": 0, "contrapontos": 0, "exploratorios": 0,
     "temas": ["…"], "foraDesta": ["…"], "repetidos": ["…"] },
   "ajustePerfil": "" }

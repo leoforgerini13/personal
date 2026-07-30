@@ -234,6 +234,13 @@ praticamente do zero, e ele pediu explicitamente indicações em vez de mais do 
 Alinhados ~35% · Adjacentes ~30% · Contrapontos ~15% · Exploratórios ~20%.
 O leitor recusou cotas fixas: **a qualidade da semana decide**.
 
+## Ajustes do leitor após a 1ª edição (jul/2026)
+1. Achou a seleção inicial **óbvia e "pobrinha"**: quer mais **cotidiano** político, social e cultural,
+   e **mais colunas de opinião de jornais de referência** (Folha, Estadão, O Globo, UOL…).
+2. Quer uma seção **"Em São Paulo"** com rolês, eventos e indicações da semana (estilo Veja SP).
+3. **Recência:** concentrar em publicações **da semana/do dia** da rodada.
+4. **Card enxuto:** no card, só **link (manchete), autor e uma frase de resumo** — nada de blocos longos.
+
 ## Pontos em aberto (revisar com o tempo)
 1. *The Journal* x baixo interesse por negócios — atrativo é a narrativa e o poder econômico, não pauta corporativa. Não confirmado.
 2. Ciências Sociais x recusa à abstração — interesse no olhar sociológico, não no aparato teórico. Não testado diretamente.

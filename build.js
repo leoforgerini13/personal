@@ -232,22 +232,15 @@ button.ag-toque:hover{color:var(--hi);border-color:var(--mid)}
 .cur-date{font-size:11px;color:var(--lo);text-transform:uppercase;letter-spacing:.14em;font-weight:600;margin-bottom:4px}
 .cur-vg{background:var(--surface);border-radius:14px;padding:16px 18px;margin-top:14px}
 .cur-vg .vg-t{font-size:14.5px;color:var(--hi);line-height:1.55;margin-top:8px}
-.cur-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:12px;transition:opacity .15s}
-.cur-card.lido{opacity:.5}
-.cur-card .cc-h{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-.cur-cls{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--mid);font-weight:600}
-.cur-cls .cdot{width:7px;height:7px;border-radius:50%;background:var(--lo);flex:none}
-.cur-cls.contraponto{color:var(--accent)}
-.cur-cls.contraponto .cdot{background:var(--accent)}
-.cc-meta{font-size:11px;color:var(--lo)}
-.cc-titulo{display:block;font-size:18px;font-weight:500;color:var(--hi);letter-spacing:-.01em;margin-top:9px;line-height:1.3;text-decoration:none}
+.cur-card{position:relative;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px 18px;margin-bottom:10px;transition:opacity .15s}
+.cur-card.lido{opacity:.45}
+.cc-titulo{display:block;font-size:16.5px;font-weight:500;color:var(--hi);letter-spacing:-.01em;line-height:1.32;text-decoration:none;padding-right:30px}
 .cc-titulo:hover{text-decoration:underline}
-.cc-sub{font-size:12px;color:var(--mid);margin-top:6px}
-.cc-det{margin-top:2px}
-.cx-b{margin-top:13px}
-.cx-b .cx-l{font-size:10.5px;text-transform:uppercase;letter-spacing:.12em;color:var(--lo);font-weight:600;margin-bottom:4px}
-.cx-b .cx-t{font-size:13.5px;color:var(--hi);line-height:1.5}
-.cc-acts{display:flex;gap:8px;margin-top:16px}
+.cc-sub{font-size:11.5px;color:var(--lo);margin-top:6px}
+.cc-resumo{font-size:13.5px;color:var(--mid);margin-top:8px;line-height:1.5}
+.cc-lido{position:absolute;top:12px;right:12px;width:22px;height:22px;border:1px solid var(--border);border-radius:6px;color:transparent;font-size:12px;line-height:19px;text-align:center;background:transparent}
+.cc-lido:hover{border-color:var(--mid)}
+.cc-lido.on{background:var(--mid);border-color:var(--mid);color:var(--bg)}
 .cur-eq .eq-line{font-size:13px;color:var(--hi);text-transform:capitalize}
 .cur-eq .eq-sub{font-size:12px;color:var(--lo);margin-top:5px}
 .cur-ajuste{background:var(--surface);border:1px dashed var(--border);border-radius:12px;padding:14px 16px;margin-top:20px;font-size:13px;color:var(--mid)}
@@ -1377,8 +1370,7 @@ const APP = `
 
   // =================== CURADORIA (seleção editorial pessoal) ===================
   var curEd=0;
-  var CUR_SECOES=[['essenciais','Essenciais'],['aprofundar','Para aprofundar'],['contrapontos','Contrapontos produtivos'],['descobertas','Descobertas']];
-  var CUR_CLS={alinhado:'Alinhado',adjacente:'Adjacente',contraponto:'Contraponto',exploratorio:'Exploratório'};
+  var CUR_SECOES=[['essenciais','Essenciais'],['aprofundar','Para aprofundar'],['contrapontos','Contrapontos produtivos'],['descobertas','Descobertas'],['saopaulo','Em São Paulo']];
   function curLidos(){ try{ return JSON.parse(localStorage.getItem('atencao_curadoria_lidos')||'{}'); }catch(e){ return {}; } }
   function setCurLido(id,val){ var o=curLidos(); if(val)o[id]=true; else delete o[id]; try{ localStorage.setItem('atencao_curadoria_lidos',JSON.stringify(o)); }catch(e){} }
   function fmtDataLonga(s){ if(!s)return''; var p=String(s).split('-'); if(p.length<3) return s; return (+p[2])+' '+MES_ABREV[(+p[1])-1]+' '+p[0]; }
@@ -1424,25 +1416,16 @@ const APP = `
   }
   function curCard(it){
     var lido=!!curLidos()[it.id];
-    var chip=el('span',{class:'cur-cls '+(it.classificacao||'')},[ el('span',{class:'cdot'}), document.createTextNode(CUR_CLS[it.classificacao]||it.classificacao||'') ]);
-    var meta=[]; if(it.formato)meta.push(it.formato); if(it.tempoLeitura)meta.push(it.tempoLeitura); if(it.paywall&&it.paywall!=='nao')meta.push('paywall'+(it.paywall==='incerto'?'?':''));
-    var det=el('div',{class:'cc-det'});
-    if(it.porque) det.appendChild(cxBlock('Por que',it.porque));
-    if(it.ideiaCentral) det.appendChild(cxBlock('Ideia central',it.ideiaCentral));
-    if(it.relacaoPerfil) det.appendChild(cxBlock('Relação com o perfil',it.relacaoPerfil));
-    if(it.pontoObservar) det.appendChild(cxBlock('Ponto para observar',it.pontoObservar));
+    var sub=[it.autor,it.veiculo,fmtDataLonga(it.dataPub)].filter(Boolean).join(' · ');
     var card=el('div',{class:'cur-card'+(lido?' lido':'')},[
-      el('div',{class:'cc-h'},[ chip, el('span',{class:'cc-meta',text:meta.join(' · ')}) ]),
       el('a',{class:'cc-titulo',href:it.link||'#',target:'_blank',rel:'noopener',text:it.titulo||'(sem título)'}),
-      el('div',{class:'cc-sub',text:[it.autor,it.veiculo,fmtDataLonga(it.dataPub)].filter(Boolean).join(' · ')}),
-      det
+      sub?el('div',{class:'cc-sub',text:sub}):null,
+      it.resumo?el('div',{class:'cc-resumo',text:it.resumo}):null
     ]);
-    var lidoBtn=el('button',{class:'iconbtn',text: lido?'✓ lido':'marcar lido',onclick:function(){ lido=!lido; setCurLido(it.id,lido); card.classList.toggle('lido',lido); lidoBtn.textContent=lido?'✓ lido':'marcar lido'; }});
-    det.appendChild(el('div',{class:'cc-acts'},[
-      el('a',{class:'iconbtn',href:it.link||'#',target:'_blank',rel:'noopener',text:'Abrir ↗'}), lidoBtn ]));
+    var lidoBtn=el('button',{class:'cc-lido'+(lido?' on':''),title:'Marcar como lido',text:'✓',onclick:function(){ lido=!lido; setCurLido(it.id,lido); card.classList.toggle('lido',lido); lidoBtn.classList.toggle('on',lido); }});
+    card.appendChild(lidoBtn);
     return card;
   }
-  function cxBlock(lbl,txt){ return el('div',{class:'cx-b'},[ el('div',{class:'cx-l',text:lbl}), el('div',{class:'cx-t',text:txt}) ]); }
 
   // =================== LOG ===================
   var logFiltro='todos';
