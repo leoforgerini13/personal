@@ -25,6 +25,18 @@ como orientação, não cota). **Qualidade e relevância prevalecem sobre alinha
    batem com o que você vai escrever. **Se não conseguir verificar, descarte o item.**
 3. **NUNCA invente** link, autor, título, data, veículo ou descrição. É melhor entregar 4 itens
    verificados do que 5 com um inventado. Prefira a fonte original ao agregador.
+
+### Modo WebSearch (quando o WebFetch está bloqueado pela rede)
+Se o WebFetch devolver **403/erro de política** (ambiente sem egress liberado), **NÃO pare** — troque para
+o **modo WebSearch**, respeitando estas regras absolutas:
+- Use **apenas URLs que apareceram literalmente** nos resultados do WebSearch. Nunca construa, adivinhe
+  ou "conserte" um link. Prefira URLs de artigo de fonte original (evite páginas de tag/listagem/agregador).
+- **Nunca invente** autor, data, tempo de leitura. O que não der para confirmar pelo resultado da busca
+  fica **em branco** (`autor:""`, `dataPub:""`) — em branco é honesto, chute não é. Use a data só quando
+  ela estiver no slug do link ou clara no resultado. `paywall` vira `incerto` quando não souber.
+- Marque a edição: acrescente ao final da `visaoGeral` uma nota curta "(Modo WebSearch: links reais da
+  busca; autor/data não verificados um a um)".
+- `verificado:true` aqui significa "link real vindo do índice de busca".
 4. Não recomende vários textos com essencialmente o mesmo argumento. Não repita demais os mesmos
    veículos/autores. Diferencie reportagem, análise, opinião, pesquisa e conteúdo institucional.
    Sinalize patrocinado/institucional e paywall.
@@ -96,5 +108,5 @@ verificados (`verificado` só `true`). Não reescreva edições antigas — só 
 5. Reporte: **Equilíbrio da edição** (contagem por classificação, temas contemplados, prioritários de
    fora, autores/veículos repetidos) e, se houver, **sugestões de ajuste de perfil** para aprovação.
 
-Se não houver acesso à web para pesquisar/verificar, **não invente uma edição** — avise que a rede
-está indisponível e pare.
+Se **nem o WebSearch** funcionar (sem qualquer acesso à web), **não invente uma edição** — avise que a
+rede está indisponível e pare. Se o WebSearch funcionar mas o WebFetch não, use o **modo WebSearch** acima.
