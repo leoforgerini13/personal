@@ -29,7 +29,6 @@ function readData() {
     gastos: readJSON('gastos.json', []),
     leitura: readJSON('leitura.json', { titulo: '', autor: '', subtitulo: '', capa: '', totalPaginas: 0, paginaAtual: 0, registros: {} }),
     agua: readJSON('agua.json', { metaMl: 3000, copoMl: 250, garrafaMl: 500, lembretes: ['09:00','11:00','13:00','15:00','17:00','19:00','21:00'], registros: {} }),
-    curadoria: readJSON('curadoria.json', []),
     geradoEm: new Date().toISOString()
   };
 }
@@ -225,25 +224,6 @@ button.ag-toque:hover{color:var(--hi);border-color:var(--mid)}
 #agua-reminder .ar-s{font-size:11.5px;color:var(--lo);margin-top:2px}
 #agua-reminder .ar-a{display:flex;gap:8px;flex:none}
 #agua-reminder .ar-a .btn{font-size:12.5px;padding:7px 13px}
-/* curadoria editorial */
-.cur-empty{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px}
-.cur-empty .ce-t{font-size:17px;color:var(--hi);font-weight:500}
-.cur-empty .ce-s{font-size:13px;color:var(--mid);margin-top:8px;max-width:640px;line-height:1.55}
-.cur-date{font-size:11px;color:var(--lo);text-transform:uppercase;letter-spacing:.14em;font-weight:600;margin-bottom:4px}
-.cur-vg{background:var(--surface);border-radius:14px;padding:16px 18px;margin-top:14px}
-.cur-vg .vg-t{font-size:14.5px;color:var(--hi);line-height:1.55;margin-top:8px}
-.cur-card{position:relative;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px 18px;margin-bottom:10px;transition:opacity .15s}
-.cur-card.lido{opacity:.45}
-.cc-titulo{display:block;font-size:16.5px;font-weight:500;color:var(--hi);letter-spacing:-.01em;line-height:1.32;text-decoration:none;padding-right:30px}
-.cc-titulo:hover{text-decoration:underline}
-.cc-sub{font-size:11.5px;color:var(--lo);margin-top:6px}
-.cc-resumo{font-size:13.5px;color:var(--mid);margin-top:8px;line-height:1.5}
-.cc-lido{position:absolute;top:12px;right:12px;width:22px;height:22px;border:1px solid var(--border);border-radius:6px;color:transparent;font-size:12px;line-height:19px;text-align:center;background:transparent}
-.cc-lido:hover{border-color:var(--mid)}
-.cc-lido.on{background:var(--mid);border-color:var(--mid);color:var(--bg)}
-.cur-eq .eq-line{font-size:13px;color:var(--hi);text-transform:capitalize}
-.cur-eq .eq-sub{font-size:12px;color:var(--lo);margin-top:5px}
-.cur-ajuste{background:var(--surface);border:1px dashed var(--border);border-radius:12px;padding:14px 16px;margin-top:20px;font-size:13px;color:var(--mid)}
 
 /* FRENTES */
 .frentes{display:flex;flex-direction:column;gap:14px}
@@ -1368,65 +1348,6 @@ const APP = `
     }
   }
 
-  // =================== CURADORIA (seleção editorial pessoal) ===================
-  var curEd=0;
-  var CUR_SECOES=[['essenciais','Essenciais'],['aprofundar','Para aprofundar'],['contrapontos','Contrapontos produtivos'],['descobertas','Descobertas'],['saopaulo','Em São Paulo']];
-  function curLidos(){ try{ return JSON.parse(localStorage.getItem('atencao_curadoria_lidos')||'{}'); }catch(e){ return {}; } }
-  function setCurLido(id,val){ var o=curLidos(); if(val)o[id]=true; else delete o[id]; try{ localStorage.setItem('atencao_curadoria_lidos',JSON.stringify(o)); }catch(e){} }
-  function fmtDataLonga(s){ if(!s)return''; var p=String(s).split('-'); if(p.length<3) return s; return (+p[2])+' '+MES_ABREV[(+p[1])-1]+' '+p[0]; }
-  function renderCuradoria(root){
-    clear(root);
-    root.appendChild(el('div',{class:'vhead'},[ el('div',{},[ el('h1',{text:'Curadoria'}), el('div',{class:'big',html:'Seleção <b>editorial</b> pessoal'}) ]) ]));
-    var eds=(D.curadoria||[]).slice();
-    if(!eds.length){
-      root.appendChild(el('div',{class:'cur-empty'},[
-        el('div',{class:'ce-t',text:'Nenhuma edição ainda.'}),
-        el('div',{class:'ce-s',text:'A curadoria é gerada 2–3× por semana a partir do seu perfil (curadoria/perfil.md), com links verificados. A primeira edição aparece aqui no próximo disparo da rotina — ou peça uma agora com o comando /curadoria no Claude Code.'})
-      ]));
-      return;
-    }
-    if(curEd>=eds.length) curEd=0;
-    var ed=eds[curEd];
-    if(eds.length>1){
-      root.appendChild(el('div',{class:'wknav'},[
-        el('button',{text:'‹',title:'Mais recente',onclick:function(){ curEd=Math.max(0,curEd-1); renderCurrent(); }}),
-        el('div',{class:'wl',text:(curEd===0?'Última · ':'')+'edição de '+fmtDataLonga(ed.data)+' · '+(curEd+1)+'/'+eds.length}),
-        el('button',{text:'›',title:'Anterior',onclick:function(){ curEd=Math.min(eds.length-1,curEd+1); renderCurrent(); }})
-      ]));
-    } else { root.appendChild(el('div',{class:'cur-date',text:'edição de '+fmtDataLonga(ed.data)})); }
-    if(ed.visaoGeral) root.appendChild(el('div',{class:'cur-vg'},[ el('div',{class:'label',text:'Visão geral'}), el('div',{class:'vg-t',text:ed.visaoGeral}) ]));
-    var itens=ed.itens||[];
-    CUR_SECOES.forEach(function(s){
-      var list=itens.filter(function(it){ return (it.secao||'essenciais')===s[0]; });
-      if(!list.length) return;
-      root.appendChild(el('div',{class:'block-title spaced',text:s[1]}));
-      list.forEach(function(it){ root.appendChild(curCard(it)); });
-    });
-    if(ed.equilibrio){ var q=ed.equilibrio; var parts=[];
-      ['alinhados','adjacentes','contrapontos','exploratorios'].forEach(function(k){ if(q[k]!=null) parts.push(q[k]+' '+k); });
-      var box=el('div',{class:'cur-eq'});
-      root.appendChild(el('div',{class:'block-title spaced',text:'Equilíbrio da edição'}));
-      box.appendChild(el('div',{class:'eq-line',text:parts.join(' · ')}));
-      if(q.temas&&q.temas.length) box.appendChild(el('div',{class:'eq-sub',text:'Temas: '+q.temas.join(', ')}));
-      if(q.foraDesta&&q.foraDesta.length) box.appendChild(el('div',{class:'eq-sub',text:'Ficou de fora: '+q.foraDesta.join(', ')}));
-      if(q.repetidos&&q.repetidos.length) box.appendChild(el('div',{class:'eq-sub',text:'Repetidos recentemente: '+q.repetidos.join(', ')}));
-      root.appendChild(box);
-    }
-    if(ed.ajustePerfil) root.appendChild(el('div',{class:'cur-ajuste'},[ el('div',{class:'label',text:'Sugestão de ajuste de perfil'}), el('div',{style:'margin-top:6px',text:ed.ajustePerfil}) ]));
-  }
-  function curCard(it){
-    var lido=!!curLidos()[it.id];
-    var sub=[it.autor,it.veiculo,fmtDataLonga(it.dataPub)].filter(Boolean).join(' · ');
-    var card=el('div',{class:'cur-card'+(lido?' lido':'')},[
-      el('a',{class:'cc-titulo',href:it.link||'#',target:'_blank',rel:'noopener',text:it.titulo||'(sem título)'}),
-      sub?el('div',{class:'cc-sub',text:sub}):null,
-      it.resumo?el('div',{class:'cc-resumo',text:it.resumo}):null
-    ]);
-    var lidoBtn=el('button',{class:'cc-lido'+(lido?' on':''),title:'Marcar como lido',text:'✓',onclick:function(){ lido=!lido; setCurLido(it.id,lido); card.classList.toggle('lido',lido); lidoBtn.classList.toggle('on',lido); }});
-    card.appendChild(lidoBtn);
-    return card;
-  }
-
   // =================== LOG ===================
   var logFiltro='todos';
   function renderLog(root){
@@ -1591,7 +1512,6 @@ const APP = `
     {id:'timeline',nome:'Timeline',render:renderTimeline},
     {id:'rotina',nome:'Rotina',render:renderRotina},
     {id:'amsterdam',nome:'Amsterdam',render:renderAmsterdam},
-    {id:'curadoria',nome:'Curadoria',render:renderCuradoria},
     {id:'log',nome:'Log',render:renderLog}
   ];
   var CURRENT='hoje';

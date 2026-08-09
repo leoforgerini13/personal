@@ -18,18 +18,14 @@ frente não é % de progresso; é **há quantos dias eu não toco nela**.
 │   ├── gastos.json      ← custos da mudança (R$ e €, estimado vs. pago)
 │   ├── leitura.json     ← livro atual (capa base64, progresso, páginas/dia)
 │   ├── agua.json        ← meta diária de água (ml), copo, lembretes, registros/dia
-│   ├── curadoria.json   ← edições da curadoria editorial (geradas pela rotina; array)
 │   ├── agenda.json      ← gerado a partir do Google Calendar (/hoje)
 │   └── log.json         ← append-only, um objeto por toque
-├── curadoria/           ← FONTE do curador (NÃO embutida no dashboard — dado sensível)
-│   ├── perfil.md        ← perfil editorial + político completo (lido pelo /curadoria)
-│   └── perfil.json      ← versão estruturada do mesmo perfil
 ├── build.js             ← Node, sem dependências externas (exporta STYLE/APP/build)
 ├── server.js            ← app local: serve o dashboard + chat Sonnet 5 que edita os JSONs
 ├── package.json         ← dependência do server (@anthropic-ai/sdk); node_modules ignorado
 ├── index.html           ← OUTPUT local (file://), com snapshot da agenda embutido
 ├── artifact.html        ← OUTPUT para publicar como Artifact (agenda AO VIVO, sem snapshot)
-└── .claude/commands/    ← /toque /hoje /feito /sync /semana /planejar /curadoria
+└── .claude/commands/    ← /toque /hoje /feito /sync /semana /planejar
 ```
 
 ## Três modos (mesmo código-fonte)
@@ -53,7 +49,7 @@ O runtime detecta `window.claude.mcp`: se existir (Artifact), puxa ao vivo; sen�
 
 Ao republicar o Artifact (mesma URL), rode `node build.js` e reenvie `artifact.html` com o mesmo `file_path` nesta conversa, mantendo `capabilities` e `favicon` estáveis.
 
-## Módulos (9 itens de navegação, um nível só)
+## Módulos (8 itens de navegação, um nível só)
 
 1. **Hoje** — data por extenso; **Atenção esfriando** no topo (tira com as frentes fora da cadência — sistema de temperatura — ordenadas por urgência, cada uma com "há X dias / cadência" e botão **Tocar**); 3 prioridades manuais; **Atrasadas** (tarefas com data no passado e não-feitas, com botão "Hoje" para remarcar); tarefas de hoje; compromissos do dia. Cada compromisso que **casa com uma frente** (nome/cliente) ganha um atalho **"↳ registrar toque"** — a reunião conta como atenção. **Alarme de reunião:** 5 min antes de cada compromisso com hora, um overlay em tela cheia toca um som insistente (Web Audio sintetizado, sem arquivo externo) e **só desliga no botão** ("Desligar alarme") — obriga a reconhecer a reunião. Barra de status na coluna da agenda ("Ativar som"/"Testar"); o navegador exige um clique para liberar áudio. **Só toca com a aba aberta e ativa** (iOS suspende JS/áudio em segundo plano — não substitui a notificação nativa do Calendar). Alarmes já desligados no dia ficam em `localStorage` (`atencao_alarms`, por evento, expira no dia). **Água:** widget de **garrafinha** no topo da coluna da agenda — enche de baixo pra cima (cinza no dia a dia, vira acento ao bater a meta de 3 L), com "+ copo" (250 ml) / "+ 500 ml" / "−" e desfazer. **Lembretes** = pop-up **não-bloqueante** que desce do topo nos horários de `agua.lembretes` (padrão a cada 2 h, 9h–21h), com atalho "+ copo"; some sozinho, não repete o mesmo horário no dia (`localStorage` `atencao_agua_lembretes`) e não incomoda se a meta já foi batida. Também só aparece com a aba aberta.
 2. **Revisão** — a semana em um olhar (`/semana` como view): frentes tocadas nos últimos 7 dias (contagem + último toque), **Esfriando** (temperatura), **Progresso da semana** de hábitos (reaproveita o tracker da Rotina) e conclusão das tarefas da semana.
@@ -62,8 +58,7 @@ Ao republicar o Artifact (mesma URL), rode `node build.js` e reenvie `artifact.h
 5. **Timeline** — visão **macro**: barra início → previsão de fim por projeto, marcos como diamantes + gestor de marcos editável.
 6. **Rotina** — **widget de leitura** no topo (capa, progresso, logger de páginas/dia, **projeção de término** no ritmo recente) + **Progresso da semana** (barra por hábito: cumprido vs. meta semanal, quantas metas batidas) + **calendário mensal** navegável de hábitos (cada dia marca os hábitos por inicial, clicável; legenda com contagem do mês + meta semanal). Hábitos editáveis (adicionar/editar meta/excluir).
 7. **Amsterdam** — checklist **por clusters** (Documentação & Legal, Trabalho & Carreira, Moradia & Mudança, Financeiro & Seguros), com dependências, + **gastos da mudança** (R$ e €, com câmbio €→R$ editável e **total convertido**).
-8. **Curadoria** — seleção **editorial pessoal** gerada 2–3×/semana pela rotina `/curadoria` a partir de `curadoria/perfil.md`. Mostra a edição atual (com navegação para as anteriores): *Visão geral* + seções **Essenciais / Para aprofundar / Contrapontos produtivos / Descobertas / Em São Paulo** (rolês e eventos da semana, estilo Veja SP). **Card enxuto** (pedido do leitor): só **manchete (link), autor · veículo · data e uma frase de resumo** — nada de blocos longos nem chip de classificação (a classificação continua no JSON, mas é interna, alimenta só o *Equilíbrio da edição*). "Marcar lido" é **preferência local** (`localStorage` `atencao_curadoria_lidos`) — não vai pro patch. Só leitura: o conteúdo é dono da rotina, não editável no dashboard.
-9. **Log** — timeline reversa, agrupada por semana, filtrável por frente.
+8. **Log** — timeline reversa, agrupada por semana, filtrável por frente.
 
 Tudo é editável/adicionável no próprio dashboard (botão "+ …" em cada view, editar/excluir por item), gravando no buffer → "Copiar patch" → `/sync`. Um botão flutuante **"+ Toque"** (canto inferior direito) registra um toque em qualquer frente de qualquer view. O câmbio €→R$ é preferência local (`localStorage`, como o tema) — **não** é fonte da verdade.
 
@@ -103,7 +98,6 @@ Tudo é editável/adicionável no próprio dashboard (botão "+ …" em cada vie
   - Hoje / Revisão → o **sistema de temperatura das frentes** na tira "Atenção esfriando"/"Esfriando": *dot* âmbar (`--ambar`) para 1× acima da cadência, *dot* do acento (`--accent`) para 2× acima. É o alerta central do painel — aponta o que está dormente, não decora. O resto da view (atrasadas, prioridades, agenda) fica em cinza.
   - Frentes / Timeline (gestor) / Log → sem acento.
   - **Água (Hoje)** → a garrafinha vive em **cinza** (`--mid`) e só recebe o acento quando a meta do dia é batida (recompensa pontual) — assim não disputa o acento com o alerta de temperatura no dia a dia. O pop-up de lembrete usa o acento só no botão "+ copo".
-  - **Curadoria** → **sem acento** (cards enxutos, tudo em cinza). O anti-bolha é garantido na *seleção* (proporções e regras do perfil), não por marcação visual no card.
   - Exceção deliberada (pedido do usuário): em **Tarefas**, a prioridade `alta` recebe um pequeno *dot* do acento — é sinal de leitura, mantido discreto (só o ponto, nunca a linha inteira).
 - Hierarquia por **contraste de escala tipográfica**, não por bordas/sombras/caixas aninhadas.
   Número grande em peso alto; label minúsculo em caixa alta com tracking aberto.
@@ -187,29 +181,6 @@ cita em `bloqueia` não estiver `feito`.
 **agenda.json** — array de (só o que interessa): `{ "inicio", "fim", "titulo", "diaInteiro" }`.
 `inicio`/`fim` em ISO com offset. Gerado por `/hoje` a partir do Google Calendar pessoal.
 
-**curadoria.json** — array de **edições** (mais recente primeiro, cap ~40), gerado pelo `/curadoria`:
-```json
-{ "id": "ed-AAAA-MM-DD", "data": "AAAA-MM-DD", "visaoGeral": "…",
-  "itens": [ { "id": "…", "secao": "essenciais|aprofundar|contrapontos|descobertas|saopaulo",
-    "titulo": "manchete", "autor": "…ou vazio", "veiculo": "…", "dataPub": "AAAA-MM-DD ou vazio",
-    "link": "https://… (real)", "tema": "…", "classificacao": "alinhado|adjacente|contraponto|exploratorio",
-    "resumo": "UMA frase — único texto editorial do card", "verificado": true } ],
-  "equilibrio": { "alinhados": 0, "adjacentes": 0, "contrapontos": 0, "exploratorios": 0,
-    "temas": ["…"], "foraDesta": ["…"], "repetidos": ["…"] },
-  "ajustePerfil": "" }
-```
-**Nunca** entra item com `verificado:false` — o `/curadoria` verifica cada link com WebFetch e
-descarta o que não confirmar (não inventa). O `curadoria.json` é embutido no dashboard/artifact; já
-`curadoria/perfil.*` (perfil político/editorial, dado sensível) **fica só no repo, nunca no `__DATA__`**.
-
-## Pipeline da curadoria (rotina)
-
-O `/curadoria` (`.claude/commands/curadoria.md`) lê `curadoria/perfil.md`+`.json`, pesquisa na web,
-**verifica os links**, monta uma edição, **prepende** em `data/curadoria.json`, roda `node build.js`,
-faz commit/push na branch e republica o Artifact. Rodar manualmente (`/curadoria`) ou por uma
-**Routine agendada** (2–3×/semana) que dispara o mesmo comando. A rotina precisa de ambiente com
-acesso à web; sem rede, o comando **não inventa** — avisa e para.
-
 **log.json** — **append-only**, um objeto por toque: `{ "data", "projeto", "texto" }`.
 Nunca reescrever/reordenar entradas existentes.
 
@@ -251,7 +222,6 @@ atualização de `ultimoToque`. `prioridades` são efêmeras (não têm arquivo)
 - `/planejar <texto livre>` — transforma o que preciso fazer na semana em tarefas estruturadas em `tarefas.json`, rebuild.
 - `/sync` — reconcilia um patch colado nos JSONs, rebuild.
 - `/semana` — resumo do log dos últimos 7 dias + o que ficou dormente (não altera arquivos).
-- `/curadoria [foco]` — gera uma edição da curadoria (pesquisa + verifica links) em `curadoria.json`, rebuild, push, republica. Também é o comando que a Routine agendada dispara.
 
 ## Ao editar
 
