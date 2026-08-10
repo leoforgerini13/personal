@@ -1,9 +1,1 @@
-[
-  { "id": "gt-1", "item": "Passagem aérea (só ida)", "categoria": "Viagem", "estimadoBRL": 6000, "estimadoEUR": 1000, "pagoBRL": 0, "pagoEUR": 0, "nota": "[estimativa]" },
-  { "id": "gt-2", "item": "Reconhecimento de diploma (IDW)", "categoria": "Legal", "estimadoBRL": 1500, "estimadoEUR": 250, "pagoBRL": 0, "pagoEUR": 0, "nota": "[estimativa]" },
-  { "id": "gt-3", "item": "Seguro saúde inicial", "categoria": "Legal", "estimadoBRL": 900, "estimadoEUR": 150, "pagoBRL": 0, "pagoEUR": 0, "nota": "[estimativa]" },
-  { "id": "gt-4", "item": "Caução + 1º aluguel", "categoria": "Moradia", "estimadoBRL": 21000, "estimadoEUR": 3500, "pagoBRL": 0, "pagoEUR": 0, "nota": "[estimativa]" },
-  { "id": "gt-5", "item": "Mobília inicial", "categoria": "Moradia", "estimadoBRL": 6000, "estimadoEUR": 1000, "pagoBRL": 0, "pagoEUR": 0, "nota": "[estimativa]" },
-  { "id": "gt-6", "item": "Reserva de emergência (3 meses)", "categoria": "Reserva", "estimadoBRL": 30000, "estimadoEUR": 5000, "pagoBRL": 0, "pagoEUR": 0, "nota": "[estimativa]" },
-  { "id": "gt-7", "item": "Curso de holandês", "categoria": "Educação", "estimadoBRL": 1800, "estimadoEUR": 300, "pagoBRL": 600, "pagoEUR": 100, "nota": "[estimativa] — já paguei a 1ª parcela" }
-]
+[]

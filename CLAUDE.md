@@ -14,8 +14,8 @@ frente não é % de progresso; é **há quantos dias eu não toco nela**.
 │   ├── projetos.json    ← frentes de trabalho (com marcos)
 │   ├── tarefas.json     ← tarefas (data, prioridade, status, projeto)
 │   ├── rotina.json      ← hábitos + registros
-│   ├── carreira.json    ← checklist Amsterdam (com dependências)
-│   ├── gastos.json      ← custos da mudança (R$ e €, estimado vs. pago)
+│   ├── carreira.json    ← legado (checklist Amsterdam antigo; não usado pela UI atual)
+│   ├── gastos.json      ← gastos da mudança (lista simples: item, valor R$, data)
 │   ├── leitura.json     ← livro atual (capa base64, progresso, páginas/dia)
 │   ├── agua.json        ← meta diária de água (ml), copo, lembretes, registros/dia
 │   ├── agenda.json      ← gerado a partir do Google Calendar (/hoje)
@@ -51,13 +51,13 @@ Ao republicar o Artifact (mesma URL), rode `node build.js` e reenvie `artifact.h
 
 ## Módulos (8 itens de navegação, um nível só)
 
-1. **Hoje** — data por extenso; **Atenção esfriando** no topo (tira com as frentes fora da cadência — sistema de temperatura — ordenadas por urgência, cada uma com "há X dias / cadência" e botão **Tocar**); 3 prioridades manuais; **Atrasadas** (tarefas com data no passado e não-feitas, com botão "Hoje" para remarcar); tarefas de hoje; compromissos do dia. Cada compromisso que **casa com uma frente** (nome/cliente) ganha um atalho **"↳ registrar toque"** — a reunião conta como atenção. **Alarme de reunião:** 5 min antes de cada compromisso com hora, um overlay em tela cheia toca um som insistente (Web Audio sintetizado, sem arquivo externo) e **só desliga no botão** ("Desligar alarme") — obriga a reconhecer a reunião. Barra de status na coluna da agenda ("Ativar som"/"Testar"); o navegador exige um clique para liberar áudio. **Só toca com a aba aberta e ativa** (iOS suspende JS/áudio em segundo plano — não substitui a notificação nativa do Calendar). Alarmes já desligados no dia ficam em `localStorage` (`atencao_alarms`, por evento, expira no dia). **Água:** widget de **garrafinha** no topo da coluna da agenda — enche de baixo pra cima (cinza no dia a dia, vira acento ao bater a meta de 3 L), com "+ copo" (250 ml) / "+ 500 ml" / "−" e desfazer. **Lembretes** = pop-up **não-bloqueante** que desce do topo nos horários de `agua.lembretes` (padrão a cada 2 h, 9h–21h), com atalho "+ copo"; some sozinho, não repete o mesmo horário no dia (`localStorage` `atencao_agua_lembretes`) e não incomoda se a meta já foi batida. Também só aparece com a aba aberta.
+1. **Hoje** — data por extenso; **Atenção esfriando** no topo (tira com as frentes fora da cadência — sistema de temperatura — ordenadas por urgência, cada uma com "há X dias / cadência" e botão **Tocar**); prioridades manuais (começa com 3, botão **"+ prioridade"** adiciona mais); **Atrasadas** (tarefas com data no passado e não-feitas, com botão "Hoje" para remarcar); tarefas de hoje; compromissos do dia. Cada compromisso que **casa com uma frente** (nome/cliente) ganha um atalho **"↳ registrar toque"** — a reunião conta como atenção. **Alarme de reunião:** 5 min antes de cada compromisso com hora, um overlay em tela cheia toca um som insistente (Web Audio sintetizado, sem arquivo externo) e **só desliga no botão** ("Desligar alarme") — obriga a reconhecer a reunião. Barra de status na coluna da agenda ("Ativar som"/"Testar"); o navegador exige um clique para liberar áudio. **Só toca com a aba aberta e ativa** (iOS suspende JS/áudio em segundo plano — não substitui a notificação nativa do Calendar). Alarmes já desligados no dia ficam em `localStorage` (`atencao_alarms`, por evento, expira no dia). **Água:** widget de **garrafinha** no topo da coluna da agenda — enche de baixo pra cima (cinza no dia a dia, vira acento ao bater a meta de 3 L), com "+ copo" (250 ml) / "+ 500 ml" / "−" e desfazer. **Lembretes** = pop-up **não-bloqueante** que desce do topo nos horários de `agua.lembretes` (padrão a cada 2 h, 9h–21h), com atalho "+ copo"; some sozinho, não repete o mesmo horário no dia (`localStorage` `atencao_agua_lembretes`) e não incomoda se a meta já foi batida. Também só aparece com a aba aberta.
 2. **Revisão** — a semana em um olhar (`/semana` como view): frentes tocadas nos últimos 7 dias (contagem + último toque), **Esfriando** (temperatura), **Progresso da semana** de hábitos (reaproveita o tracker da Rotina) e conclusão das tarefas da semana.
 3. **Tarefas** — segmentada em **Semana** (tarefas por dia, com **arrastar entre dias**), **Gantt** (barras da semana por projeto) e **Board** (colunas A fazer / Fazendo / Feito, com **arrastar** entre colunas). A segmentação é filtro dentro da view, **não** sub-abas na navegação.
 4. **Frentes** — cartões de projetos **ativos** (nome, cliente, período, próximo marco). Sem indicador de "dias sem toque". Ordenados por próximo marco.
 5. **Timeline** — visão **macro**: barra início → previsão de fim por projeto, marcos como diamantes + gestor de marcos editável.
 6. **Rotina** — **widget de leitura** no topo (capa, progresso, logger de páginas/dia, **projeção de término** no ritmo recente) + **Progresso da semana** (barra por hábito: cumprido vs. meta semanal, quantas metas batidas) + **calendário mensal** navegável de hábitos (cada dia marca os hábitos por inicial, clicável; legenda com contagem do mês + meta semanal). Hábitos editáveis (adicionar/editar meta/excluir).
-7. **Amsterdam** — checklist **por clusters** (Documentação & Legal, Trabalho & Carreira, Moradia & Mudança, Financeiro & Seguros), com dependências, + **gastos da mudança** (R$ e €, com câmbio €→R$ editável e **total convertido**).
+7. **Amsterdam** — **lista simples de gastos** da mudança: **total gasto** no topo (soma de tudo, em R$) + lançamentos com **o quê / quanto (R$) / quando**, editáveis e removíveis, ordenados por data. Sem clusters/checklist e sem estimado-vs-pago (simplificado a pedido). `carreira.json` deixou de ser usado pela aba.
 8. **Log** — timeline reversa, agrupada por semana, filtrável por frente.
 
 Tudo é editável/adicionável no próprio dashboard (botão "+ …" em cada view, editar/excluir por item), gravando no buffer → "Copiar patch" → `/sync`. Um botão flutuante **"+ Toque"** (canto inferior direito) registra um toque em qualquer frente de qualquer view. O câmbio €→R$ é preferência local (`localStorage`, como o tema) — **não** é fonte da verdade.
@@ -94,7 +94,7 @@ Tudo é editável/adicionável no próprio dashboard (botão "+ …" em cada vie
   em cada view, no máximo **um** elemento o recebe. Todo o resto vive em escala de cinza.
   - Timeline → o marco próximo (próximo marco não-feito com data ≥ hoje).
   - Rotina → a célula de hoje quando cumprida.
-  - Amsterdam → o próximo item desbloqueado e não-feito (as barras de gasto ficam em cinza).
+  - Amsterdam → sem acento (lista de gastos em cinza; total no topo em `--hi`).
   - Hoje / Revisão → o **sistema de temperatura das frentes** na tira "Atenção esfriando"/"Esfriando": *dot* âmbar (`--ambar`) para 1× acima da cadência, *dot* do acento (`--accent`) para 2× acima. É o alerta central do painel — aponta o que está dormente, não decora. O resto da view (atrasadas, prioridades, agenda) fica em cinza.
   - Frentes / Timeline (gestor) / Log → sem acento.
   - **Água (Hoje)** → a garrafinha vive em **cinza** (`--mid`) e só recebe o acento quando a meta do dia é batida (recompensa pontual) — assim não disputa o acento com o alerta de temperatura no dia a dia. O pop-up de lembrete usa o acento só no botão "+ copo".
@@ -138,12 +138,11 @@ de menor `data`. `inicio`/`previsaoFim` alimentam a Timeline macro. (Schema anti
 `projeto`, `data` e `dataFim` podem ser vazios; `dataFim` (prazo) desenha a barra no Gantt semanal.
 Alimentada também por `/planejar`.
 
-**gastos.json** — array de (custos da mudança, duas moedas):
+**gastos.json** — array de gastos simples da mudança (uma moeda, R$):
 ```json
-{ "id": "gt-1", "item": "…", "categoria": "…",
-  "estimadoBRL": 0, "estimadoEUR": 0, "pagoBRL": 0, "pagoEUR": 0, "nota": "…" }
+{ "id": "gt-1", "item": "o que foi o gasto", "valor": 1500, "data": "YYYY-MM-DD" }
 ```
-Os totais e as barras (pago vs. estimado, por moeda) são calculados no build/runtime.
+O **total gasto** (topo da aba Amsterdam) = soma de `valor`. Lista ordenada por `data` desc.
 
 **leitura.json** — livro em leitura (objeto único):
 ```json
