@@ -1377,30 +1377,21 @@ const APP = `
   }
 
   // =================== ALARME DE REUNIÃO (5 min antes) ===================
-  // Só toca com a aba aberta e ativa — iOS suspende JS/áudio em segundo plano.
-  // Só desliga no botão (manual). Som sintetizado via Web Audio (sem arquivo externo).
+  // Aviso VISUAL (overlay) 5 min antes — sem som. Só desliga no botão (manual).
+  // Só aparece com a aba aberta e ativa.
   var ALARM_LEAD=5*60*1000, ALARM_GRACE=90*1000;
-  var alarmCtx=null, activeAlarm=null, alarmLoop=null, alarmDismissed={};
+  var activeAlarm=null, alarmDismissed={};
   function loadDismissed(){ try{ var o=JSON.parse(localStorage.getItem('atencao_alarms')||'{}'); var out={};
     for(var k in o){ if(o[k]===TODAY) out[k]=o[k]; } alarmDismissed=out; localStorage.setItem('atencao_alarms',JSON.stringify(out)); }catch(e){ alarmDismissed={}; } }
   function saveDismissed(){ try{ localStorage.setItem('atencao_alarms',JSON.stringify(alarmDismissed)); }catch(e){} }
-  function ensureCtx(){ if(!alarmCtx){ try{ alarmCtx=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ alarmCtx=null; } } return alarmCtx; }
-  function soundReady(){ return !!(alarmCtx && alarmCtx.state==='running'); }
-  function unlockAudio(){ var c=ensureCtx(); if(!c) return; if(c.state==='suspended'){ c.resume().then(function(){ if(CURRENT==='hoje') renderCurrent(); },function(){}); } }
-  function beep(c,freq,t,dur){ var o=c.createOscillator(), g=c.createGain(); o.type='triangle'; o.frequency.value=freq;
-    g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(0.34,t+0.012); g.gain.setValueAtTime(0.34,t+dur-0.04); g.gain.linearRampToValueAtTime(0,t+dur);
-    o.connect(g); g.connect(c.destination); o.start(t); o.stop(t+dur+0.03); }
-  function alarmBurst(){ var c=ensureCtx(); if(!c) return; if(c.state==='suspended') c.resume(); var t=c.currentTime+0.03;
-    beep(c,988,t,0.16); beep(c,1319,t+0.20,0.16); beep(c,988,t+0.46,0.16); beep(c,1319,t+0.66,0.24); }
-  function testChirp(){ unlockAudio(); var c=ensureCtx(); if(!c) return; var t=c.currentTime+0.03; beep(c,988,t,0.14); beep(c,1319,t+0.18,0.18); }
   function eventKey(e){ return String(e.inicio)+'|'+e.titulo; }
   function checkAlarms(){ if(activeAlarm) return; var now=Date.now();
     var evs=agendaEvents().filter(function(e){ return e && !e.diaInteiro && e.inicio; });
     for(var i=0;i<evs.length;i++){ var e=evs[i]; var st=Date.parse(e.inicio); if(isNaN(st)) continue;
       if(now>=st-ALARM_LEAD && now<st+ALARM_GRACE && !alarmDismissed[eventKey(e)]){ fireAlarm(e); return; } } }
-  function fireAlarm(e){ activeAlarm=e; unlockAudio(); alarmBurst(); if(alarmLoop) clearInterval(alarmLoop); alarmLoop=setInterval(alarmBurst,1500);
+  function fireAlarm(e){ activeAlarm=e;
     var ov=document.getElementById('alarm-overlay'); if(ov&&ov.parentNode) ov.parentNode.removeChild(ov); document.body.appendChild(buildAlarmOverlay(e)); }
-  function stopAlarm(dismiss){ if(alarmLoop){ clearInterval(alarmLoop); alarmLoop=null; }
+  function stopAlarm(dismiss){
     var ov=document.getElementById('alarm-overlay'); if(ov&&ov.parentNode) ov.parentNode.removeChild(ov);
     if(dismiss && activeAlarm){ alarmDismissed[eventKey(activeAlarm)]=TODAY; saveDismissed(); }
     activeAlarm=null; if(CURRENT==='hoje') renderCurrent(); setTimeout(checkAlarms,500); }
@@ -1415,12 +1406,10 @@ const APP = `
     if(mp) card.appendChild(el('button',{class:'al-toque',text:'↳ registrar toque em '+mp.nome,onclick:function(){ quickToque(mp,e.titulo); }}));
     return el('div',{id:'alarm-overlay'},[card]);
   }
-  function alarmStatusNode(){ var on=soundReady();
+  function alarmStatusNode(){
     return el('div',{class:'alarmbar'},[
-      el('div',{class:'ab-l'},[ el('span',{class:'ab-dot'+(on?' on':'')}),
-        document.createTextNode(on?'Alarme sonoro 5 min antes de cada reunião · ativo':'Alarme 5 min antes — ative o som (o navegador exige um clique)') ]),
-      el('button',{class:'iconbtn',text: on?'Testar':'Ativar som',onclick:function(){ testChirp(); if(CURRENT==='hoje') renderCurrent(); }})
-    ]);
+      el('div',{class:'ab-l'},[ el('span',{class:'ab-dot on'}),
+        document.createTextNode('Aviso visual de reunião 5 min antes (sem som)') ]) ]);
   }
   // ---- lembrete de água (pop-up não-bloqueante, top-center) ----
   var aguaShown={}, aguaReminderTimer=null;
@@ -1448,7 +1437,6 @@ const APP = `
     if(aguaReminderTimer){ clearTimeout(aguaReminderTimer); aguaReminderTimer=null; } }
 
   function setupAlarms(){ loadDismissed(); loadAguaShown();
-    ['pointerdown','keydown','touchstart'].forEach(function(ev){ document.addEventListener(ev, unlockAudio, {passive:true}); });
     setInterval(function(){ checkAlarms(); checkAgua(); }, 20000); checkAlarms(); checkAgua();
   }
 
