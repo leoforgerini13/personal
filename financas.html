@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Finanças</title>
 <meta name="theme-color" content="#F5F5F8" media="(prefers-color-scheme:light)">
 <meta name="theme-color" content="#0C0A12" media="(prefers-color-scheme:dark)">
@@ -271,6 +271,16 @@ tbody tr:last-child td{border-bottom:none}
   font-size:15px;background:var(--surface2);color:var(--text);transition:border-color .15s,box-shadow .15s;
 }
 .field input:focus,.field select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.field textarea{
+  width:100%;padding:12px 13px;border:1px solid var(--border);border-radius:var(--r-sm);
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;line-height:1.5;
+  background:var(--surface2);color:var(--text);resize:vertical;min-height:150px;
+}
+.field textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.aviso{
+  font-size:12px;line-height:1.6;color:var(--text2);background:var(--surface2);
+  border-radius:var(--r-sm);padding:11px 13px;margin-bottom:14px;
+}
 .toggle{display:flex;gap:8px}
 .toggle button{flex:1;padding:12px;border:1px solid var(--border);background:var(--surface2);border-radius:var(--r-sm);font-size:14px;font-weight:600;cursor:pointer;color:var(--text2);transition:all .15s}
 .toggle button.on-out{background:var(--neg);color:#fff;border-color:var(--neg)}
@@ -310,6 +320,61 @@ tbody tr:last-child td{border-bottom:none}
 .search-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
 .filters{display:flex;gap:8px;margin-top:10px}
 .filters select{flex:1;min-width:0;padding:9px;border:1px solid var(--border);border-radius:var(--r-sm);background:var(--surface2);color:var(--text);font-size:12px;cursor:pointer}
+/* ── Grade mensal ────────────────────────────────────────────── */
+.mg-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.mg-tabela{width:100%;border-collapse:collapse;font-size:13px;min-width:430px}
+.mg-tabela th{
+  position:sticky;top:0;z-index:2;background:var(--surface);
+  color:var(--text2);font-weight:700;font-size:10px;text-transform:uppercase;
+  letter-spacing:.7px;padding:10px 8px;border-bottom:1px solid var(--border);text-align:right;
+}
+.mg-tabela th:first-child{text-align:left}
+.mg-tabela td{padding:0 4px;border-bottom:1px solid var(--border);vertical-align:middle}
+.mg-tabela tr:last-child td{border-bottom:none}
+.mg-dia{
+  padding:8px 8px !important;white-space:nowrap;font-weight:600;
+  font-variant-numeric:tabular-nums;width:1%;
+}
+.mg-dia small{display:block;font-size:10px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.4px}
+.mg-cel{padding:4px 2px !important;width:180px}
+.mg-tabela tbody tr{cursor:default}
+.mg-tabela tbody tr:hover td{background:transparent}
+.mg-tabela tbody tr:hover .mg-in{background:var(--surface2)}
+.mg-in{
+  width:100%;max-width:170px;margin-left:auto;display:block;min-width:96px;border:1px solid transparent;background:transparent;
+  border-radius:var(--r-sm);padding:9px 10px;text-align:right;
+  font:inherit;font-size:13px;font-weight:600;color:var(--text);
+  font-variant-numeric:tabular-nums;transition:background .12s,border-color .12s;
+}
+.mg-in::placeholder{color:var(--text2);opacity:.45;font-weight:400}
+.mg-in:hover{background:var(--surface2)}
+.mg-in:focus{outline:none;border-color:var(--accent);background:var(--surface);box-shadow:0 0 0 3px var(--accent-soft)}
+.mg-in.has-val.mg-ent{color:var(--pos)}
+.mg-in.has-val.mg-sai{color:var(--neg)}
+.mg-fixo{
+  display:block;font-size:10px;font-weight:600;text-align:right;
+  padding:0 10px 5px;font-variant-numeric:tabular-nums;
+}
+.mg-fixo.ent{color:var(--pos)} .mg-fixo.sai{color:var(--neg)}
+.mg-saldo{
+  width:170px;text-align:right;padding:8px 10px !important;font-weight:700;
+  font-variant-numeric:tabular-nums;white-space:nowrap;
+}
+.mg-row.hoje{background:var(--accent-soft)}
+.mg-row.hoje .mg-dia{color:var(--accent)}
+.mg-row.virada td{border-top:2px solid var(--border)}
+.mg-legenda{font-size:11px;color:var(--text2);margin-top:12px;line-height:1.7}
+@media(max-width:768px){
+  /* As colunas cabem na tela: o body nunca rola na horizontal.
+     O overflow do .mg-wrap fica como rede para telas ainda mais estreitas. */
+  .mg-tabela{min-width:0;font-size:12px}
+  .mg-tabela th{padding:9px 4px;font-size:9px;letter-spacing:.4px}
+  .mg-dia{padding:8px 4px !important}
+  .mg-cel{width:auto;padding:3px 1px !important}
+  .mg-in{min-width:0;max-width:none;padding:9px 6px;font-size:12px}
+  .mg-fixo{font-size:9px;padding:0 6px 4px}
+  .mg-saldo{width:auto;padding:8px 4px !important;font-size:12px}
+}
 /* ── Mobile ─────────────────────────────────────────────────── */
 @media(max-width:768px){
   .sidebar{transform:translateX(-100%);box-shadow:0 0 40px rgba(0,0,0,.2)}
@@ -354,6 +419,7 @@ tbody tr:last-child td{border-bottom:none}
       <div class="sb-label">Menu</div>
       <button data-tab="inicio" class="active"><span class="sb-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="8" rx="2"/><rect x="14" y="3" width="7" height="5" rx="2"/><rect x="14" y="11" width="7" height="10" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/></svg></span> Dashboard</button>
       <button data-tab="lancamentos"><span class="sb-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg></span> Lançamentos</button>
+      <button data-tab="mensal"><span class="sb-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18M9 9v12"/></svg></span> Mensal</button>
       <button data-tab="planejamento"><span class="sb-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M3 9h18M8 2v4M16 2v4"/></svg></span> Planejamento</button>
       <button data-tab="patrimonio"><span class="sb-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l5.5-6 4 4L21 6"/><path d="M15 6h6v6"/></svg></span> Patrimônio</button>
       <button data-tab="analise"><span class="sb-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 20V10M12 20V4M19 20v-7"/></svg></span> Análise</button>
@@ -377,6 +443,8 @@ tbody tr:last-child td{border-bottom:none}
     <main>
       <section id="tab-inicio" class="tab-page active"></section>
       <section id="tab-lancamentos" class="tab-page"></section>
+
+      <section id="tab-mensal" class="tab-page"></section>
 
       <section id="tab-planejamento" class="tab-page">
         <div class="subnav">
@@ -468,7 +536,6 @@ function advanceCyclesIfNeeded(){
   }
   DB.cycleAnchor=curLast;
 }
-function resetData(){ if(confirm('Apagar todos os dados e restaurar os valores iniciais?')){ DB=seed(); saveDB(); renderAll(); toast('Dados restaurados'); } }
 
 const getFixas=()=>DB.fixas;
 const getParceladas=()=>DB.parceladas;
@@ -504,8 +571,8 @@ function cycleRangeByOffset(offset){
 function currentCycleRange(){ return cycleRangeByOffset(0); }
 let cycleOffset=0;
 function selectedCycleRange(){ return cycleRangeByOffset(cycleOffset); }
-function changeCycle(delta){ cycleOffset+=delta; refresh('inicio','lancamentos','visao'); }
-function resetCycle(){ if(cycleOffset!==0){ cycleOffset=0; refresh('inicio','lancamentos','visao'); } }
+function changeCycle(delta){ cycleOffset+=delta; refresh('inicio','lancamentos','mensal','visao'); }
+function resetCycle(){ if(cycleOffset!==0){ cycleOffset=0; refresh('inicio','lancamentos','mensal','visao'); } }
 function cycleLabel(offset){
   const {first,last}=cycleRangeByOffset(offset);
   const f=new Date(first+'T12:00:00'),l=new Date(last+'T12:00:00');
@@ -599,11 +666,11 @@ function hexA(hex,a){
 }
 
 /* ============ RENDER ORCHESTRATION ============ */
-const RENDER={inicio:renderInicio,lancamentos:renderLancamentos,fixas:renderFixas,
+const RENDER={inicio:renderInicio,lancamentos:renderLancamentos,mensal:renderMensal,fixas:renderFixas,
   parceladas:renderParceladas,categorias:renderCategorias,patrimonio:renderPatrimonio,resumo:renderResumo,visao:renderVisao};
-const VIEW_TAB={inicio:'inicio',lancamentos:'lancamentos',fixas:'planejamento',
+const VIEW_TAB={inicio:'inicio',lancamentos:'lancamentos',mensal:'mensal',fixas:'planejamento',
   parceladas:'planejamento',categorias:'planejamento',patrimonio:'patrimonio',resumo:'analise',visao:'analise'};
-const TAB_VIEWS={inicio:['inicio'],lancamentos:['lancamentos'],planejamento:['fixas','parceladas','categorias'],
+const TAB_VIEWS={inicio:['inicio'],lancamentos:['lancamentos'],mensal:['mensal'],planejamento:['fixas','parceladas','categorias'],
   patrimonio:['patrimonio'],analise:['resumo','visao']};
 const ALL_VIEWS=Object.keys(RENDER);
 let activeTab='inicio';
@@ -786,6 +853,135 @@ function renderLancList(){
     <div class="card"><div class="row-between" style="font-size:13px;font-weight:600"><span class="pos">Entradas: ${brl(entradas)}</span><span class="neg">Saídas: ${brl(saidas)}</span></div></div>
     <div class="card">${rows}</div>
   `;
+}
+
+/* ============ RENDER: GRADE MENSAL ============ */
+/* A grade é uma visão sobre os lançamentos reais, não um caderno paralelo.
+   Cada célula editável controla UM lançamento marcado com origem:'grade';
+   o que foi lançado com descrição/categoria pela aba Lançamentos entra na
+   conta, mas não é sobrescrito aqui. Recorrentes (fixas, parcelas, salário)
+   são derivados do Planejamento e aparecem travados. */
+const DIA_SEM=['dom','seg','ter','qua','qui','sex','sáb'];
+
+function txDoDia(dia,tipo){ return getTransacoes().filter(t=>t.data===dia&&t.tipo===tipo); }
+function manualDia(dia,tipo){ return txDoDia(dia,tipo).reduce((a,t)=>a+t.valor,0); }
+function detalhadoDia(dia,tipo){ return txDoDia(dia,tipo).filter(t=>t.origem!=='grade').reduce((a,t)=>a+t.valor,0); }
+function gradeTx(dia,tipo){ return getTransacoes().find(t=>t.data===dia&&t.tipo===tipo&&t.origem==='grade'); }
+function fixoDia(evs,dia,tipo){ return evs.filter(e=>e.data===dia&&e.tipo===tipo).reduce((a,e)=>a+e.valor,0); }
+
+function renderMensal(){
+  const el=document.getElementById('tab-mensal');
+  const {first,last}=selectedCycleRange();
+  const evs=recurringEvents(cycleOffset);
+  const hoje=todayISO();
+
+  const dias=[]; let d=new Date(first+'T12:00:00'); const fim=new Date(last+'T12:00:00');
+  while(d<=fim){ dias.push(iso(d.getFullYear(),d.getMonth()+1,d.getDate())); d=new Date(d.getTime()+86400000); }
+
+  const linhas=dias.map((dia,i)=>{
+    const dt=new Date(dia+'T12:00:00');
+    const num=dt.getDate();
+    const fixE=fixoDia(evs,dia,'entrada'), fixS=fixoDia(evs,dia,'saida');
+    const manE=manualDia(dia,'entrada'), manS=manualDia(dia,'saida');
+    const virada=num===1&&i>0;
+    return `<tr class="mg-row${dia===hoje?' hoje':''}${virada?' virada':''}" data-dia="${dia}">
+      <td class="mg-dia">${String(num).padStart(2,'0')}<small>${DIA_SEM[dt.getDay()]}</small></td>
+      <td class="mg-cel">
+        <input class="mg-in mg-ent${manE?' has-val':''}" type="text" inputmode="decimal" placeholder="—"
+               data-dia="${dia}" data-tipo="entrada" value="${manE?moedaToInput(manE):''}"
+               aria-label="Entrada do dia ${num}"
+               oninput="moneyMaskInput(this)" onchange="setGradeCel(this)" onkeydown="gradeTecla(event,this)">
+        ${fixE?`<span class="mg-fixo ent">+${brl(fixE)} fixo</span>`:''}
+      </td>
+      <td class="mg-cel">
+        <input class="mg-in mg-sai${manS?' has-val':''}" type="text" inputmode="decimal" placeholder="—"
+               data-dia="${dia}" data-tipo="saida" value="${manS?moedaToInput(manS):''}"
+               aria-label="Saída do dia ${num}"
+               oninput="moneyMaskInput(this)" onchange="setGradeCel(this)" onkeydown="gradeTecla(event,this)">
+        ${fixS?`<span class="mg-fixo sai">−${brl(fixS)} fixo</span>`:''}
+      </td>
+      <td class="mg-saldo"></td>
+    </tr>`;
+  }).join('');
+
+  el.innerHTML=`
+    ${cycleSelectorHTML()}
+    <div class="dash-grid3">
+      <div class="stat-card"><div class="sc-label">Entradas do ciclo</div><div class="sc-val pos" id="mg-tot-ent">—</div></div>
+      <div class="stat-card"><div class="sc-label">Saídas do ciclo</div><div class="sc-val neg" id="mg-tot-sai">—</div></div>
+      <div class="stat-card"><div class="sc-label">Saldo final</div><div class="sc-val" id="mg-tot-sal">—</div></div>
+    </div>
+    <div class="card" style="padding:6px 10px 10px">
+      <div class="mg-wrap">
+        <table class="mg-tabela">
+          <thead><tr><th>Dia</th><th>Entrada</th><th>Saída</th><th>Saldo acumulado</th></tr></thead>
+          <tbody>${linhas}</tbody>
+        </table>
+      </div>
+    </div>
+    <p class="mg-legenda">
+      Digite direto nas células — o saldo acumulado se refaz sozinho. <b>Enter</b> pula para o dia seguinte.<br>
+      Os valores marcados como <b>fixo</b> vêm das contas fixas, parcelas e entradas do Planejamento: entram no saldo, mas se editam lá.
+    </p>`;
+  recalcMensal();
+}
+
+/* Recalcula saldos e totais sem redesenhar a tabela — assim o foco e a
+   posição do cursor sobrevivem à digitação. */
+function recalcMensal(){
+  const el=document.getElementById('tab-mensal');
+  const corpo=el&&el.querySelector('.mg-tabela'); if(!corpo) return;
+  const evs=recurringEvents(cycleOffset);
+  let acc=0,totE=0,totS=0;
+  el.querySelectorAll('.mg-row').forEach(tr=>{
+    const dia=tr.dataset.dia;
+    const e=manualDia(dia,'entrada')+fixoDia(evs,dia,'entrada');
+    const sa=manualDia(dia,'saida')+fixoDia(evs,dia,'saida');
+    acc+=e-sa; totE+=e; totS+=sa;
+    const cel=tr.querySelector('.mg-saldo');
+    cel.textContent=brl(acc);
+    cel.className='mg-saldo '+(acc>0?'pos':(acc<0?'neg':'muted'));
+    tr.querySelectorAll('.mg-in').forEach(inp=>{
+      if(inp===document.activeElement) return;
+      const v=manualDia(dia,inp.dataset.tipo);
+      inp.value=v?moedaToInput(v):'';
+      inp.classList.toggle('has-val',!!v);
+    });
+  });
+  const set=(id,txt,cls)=>{ const n=document.getElementById(id); if(n){ n.textContent=txt; if(cls) n.className='sc-val '+cls; } };
+  set('mg-tot-ent',brl(totE)); set('mg-tot-sai',brl(totS));
+  set('mg-tot-sal',brl(totE-totS),(totE-totS)>0?'pos':((totE-totS)<0?'neg':'muted'));
+}
+
+function setGradeCel(inp){
+  const dia=inp.dataset.dia, tipo=inp.dataset.tipo;
+  const v=parseMoeda(inp.value);
+  const alvo=isNaN(v)?0:v;
+  const det=detalhadoDia(dia,tipo);
+  const resto=alvo-det;
+  if(resto<0){
+    toast('Esse dia já tem '+brl(det)+' lançado em detalhe');
+    inp.blur(); recalcMensal(); return;
+  }
+  const ex=gradeTx(dia,tipo);
+  if(resto===0){ if(ex) DB.transacoes=DB.transacoes.filter(t=>t.id!==ex.id); }
+  else if(ex){ ex.valor=resto; }
+  else DB.transacoes.push({id:uid(),data:dia,tipo,valor:resto,descricao:'',categoria:'',
+                           forma_pagamento:'dinheiro_pix',origem:'grade'});
+  saveDB();
+  inp.classList.toggle('has-val',alvo>0);
+  refresh('inicio','lancamentos','visao');
+  recalcMensal();
+}
+
+/* Enter/setas andam pela coluna, como numa planilha. */
+function gradeTecla(ev,inp){
+  const passo=ev.key==='Enter'||ev.key==='ArrowDown'?1:(ev.key==='ArrowUp'?-1:0);
+  if(!passo) return;
+  ev.preventDefault();
+  const iguais=[...document.querySelectorAll('.mg-in[data-tipo="'+inp.dataset.tipo+'"]')];
+  const alvo=iguais[iguais.indexOf(inp)+passo];
+  if(alvo){ alvo.focus(); alvo.select(); }
 }
 
 /* ============ RENDER: FIXAS ============ */
@@ -1205,10 +1401,10 @@ function animThenDelete(ev,fn){
   const row=ev?.target?.closest?.('.row');
   if(row){ row.classList.add('leaving'); setTimeout(fn,180); } else fn();
 }
-function delTx(id,ev){ animThenDelete(ev,()=>softDelete('transacoes',id,['inicio','lancamentos','visao'],'Lançamento')); }
-function delFixa(id,ev){ animThenDelete(ev,()=>softDelete('fixas',id,['inicio','fixas','visao'],'Conta')); }
-function delEntradaFixa(id,ev){ animThenDelete(ev,()=>softDelete('entradas_fixas',id,['inicio','fixas','visao'],'Entrada fixa')); }
-function delParcela(id,ev){ animThenDelete(ev,()=>softDelete('parceladas',id,['inicio','parceladas','visao'],'Parcela')); }
+function delTx(id,ev){ animThenDelete(ev,()=>softDelete('transacoes',id,['inicio','lancamentos','mensal','visao'],'Lançamento')); }
+function delFixa(id,ev){ animThenDelete(ev,()=>softDelete('fixas',id,['inicio','fixas','mensal','visao'],'Conta')); }
+function delEntradaFixa(id,ev){ animThenDelete(ev,()=>softDelete('entradas_fixas',id,['inicio','fixas','mensal','visao'],'Entrada fixa')); }
+function delParcela(id,ev){ animThenDelete(ev,()=>softDelete('parceladas',id,['inicio','parceladas','mensal','visao'],'Parcela')); }
 function delSaving(id,ev){ animThenDelete(ev,()=>softDelete('savings',id,['patrimonio'],'Movimentação')); }
 
 /* ============ MODALS ============ */
@@ -1248,7 +1444,7 @@ function saveTx(id){
     forma_pagamento:document.getElementById('m-forma').value};
   if(id){ const i=DB.transacoes.findIndex(t=>t.id===id); if(i>=0) DB.transacoes[i]={...DB.transacoes[i],...rec}; flashId=id; }
   else { const nid=uid(); DB.transacoes.push({id:nid,...rec}); flashId=nid; }
-  saveDB(); closeModal(); refresh('inicio','lancamentos','visao'); clearFlash(); toast(id?'Atualizado':'Lançamento salvo');
+  saveDB(); closeModal(); refresh('inicio','lancamentos','mensal','visao'); clearFlash(); toast(id?'Atualizado':'Lançamento salvo');
 }
 
 function openEntradaFixaModal(id){
@@ -1268,7 +1464,7 @@ function saveEntradaFixa(id){
   if(!DB.entradas_fixas) DB.entradas_fixas=[];
   if(id){ const i=DB.entradas_fixas.findIndex(f=>f.id===id); if(i>=0) DB.entradas_fixas[i]={...DB.entradas_fixas[i],nome,valor,dia_recebimento:dia}; flashId=id; }
   else { const nid=uid(); DB.entradas_fixas.push({id:nid,nome,valor,dia_recebimento:dia,ativo:true}); flashId=nid; }
-  saveDB(); closeModal(); refresh('inicio','fixas','visao'); clearFlash(); toast(id?'Atualizado':'Entrada fixa adicionada!');
+  saveDB(); closeModal(); refresh('inicio','fixas','mensal','visao'); clearFlash(); toast(id?'Atualizado':'Entrada fixa adicionada!');
 }
 
 function openFixaModal(id){
@@ -1286,7 +1482,7 @@ function saveFixa(id){
   if(!nome||!(valor>0)){ toast('Preencha nome e valor'); return; }
   if(id){ const i=DB.fixas.findIndex(f=>f.id===id); if(i>=0) DB.fixas[i]={...DB.fixas[i],nome,valor,dia_vencimento:dia}; flashId=id; }
   else { const nid=uid(); DB.fixas.push({id:nid,nome,valor,dia_vencimento:dia,ativo:true}); flashId=nid; }
-  saveDB(); closeModal(); refresh('inicio','fixas','visao'); clearFlash(); toast(id?'Atualizado':'Conta adicionada');
+  saveDB(); closeModal(); refresh('inicio','fixas','mensal','visao'); clearFlash(); toast(id?'Atualizado':'Conta adicionada');
 }
 
 function openParcelaModal(id){
@@ -1306,7 +1502,7 @@ function saveParcela(id){
   if(!nome||!(vp>0)){ toast('Preencha nome e valor'); return; }
   if(id){ const i=DB.parceladas.findIndex(p=>p.id===id); if(i>=0) DB.parceladas[i]={...DB.parceladas[i],nome,valor_parcela:vp,parcela_atual:pa,total_parcelas:tp}; flashId=id; }
   else { const nid=uid(); DB.parceladas.push({id:nid,nome,valor_parcela:vp,parcela_atual:pa,total_parcelas:tp,ativo:true}); flashId=nid; }
-  saveDB(); closeModal(); refresh('inicio','parceladas','visao'); clearFlash(); toast(id?'Atualizado':'Parcelamento adicionado');
+  saveDB(); closeModal(); refresh('inicio','parceladas','mensal','visao'); clearFlash(); toast(id?'Atualizado':'Parcelamento adicionado');
 }
 
 let savTipo='aporte';
@@ -1354,7 +1550,15 @@ function showUndo(msg,undoFn){
 }
 
 /* ============ TEMA ============ */
-function currentTheme(){ const s=localStorage.getItem('theme'); if(s) return s; return window.matchMedia?.('(prefers-color-scheme:dark)').matches?'dark':'light'; }
+function currentTheme(){
+  const s=localStorage.getItem('theme');
+  if(s) return s;
+  // Sem preferência salva: segue o tema que o hospedeiro carimbou (Artifact) ...
+  const host=document.documentElement.getAttribute('data-theme');
+  if(host==='dark'||host==='light') return host;
+  // ... ou, na falta dele, o tema do sistema.
+  return window.matchMedia?.('(prefers-color-scheme:dark)').matches?'dark':'light';
+}
 function applyChartTheme(t){
   if(!window.Chart) return;
   Chart.defaults.font.family="'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,sans-serif";
@@ -1363,8 +1567,9 @@ function applyChartTheme(t){
 }
 function applyTheme(){
   const t=currentTheme();
+  // Só carimba data-theme quando o usuário escolheu: sem escolha, preserva o
+  // que o hospedeiro definiu em vez de apagá-lo.
   if(localStorage.getItem('theme')) document.documentElement.setAttribute('data-theme',t);
-  else document.documentElement.removeAttribute('data-theme');
   const icon=t==='dark'?'☀️ Tema':'🌙 Tema';
   document.querySelectorAll('#btn-theme,#btn-theme-mob').forEach(b=>{ if(b) b.textContent=t==='dark'?'☀️':'🌙'; });
   const sb=document.getElementById('btn-theme'); if(sb) sb.textContent=icon;
@@ -1373,52 +1578,148 @@ function applyTheme(){
 function toggleTheme(){ localStorage.setItem('theme',currentTheme()==='dark'?'light':'dark'); applyTheme(); refresh('patrimonio','resumo'); }
 
 /* ============ BACKUP ============ */
-function downloadFile(filename,content,mime){
-  const blob=new Blob([content],{type:mime});
-  const url=URL.createObjectURL(blob);
+/* Publicado como Artifact, a página roda num frame que não baixa arquivos
+   sozinho: o download passa pela capability `downloads`, que pede
+   confirmação ao usuário. Aberto como arquivo solto, o link comum resolve. */
+/* Checagem preguiçosa: o hospedeiro pode injetar window.claude depois que
+   este script roda, então não dá para congelar isso numa constante. */
+function rodandoNoArtifact(){ return typeof window.claude?.use === 'function'; }
+let capDownloads;
+async function getDownloads(){
+  if(!rodandoNoArtifact()) return null;
+  if(capDownloads!==undefined) return capDownloads;
+  try{ capDownloads = await window.claude.use('downloads'); }
+  catch(e){ capDownloads = null; }
+  return capDownloads;
+}
+
+function baixaPorLink(filename,content,mime){
+  const url=URL.createObjectURL(new Blob([content],{type:mime}));
   const a=document.createElement('a'); a.href=url; a.download=filename;
   document.body.appendChild(a); a.click(); document.body.removeChild(a);
   setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
-function exportJSON(){ downloadFile('financas-backup-'+todayISO()+'.json',JSON.stringify(DB,null,2),'application/json'); toast('Backup .json baixado'); }
-function csvEscape(v){ if(v==null) return ''; const s=String(v); return /[",\n;]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s; }
-function exportCSV(){
-  const h=['data','tipo','valor','descricao','categoria','forma_pagamento'];
-  const lines=[h.join(';')];
-  getTransacoes().slice().sort((a,b)=>a.data.localeCompare(b.data)).forEach(t=>{
-    lines.push([t.data,t.tipo,String(t.valor).replace('.',','),t.descricao,t.categoria,t.forma_pagamento].map(csvEscape).join(';'));
-  });
-  downloadFile('lancamentos-'+todayISO()+'.csv','﻿'+lines.join('\n'),'text/csv;charset=utf-8');
-  toast('Lançamentos .csv baixados');
+
+async function salvaArquivo(filename,content,mime){
+  if(!rodandoNoArtifact()){ baixaPorLink(filename,content,mime); toast('Arquivo baixado'); return; }
+  const dl=await getDownloads();
+  if(!dl){ toast('Download indisponível aqui — use "Copiar backup"'); return; }
+  try{
+    await dl.save({filename,data:content});
+    toast('Arquivo salvo');
+  }catch(e){
+    const cod=e&&e.code;
+    if(cod==='extension_not_enabled'&&filename.endsWith('.csv')){
+      // .csv nem sempre está liberado; o mesmo conteúdo cabe num .txt
+      try{ await dl.save({filename:filename.replace(/\.csv$/,'.txt'),data:content});
+           toast('Salvo como .txt — .csv não é permitido aqui'); return; }
+      catch(e2){ /* cai no tratamento abaixo */ }
+    }
+    if(cod==='declined') toast('Download cancelado');
+    else if(cod==='too_large') toast('Arquivo grande demais para baixar');
+    else if(cod==='rate_limited') toast('Espere um instante e tente de novo');
+    else toast('Não foi possível baixar — use "Copiar backup"');
+  }
 }
-function importJSON(){
-  const input=document.createElement('input'); input.type='file'; input.accept='application/json,.json';
-  input.onchange=()=>{
-    const file=input.files&&input.files[0]; if(!file) return;
-    const reader=new FileReader();
-    reader.onload=()=>{
-      let data; try{ data=JSON.parse(reader.result); }catch(e){ alert('Arquivo inválido.'); return; }
-      const cols=['fixas','parceladas','transacoes','monthly_summary','savings','entradas_fixas'];
-      if(typeof data!=='object'||data===null||!cols.some(k=>Array.isArray(data[k]))){ alert('Não parece um backup do Finanças.'); return; }
-      const res='Importar substituirá seus dados.\n\n• '+((data.transacoes||[]).length)+' lançamentos\n• '+((data.fixas||[]).length)+' contas fixas\n\nContinuar?';
-      if(!confirm(res)) return;
+
+function backupJSON(){ return JSON.stringify(DB,null,2); }
+function exportJSON(){ salvaArquivo('financas-backup-'+todayISO()+'.json',backupJSON(),'application/json'); }
+function csvEscape(v){ if(v==null) return ''; const s=String(v); return /[",\n;]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s; }
+function montaCSV(){
+  const h=['data','tipo','valor','descricao','categoria','forma_pagamento'];
+  const linhas=[h.join(';')];
+  getTransacoes().slice().sort((a,b)=>a.data.localeCompare(b.data)).forEach(t=>{
+    linhas.push([t.data,t.tipo,String(t.valor).replace('.',','),t.descricao,t.categoria,t.forma_pagamento].map(csvEscape).join(';'));
+  });
+  return '﻿'+linhas.join('\n');
+}
+function exportCSV(){ salvaArquivo('lancamentos-'+todayISO()+'.csv',montaCSV(),'text/csv;charset=utf-8'); }
+
+async function copiarBackup(){
+  try{ await navigator.clipboard.writeText(backupJSON()); toast('Backup copiado para a área de transferência'); }
+  catch(e){ openModal(`<h3>Copiar backup</h3>
+    <p class="aviso">Selecione tudo e copie (Ctrl/Cmd + A, depois Ctrl/Cmd + C).</p>
+    <div class="field"><textarea readonly onclick="this.select()">${escapeHtml(backupJSON())}</textarea></div>
+    <div class="modal-actions"><button class="btn-cancel" onclick="openBackupModal()">Voltar</button></div>`); }
+}
+
+/* Confirmação em modal próprio: alert()/confirm() podem ser bloqueados
+   dentro do frame do Artifact e sumiriam sem aviso. */
+let acaoPendente=null;
+function confirmarModal(titulo,corpoHTML,rotulo,fn,perigo){
+  acaoPendente=fn;
+  openModal(`<h3>${escapeHtml(titulo)}</h3>
+    <div class="aviso">${corpoHTML}</div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+      <button class="btn-accent"${perigo?' style="background:var(--neg)"':''} onclick="rodarAcaoPendente()">${escapeHtml(rotulo)}</button>
+    </div>`);
+}
+function rodarAcaoPendente(){ const f=acaoPendente; acaoPendente=null; closeModal(); if(f) f(); }
+
+function aplicaBackup(texto){
+  let data;
+  try{ data=JSON.parse(texto); }
+  catch(e){ toast('Não é um JSON válido'); return; }
+  const cols=['fixas','parceladas','transacoes','monthly_summary','savings','entradas_fixas'];
+  if(typeof data!=='object'||data===null||!cols.some(k=>Array.isArray(data[k]))){
+    toast('Não parece um backup do Finanças'); return;
+  }
+  confirmarModal('Importar backup',
+    'Isto substitui todos os dados atuais por:<br><b>'+((data.transacoes||[]).length)+'</b> lançamentos · '
+    +'<b>'+((data.fixas||[]).length)+'</b> contas fixas · '
+    +'<b>'+((data.savings||[]).length)+'</b> movimentações de patrimônio.',
+    'Importar', ()=>{
       DB={fixas:data.fixas||[],parceladas:data.parceladas||[],transacoes:data.transacoes||[],
         monthly_summary:data.monthly_summary||[],savings:data.savings||[],entradas_fixas:data.entradas_fixas||[],
         categorias:data.categorias||defaultCategorias(),metaPoupanca:data.metaPoupanca??null};
       if(data.cycleAnchor) DB.cycleAnchor=data.cycleAnchor;
-      migrateDB(); saveDB(); renderAll(); closeModal(); toast('Backup importado!');
-    };
+      migrateDB(); saveDB(); renderAll(); toast('Backup importado');
+    });
+}
+
+function importJSON(){
+  const input=document.createElement('input');
+  input.type='file'; input.accept='application/json,.json';
+  input.onchange=()=>{
+    const file=input.files&&input.files[0]; if(!file) return;
+    const reader=new FileReader();
+    reader.onload=()=>aplicaBackup(String(reader.result));
+    reader.onerror=()=>toast('Não foi possível ler o arquivo');
     reader.readAsText(file);
   };
   input.click();
 }
-function openBackupModal(){
+
+function openColarModal(){
+  openModal(`<h3>Colar backup</h3>
+    <p class="aviso">Abra o arquivo <b>.json</b> do backup, copie todo o conteúdo e cole aqui.
+    Serve para trazer os dados de outro navegador ou da versão em arquivo.</p>
+    <div class="field"><textarea id="bk-txt" placeholder='{ "fixas": [ ... ] }' spellcheck="false"></textarea></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="openBackupModal()">Voltar</button>
+      <button class="btn-accent" onclick="aplicaBackup(document.getElementById('bk-txt').value)">Importar</button>
+    </div>`);
+}
+
+function resetData(){
+  confirmarModal('Resetar dados',
+    'Todos os seus lançamentos, contas e movimentações serão apagados e os valores iniciais voltam. Não dá para desfazer.',
+    'Apagar tudo', ()=>{ DB=seed(); saveDB(); renderAll(); toast('Dados restaurados'); }, true);
+}
+
+async function openBackupModal(){
+  const podeBaixar = !rodandoNoArtifact() || !!(await getDownloads());
   openModal(`<h3>Dados & Backup</h3>
-    <p style="font-size:13px;color:var(--text2);margin-bottom:14px">Seus dados ficam só neste navegador. Exporte um backup periodicamente.</p>
-    <button class="btn-add btn-soft-pos" style="margin-bottom:8px" onclick="exportJSON()">⬇️ Exportar backup (.json)</button>
-    <button class="btn-add btn-soft" style="margin-bottom:8px" onclick="exportCSV()">📄 Exportar lançamentos (.csv)</button>
-    <button class="btn-add" style="background:var(--ink);box-shadow:none;margin-bottom:16px" onclick="importJSON()">⬆️ Importar backup (.json)</button>
-    <button class="btn-add" style="background:var(--neg)" onclick="closeModal();resetData()">🗑️ Resetar para dados iniciais</button>
+    <p class="aviso">Seus dados ficam guardados só neste navegador. Faça um backup de vez em quando —
+    e antes de trocar de aparelho.</p>
+    ${podeBaixar?`
+      <button class="btn-add btn-soft-pos" style="margin-bottom:8px" onclick="exportJSON()">⬇️ Exportar backup (.json)</button>
+      <button class="btn-add btn-soft" style="margin-bottom:8px" onclick="exportCSV()">📄 Exportar lançamentos (.csv)</button>`:''}
+    <button class="btn-add btn-soft" style="margin-bottom:8px" onclick="copiarBackup()">📋 Copiar backup</button>
+    <button class="btn-add" style="background:var(--ink);box-shadow:none;margin-bottom:8px" onclick="importJSON()">⬆️ Importar arquivo (.json)</button>
+    <button class="btn-add btn-soft" style="margin-bottom:16px" onclick="openColarModal()">📥 Colar backup</button>
+    <button class="btn-add" style="background:var(--neg)" onclick="resetData()">🗑️ Resetar para dados iniciais</button>
     <div class="modal-actions" style="margin-top:12px"><button class="btn-cancel" onclick="closeModal()">Fechar</button></div>`);
 }
 
