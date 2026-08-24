@@ -565,11 +565,15 @@ function clearFlash(){ flashId=null; }
 function flashCls(id){ return id===flashId?' row-new':''; }
 
 /* ============ CYCLE MATH ============ */
+/* O ciclo financeiro não é o mês do calendário: vai do dia 21 ao dia 20 do
+   mês seguinte. Os dois valores ficam aqui para não haver dia solto ou
+   contado duas vezes se o ciclo mudar de novo. */
+const CICLO_INICIO=21, CICLO_FIM=20;
 function cycleRangeByOffset(offset){
   const n=new Date();
-  const endM=n.getMonth()+(n.getDate()>=23?1:0)+offset;
-  const end=new Date(n.getFullYear(),endM,22);
-  const start=new Date(n.getFullYear(),endM-1,23);
+  const endM=n.getMonth()+(n.getDate()>=CICLO_INICIO?1:0)+offset;
+  const end=new Date(n.getFullYear(),endM,CICLO_FIM);
+  const start=new Date(n.getFullYear(),endM-1,CICLO_INICIO);
   return { first:iso(start.getFullYear(),start.getMonth()+1,start.getDate()),
            last: iso(end.getFullYear(),end.getMonth()+1,end.getDate()) };
 }
@@ -616,7 +620,7 @@ function recurringEvents(offset){
   getParceladas().forEach(p=>{
     const n=Number(p.parcela_atual)+offset;
     if(p.ativo!==false&&n>=1&&n<=Number(p.total_parcelas))
-      evs.push({tipo:'saida',origem:'parcela',nome:p.nome,valor:p.valor_parcela,parcelaNum:n,total:Number(p.total_parcelas),data:dateForDom(22)});
+      evs.push({tipo:'saida',origem:'parcela',nome:p.nome,valor:p.valor_parcela,parcelaNum:n,total:Number(p.total_parcelas),data:dateForDom(CICLO_FIM)});
   });
   return evs;
 }
