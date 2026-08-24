@@ -12,8 +12,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
-<style>
+<script id="app-vendor" src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+<style id="app-css">
 /* ── Design tokens ─────────────────────────────────────────────
    Paleta validada (dataviz): contraste >= 4.5:1 em todos os pares
    de texto; séries categóricas aprovadas em CVD (light e dark).   */
@@ -320,6 +320,19 @@ tbody tr:last-child td{border-bottom:none}
 .search-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
 .filters{display:flex;gap:8px;margin-top:10px}
 .filters select{flex:1;min-width:0;padding:9px;border:1px solid var(--border);border-radius:var(--r-sm);background:var(--surface2);color:var(--text);font-size:12px;cursor:pointer}
+/* ── Chip de sincronização ──────────────────────────────────── */
+.sync-chip{
+  margin:0 12px 10px;padding:7px 11px;border-radius:var(--r-sm);
+  font-size:11px;font-weight:600;display:flex;align-items:center;gap:7px;
+  background:var(--sb-hover);color:var(--sb-muted);
+}
+.sync-chip .dot{width:7px;height:7px;border-radius:50%;background:currentColor;flex:none}
+.sync-chip.salvando{color:var(--accent)}
+.sync-chip.salvando .dot{animation:pulsa 1s ease-in-out infinite}
+.sync-chip.salvo{color:var(--pos)}
+.sync-chip.erro{color:var(--neg)}
+@keyframes pulsa{0%,100%{opacity:1}50%{opacity:.25}}
+@media(prefers-reduced-motion:reduce){.sync-chip.salvando .dot{animation:none}}
 /* ── Grade mensal ────────────────────────────────────────────── */
 .mg-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
 .mg-tabela{width:100%;border-collapse:collapse;font-size:13px;min-width:430px}
@@ -406,6 +419,7 @@ tbody tr:last-child td{border-bottom:none}
 </style>
 </head>
 <body>
+<script id="app-dados" type="application/json">null</script>
 <div id="toast"></div>
 
 <div class="layout">
@@ -424,6 +438,7 @@ tbody tr:last-child td{border-bottom:none}
       <button data-tab="patrimonio"><span class="sb-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l5.5-6 4 4L21 6"/><path d="M15 6h6v6"/></svg></span> Patrimônio</button>
       <button data-tab="analise"><span class="sb-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 20V10M12 20V4M19 20v-7"/></svg></span> Análise</button>
     </nav>
+    <div id="sync-chip" class="sync-chip" hidden></div>
     <div class="sb-foot">
       <button id="btn-theme" onclick="toggleTheme()">🌙 Tema</button>
       <button onclick="openBackupModal()">⚙️ Dados</button>
@@ -474,7 +489,7 @@ tbody tr:last-child td{border-bottom:none}
 <div class="backdrop" id="backdrop" onclick="closeModal()"></div>
 <div class="modal" id="modal"></div>
 
-<script>
+<script id="app-js">
 /* ============ DATA LAYER ============ */
 const KEY='financas_v1';
 const uid=()=>(crypto.randomUUID?crypto.randomUUID():'id'+Date.now()+Math.random().toString(16).slice(2));
@@ -510,13 +525,143 @@ function seed(){
 }
 
 let DB=null;
-function loadDB(){
-  const raw=localStorage.getItem(KEY);
-  if(raw){ try{ DB=JSON.parse(raw); migrateDB(); }catch(e){ DB=seed(); } } else { DB=seed(); }
-  advanceCyclesIfNeeded();
-  saveDB();
+
+/* ============ ONDE OS DADOS MORAM ============
+   Publicado como Artifact, os dados ficam dentro da própria página (no
+   <script id="app-dados">), e não no localStorage: assim eles viajam com o
+   artifact, sobrevivem à troca de aparelho e podem ser lidos e editados pelo
+   Claude na conversa. Aberto como arquivo solto, o localStorage continua
+   valendo. */
+let modoArtifact=false, somenteLeitura=false, capArtifact=null;
+
+function dadosEmbutidos(){
+  const el=document.getElementById('app-dados');
+  if(!el) return null;
+  try{ const d=JSON.parse(el.textContent); return (d&&typeof d==='object')?d:null; }
+  catch(e){ return null; }
 }
-function saveDB(){ localStorage.setItem(KEY,JSON.stringify(DB)); }
+
+async function loadDB(){
+  const embutido=dadosEmbutidos();
+  // Quem manda na origem dos dados é o bloco embutido; a capability decide
+  // apenas se dá para ESCREVER. Um visualizador só-leitura enxerga tudo.
+  modoArtifact=!!embutido;
+  if(typeof window.claude?.use==='function'){
+    try{ capArtifact=await window.claude.use('artifact'); }catch(e){ capArtifact=null; }
+  }
+  somenteLeitura=modoArtifact&&!capArtifact;
+
+  if(modoArtifact){
+    DB=embutido.__semDados?seed():embutido;
+  } else {
+    DB=null;
+    const raw=localStorage.getItem(KEY);
+    if(raw){ try{ DB=JSON.parse(raw); }catch(e){ DB=null; } }
+    if(!DB) DB=seed();
+  }
+  migrateDB();
+  advanceCyclesIfNeeded();
+  gravaLocal();
+}
+
+function gravaLocal(){ try{ localStorage.setItem(KEY,JSON.stringify(DB)); }catch(e){} }
+
+/* saveDB é chamado por toda a app depois de mexer nos dados. */
+function saveDB(){
+  gravaLocal();
+  if(modoArtifact&&!somenteLeitura) agendaSync();
+}
+
+/* ---- Sincronização com o artifact ---- */
+let syncTimer=null, syncing=false, atrasoSync=3000, esperasPorFoco=0;
+const ESTADO_UI='financas_ui';
+
+function chip(estado,texto){
+  const el=document.getElementById('sync-chip');
+  if(!el) return;
+  if(!estado){ el.hidden=true; return; }
+  el.hidden=false; el.className='sync-chip '+estado;
+  el.innerHTML='<span class="dot"></span><span>'+escapeHtml(texto)+'</span>';
+}
+
+function agendaSync(){
+  clearTimeout(syncTimer);
+  esperasPorFoco=0;   // houve edição de verdade: a paciência recomeça
+  chip('salvando','Salvando…');
+  syncTimer=setTimeout(sincroniza,atrasoSync);
+}
+
+async function sincroniza(){
+  if(!modoArtifact||somenteLeitura||syncing) return;
+  // Publicar recarrega a página, então esperamos o usuário sair do campo em
+  // vez de arrancá-lo debaixo da mão dele. Mas a espera é limitada: o foco
+  // pode ficar parado numa célula para sempre, e aí nada seria salvo.
+  const foco=document.activeElement;
+  if(foco&&/^(INPUT|TEXTAREA|SELECT)$/.test(foco.tagName)){
+    if(esperasPorFoco<4){ esperasPorFoco++; clearTimeout(syncTimer); syncTimer=setTimeout(sincroniza,1500); return; }
+    foco.blur();                              // confirma o que estava digitado
+    await new Promise(r=>setTimeout(r,0));    // deixa o onchange rodar antes
+  }
+  syncing=true; chip('salvando','Salvando…');
+  guardaEstadoUI();
+  try{
+    await capArtifact.publish(documentoCompleto());
+    chip('salvo','Salvo'); // a página recarrega logo em seguida
+  }catch(e){
+    syncing=false;
+    const cod=e&&e.code;
+    if(cod==='conflict'){ chip('salvando','Atualizando…'); return; } // recarrega sozinho
+    if(cod==='not_writer'||cod==='not_granted'||cod==='not_declared'||
+       cod==='capability_disabled'||cod==='capability_removed'||cod==='consent_required'){
+      somenteLeitura=true; chip('erro','Somente leitura');
+      toast('Este artifact é somente leitura — as mudanças ficam só neste navegador');
+      return;
+    }
+    if(cod==='rate_limited'){ atrasoSync=Math.min(atrasoSync*2,30000); chip('salvando','Salvando…'); agendaSync(); return; }
+    if(cod==='too_large'){ chip('erro','Dados grandes demais'); toast('Dados grandes demais para salvar'); return; }
+    chip('erro','Falha ao salvar'); toast('Não deu para salvar — tentando de novo');
+    setTimeout(agendaSync,8000);
+  }
+}
+
+/* A recarga após publicar não pode custar o lugar onde o usuário estava. */
+function guardaEstadoUI(){
+  try{ sessionStorage.setItem(ESTADO_UI,JSON.stringify({aba:activeTab,ciclo:cycleOffset,y:window.scrollY})); }catch(e){}
+}
+function restauraEstadoUI(){
+  let st; try{ st=JSON.parse(sessionStorage.getItem(ESTADO_UI)||'null'); }catch(e){ st=null; }
+  if(!st) return;
+  try{ sessionStorage.removeItem(ESTADO_UI); }catch(e){}
+  if(typeof st.ciclo==='number') cycleOffset=st.ciclo;
+  if(st.aba&&st.aba!=='inicio'&&TAB_VIEWS[st.aba]) showTab(st.aba);
+  if(typeof st.y==='number') requestAnimationFrame(()=>window.scrollTo(0,st.y));
+}
+
+/* Regenera o documento inteiro a partir das fontes originais — nunca do DOM
+   vivo, que carrega estado de sessão e os scripts injetados pelo hospedeiro. */
+function seguro(txt){ return String(txt).replace(/<\/(script|template)/gi,'<\\/$1'); }
+function documentoCompleto(){
+  const css=document.getElementById('app-css').textContent;
+  const shell=document.getElementById('app-shell');
+  const vendor=document.getElementById('app-vendor').textContent;
+  const app=document.getElementById('app-js').textContent;
+  if(!shell) throw {code:'invalid_content',message:'esqueleto ausente'};
+  return '<!doctype html>\n<html lang="pt-BR">\n<head>\n'
+    +'<meta charset="UTF-8">\n'
+    +'<meta name="viewport" content="width=device-width, initial-scale=1">\n'
+    +'<title>Finanças</title>\n'
+    +'<link rel="preconnect" href="https://fonts.googleapis.com">\n'
+    +'<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n'
+    +'<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">\n'
+    +'<style id="app-css">'+css+'</style>\n'
+    +'</head>\n<body>\n'
+    +'<script id="app-dados" type="application/json">'+seguro(JSON.stringify(DB))+'<\/script>\n'
+    +shell.innerHTML+'\n'
+    +'<template id="app-shell">'+shell.innerHTML+'<\/template>\n'
+    +'<script id="app-vendor">'+vendor+'<\/script>\n'
+    +'<script id="app-js">'+app+'<\/script>\n'
+    +'</body>\n</html>\n';
+}
 function migrateDB(){
   if(!DB.entradas_fixas) DB.entradas_fixas=[];
   if(!DB.categorias) DB.categorias=defaultCategorias();
@@ -1708,6 +1853,13 @@ function openColarModal(){
     </div>`);
 }
 
+function recuperaLocal(){
+  let d=null;
+  try{ d=JSON.parse(localStorage.getItem(KEY)||'null'); }catch(e){}
+  if(!d){ toast('Nada guardado neste navegador'); return; }
+  aplicaBackup(JSON.stringify(d));
+}
+
 function resetData(){
   confirmarModal('Resetar dados',
     'Todos os seus lançamentos, contas e movimentações serão apagados e os valores iniciais voltam. Não dá para desfazer.',
@@ -1716,15 +1868,26 @@ function resetData(){
 
 async function openBackupModal(){
   const podeBaixar = !rodandoNoArtifact() || !!(await getDownloads());
+  // Dados de antes da migração podem ter ficado presos neste navegador.
+  let localAntigo=null;
+  if(modoArtifact){
+    try{
+      const raw=localStorage.getItem(KEY);
+      const d=raw?JSON.parse(raw):null;
+      if(d&&JSON.stringify(d)!==JSON.stringify(DB)) localAntigo=d;
+    }catch(e){}
+  }
   openModal(`<h3>Dados & Backup</h3>
-    <p class="aviso">Seus dados ficam guardados só neste navegador. Faça um backup de vez em quando —
-    e antes de trocar de aparelho.</p>
+    <p class="aviso">${modoArtifact
+      ? 'Seus dados ficam salvos dentro deste artifact — acompanham o link em qualquer aparelho.'
+      : 'Seus dados ficam guardados só neste navegador. Faça um backup de vez em quando.'}</p>
     ${podeBaixar?`
       <button class="btn-add btn-soft-pos" style="margin-bottom:8px" onclick="exportJSON()">⬇️ Exportar backup (.json)</button>
       <button class="btn-add btn-soft" style="margin-bottom:8px" onclick="exportCSV()">📄 Exportar lançamentos (.csv)</button>`:''}
     <button class="btn-add btn-soft" style="margin-bottom:8px" onclick="copiarBackup()">📋 Copiar backup</button>
     <button class="btn-add" style="background:var(--ink);box-shadow:none;margin-bottom:8px" onclick="importJSON()">⬆️ Importar arquivo (.json)</button>
-    <button class="btn-add btn-soft" style="margin-bottom:16px" onclick="openColarModal()">📥 Colar backup</button>
+    <button class="btn-add btn-soft" style="margin-bottom:8px" onclick="openColarModal()">📥 Colar backup</button>
+    ${localAntigo?`<button class="btn-add btn-soft" style="margin-bottom:16px" onclick="recuperaLocal()">💾 Recuperar dados guardados neste navegador</button>`:'<div style="height:8px"></div>'}
     <button class="btn-add" style="background:var(--neg)" onclick="resetData()">🗑️ Resetar para dados iniciais</button>
     <div class="modal-actions" style="margin-top:12px"><button class="btn-cancel" onclick="closeModal()">Fechar</button></div>`);
 }
@@ -1735,9 +1898,13 @@ document.querySelectorAll('.sb-nav button').forEach(b=>{
 });
 
 /* ============ INIT ============ */
-loadDB();
-applyTheme();
-renderAll();
+loadDB().then(()=>{
+  applyTheme();
+  renderAll();
+  restauraEstadoUI();
+  if(somenteLeitura) chip('erro','Somente leitura');
+  else if(modoArtifact) chip('salvo','Salvo no artifact');
+});
 </script>
 </body>
 </html>
