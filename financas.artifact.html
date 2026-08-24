@@ -500,14 +500,16 @@ function seed(){
     ['Sousmiles',388,16,18],['Moletom Corinthians',250,2,2],['Lacoste',200,2,2]
   ].map(([nome,vp,pa,tp])=>({id:uid(),nome,valor_parcela:vp,parcela_atual:pa,total_parcelas:tp,ativo:true}));
   const monthly_summary=[
-    [1,2026,18000,2950],[2,2026,18000,4200],[3,2026,20500,6364],
-    [4,2026,23212,5760],[5,2026,32118,20168],[6,2026,26500,7500]
+    [1,2026,18000,2950],[2,2026,18000,4200],[3,2026,20500,6364],[4,2026,23212,5760],
+    [5,2026,32118,20168],[6,2026,35993,21740],[7,2026,18715,8200],[8,2026,14600,0]
   ].map(([mes,ano,et,ec])=>({id:uid(),mes,ano,entrada_total:et,economizado:ec,imposto_pago:null,fatura_cartao:null}));
+  // Agosto não entra: economia do mês foi zero, e zero não é movimentação.
   const savings=[
-    ['2026-01-31',2950,'Economia de Janeiro','reserva'],['2026-02-28',4200,'Economia de Fevereiro','reserva'],
-    ['2026-03-31',6364,'Economia de Março','reserva'],['2026-04-30',5760,'Economia de Abril','reserva'],
-    ['2026-05-22',20168,'Economia de Maio','investimentos'],['2026-06-22',7500,'Economia de Junho','reserva']
-  ].map(([data,valor,desc,aloc])=>({id:uid(),data,tipo:'aporte',valor,descricao:desc,alocacao:aloc||'reserva'}));
+    ['2026-01-31',2950,'Economia de Janeiro'],['2026-02-28',4200,'Economia de Fevereiro'],
+    ['2026-03-31',6364,'Economia de Março'],['2026-04-30',5760,'Economia de Abril'],
+    ['2026-05-31',20168,'Economia de Maio'],['2026-06-30',21740,'Economia de Junho'],
+    ['2026-07-31',8200,'Economia de Julho']
+  ].map(([data,valor,desc])=>({id:uid(),data,tipo:'aporte',valor,descricao:desc,alocacao:'reserva'}));
   const entradas_fixas=[{id:uid(),nome:'Salário Inpress',valor:10000,dia_recebimento:10,ativo:true}];
   return {fixas,parceladas,transacoes:[],monthly_summary,savings,entradas_fixas,categorias:defaultCategorias(),metaPoupanca:null};
 }
