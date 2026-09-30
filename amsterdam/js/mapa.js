@@ -3,6 +3,7 @@
 
 import { TEMAS } from "./data.js";
 import { icon } from "./icons.js";
+import { carimboURL, seloTema, seloCasa } from "./carimbos.js";
 
 export const CENTRO = [52.3676, 4.9041];
 const LIMITES = [[52.2, 4.6], [52.5, 5.2]];
@@ -26,8 +27,8 @@ function htmlPin(lugar, { visitado, favorito, selecionado }) {
     .filter(Boolean)
     .join(" ");
   return (
-    `<span class="${cls}" style="--cor:${lugar.tema.cor}">` +
-    `<span class="pin__corpo">${icon(lugar.tema.icone)}</span>` +
+    `<span class="${cls}">` +
+    `<img class="pin__corpo" src="${carimboURL(lugar.tema.glifo, lugar.tema.cor, lugar.tema.semente)}" alt="" draggable="false">` +
     (visitado ? `<span class="pin__selo pin__selo--visitado">${icon("check")}</span>` : "") +
     (favorito ? `<span class="pin__selo pin__selo--favorito">${icon("heart")}</span>` : "") +
     `</span>`
@@ -113,7 +114,7 @@ export class Mapa {
           TEMAS.map(
             (t) =>
               `<li><button type="button" class="legenda__item" data-tema="${t.slug}" aria-pressed="false" title="Filtrar por ${escapar(t.nome)}">` +
-              `<span class="tema-selo" style="--cor:${t.cor}">${icon(t.icone)}</span><span>${escapar(t.nome)}</span></button></li>`,
+              `${seloTema(t)}<span>${escapar(t.nome)}</span></button></li>`,
           ).join("") +
           `</ul>`;
         L.DomEvent.disableClickPropagation(div);
@@ -244,7 +245,7 @@ export class Mapa {
         alt: "Casa",
         zIndexOffset: 2000,
         icon: L.divIcon({
-          html: `<span class="casa-pin">${icon("house")}</span>`,
+          html: `<img class="casa-pin" src="${seloCasa()}" alt="" draggable="false">`,
           className: "pin-wrap",
           iconSize: [44, 44],
           iconAnchor: [22, 22],

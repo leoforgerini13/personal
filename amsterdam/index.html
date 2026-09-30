@@ -5,13 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Mapa de Amsterdam</title>
   <meta name="description" content="Lugares curados para explorar Amsterdam: mapa, filtros, visitados, favoritos e tempo de bike a partir de casa.">
-  <meta name="theme-color" content="#f5f1e8">
+  <meta name="theme-color" content="#f1e9d8">
   <link rel="icon" href="icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="icon-180.png">
   <link rel="manifest" href="manifest.webmanifest">
   <meta name="apple-mobile-web-app-title" content="Amsterdam">
-  <link rel="preload" href="vendor/fonts/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="preload" href="vendor/fonts/fraunces-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="vendor/fonts/bricolage-grotesque-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="vendor/fonts/young-serif-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
   <link rel="stylesheet" href="vendor/leaflet.markercluster/MarkerCluster.css">
   <link rel="stylesheet" href="css/app.css">
@@ -20,7 +20,10 @@
   <div class="app" id="app">
     <header class="topo" id="topo">
       <div class="topo__barra">
-        <h1 class="marca"><span class="marca__x" aria-hidden="true">×××</span> Amsterdam</h1>
+        <div class="marca">
+          <img class="marca__selo" id="marca-selo" alt="" width="56" height="56">
+          <div><h1 class="marca__nome">Amsterdam</h1><p class="marca__resumo" id="marca-resumo"></p></div>
+        </div>
         <form class="busca" id="busca-form" role="search" onsubmit="return false">
           <span class="busca__icone" data-icon="search"></span>
           <input id="busca" class="busca__campo" type="search" enterkeyhint="search" autocomplete="off"

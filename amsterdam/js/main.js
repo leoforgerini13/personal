@@ -3,6 +3,7 @@ import { store } from "./store.js";
 import { aplicar, contarAtivos, escreverURL, filtrosVazios, lerURL, RAIOS, VISITAS } from "./filtros.js";
 import { bike, formatarKm, formatarMin, linkGoogleMaps, linkRotaBike, NOTA_ESTIMATIVA } from "./geo.js";
 import { icon } from "./icons.js";
+import { seloTema, seloMarca } from "./carimbos.js";
 import { Mapa, TILES } from "./mapa.js";
 import { Painel } from "./painel.js";
 
@@ -10,6 +11,8 @@ const $ = (sel, raiz = document) => raiz.querySelector(sel);
 const esc = (s) =>
   String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 const mqDesktop = window.matchMedia("(min-width: 900px)");
+
+document.getElementById("marca-selo").src = seloMarca();
 
 // Ícones declarados no HTML com data-icon.
 for (const el of document.querySelectorAll("[data-icon]")) {
@@ -97,6 +100,8 @@ function render({ rolarPara = null } = {}) {
 function renderContagem() {
   const total = app.lugares.length;
   const n = app.resultado.length;
+  const visitados = app.lugares.filter((l) => store.visitado(l.id)).length;
+  $("#marca-resumo").textContent = `${total} lugares · ${visitados} visitados`;
   $("#contagem").textContent = n === total ? `${total} lugares` : `${n} de ${total} lugares`;
 }
 
@@ -138,15 +143,23 @@ function itemHTML(l, b, casa) {
     `<li class="item${aberto ? " item--aberto" : ""}${visitado ? " item--visitado" : ""}" data-id="${esc(l.id)}">` +
     `<div class="item__linha">` +
     `<button type="button" class="item__principal" data-acao="abrir" aria-expanded="${aberto}" aria-controls="card-${esc(l.id)}">` +
-    `<span class="tema-selo" style="--cor:${l.tema.cor}" title="${esc(l.tema.nome)}">${icon(l.tema.icone)}</span>` +
+    seloTema(l.tema) +
     `<span class="item__textos"><span class="item__nome">${esc(l.nome)}` +
     (favorito ? `<span class="marca-mini marca-mini--favorito" title="Favorito">${icon("heart")}<span class="sr-only">favorito</span></span>` : "") +
     (visitado ? `<span class="marca-mini marca-mini--visitado" title="Visitado">${icon("check")}<span class="sr-only">visitado</span></span>` : "") +
     `</span><span class="item__meta">${meta.join('<span aria-hidden="true"> · </span>')}</span></span>` +
     `</button>${toggles}</div>` +
+    (visitado ? seloVisitei(store.dataVisita(l.id)) : "") +
     (aberto ? cardHTML(l, b, casa, visitado, favorito) : "") +
     `</li>`
   );
+}
+
+// Carimbo de passaporte do lugar visitado (decorativo: o estado vem no botão Visitei).
+function seloVisitei(data) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(data || "");
+  const quando = m ? `${m[3]}·${m[2]}·${m[1].slice(2)}` : "";
+  return `<span class="selo-visitei" aria-hidden="true">Visitei${quando ? `<small>${quando}</small>` : ""}</span>`;
 }
 
 function cardHTML(l, b, casa, visitado, favorito) {
@@ -163,7 +176,7 @@ function cardHTML(l, b, casa, visitado, favorito) {
     : "";
   return (
     `<div class="card" id="card-${esc(l.id)}">` +
-    `<p class="card__tags"><span class="tag" style="--cor:${l.tema.cor}">${icon(l.tema.icone)} ${esc(l.tema.nome)}</span>` +
+    `<p class="card__tags"><span class="tag tag--tema" style="--cor:${l.tema.cor}">${seloTema(l.tema, "tema-selo--p")} ${esc(l.tema.nome)}</span>` +
     `<span class="tag">${esc(l.bairro.nome)}</span><span class="tag" title="${esc(l.preco.dica)}">${esc(l.preco.rotulo)}` +
     (l.preco.slug !== "gratis" ? ` <small>${esc(l.preco.dica)}</small>` : "") +
     `</span></p>` +
@@ -183,7 +196,7 @@ function vazioHTML() {
   const temBusca = Boolean(app.f.q.trim());
   const n = contarAtivos(app.f);
   return (
-    `<div class="vazio__ilustracao" aria-hidden="true">${icon("map-pin")}</div>` +
+    `<div class="vazio__ilustracao" aria-hidden="true">${seloTema(TEMAS[0], "tema-selo--g")}</div>` +
     `<p class="vazio__titulo">Nenhum lugar por aqui</p>` +
     `<p class="vazio__texto">${
       temBusca ? `Nada encontrado para “${esc(app.f.q.trim())}”${n ? " com os filtros atuais" : ""}.` : "Os filtros escolhidos não combinam com nenhum lugar."
@@ -368,7 +381,7 @@ function renderDialogoFiltros() {
           `<button type="button" class="chip" data-grupo="${grupo}" data-valor="${esc(i.valor)}" aria-pressed="false"` +
           (i.cor ? ` style="--cor:${i.cor}"` : "") +
           (i.dica ? ` title="${esc(i.dica)}"` : "") +
-          `>${i.icone ? `<span class="tema-selo tema-selo--p" style="--cor:${i.cor}">${icon(i.icone)}</span>` : ""}` +
+          `>${i.tema ? seloTema(i.tema, "tema-selo--p") : ""}` +
           `<span>${esc(i.rotulo)}</span><span class="chip__conta">${i.conta}</span></button>`,
       )
       .join("") +
@@ -386,7 +399,7 @@ function renderDialogoFiltros() {
 
   $("#filtros-corpo").innerHTML =
     `<fieldset class="secao"><legend>Tema <small>visitados/total</small></legend>` +
-    chipsGrupo("temas", TEMAS.map((t) => ({ valor: t.slug, rotulo: t.nome, cor: t.cor, icone: t.icone, conta: `${c(porTema, t.slug).visitados}/${c(porTema, t.slug).total}` }))) +
+    chipsGrupo("temas", TEMAS.map((t) => ({ valor: t.slug, rotulo: t.nome, tema: t, conta: `${c(porTema, t.slug).visitados}/${c(porTema, t.slug).total}` }))) +
     `</fieldset>` +
     `<fieldset class="secao"><legend>Bairro <small>visitados/total</small></legend>` +
     chipsGrupo("bairros", BAIRROS.map((b) => ({ valor: b.slug, rotulo: b.nome, conta: `${c(porBairro, b.slug).visitados}/${c(porBairro, b.slug).total}` }))) +
@@ -544,7 +557,7 @@ function renderProgresso() {
         const c = mapaCont.get(i.slug) || { total: 0, visitados: 0 };
         return (
           `<li class="progresso__linha">` +
-          (i.icone ? `<span class="tema-selo tema-selo--p" style="--cor:${i.cor}">${icon(i.icone)}</span>` : "") +
+          (i.glifo ? seloTema(i, "tema-selo--p") : "") +
           `<span class="progresso__nome">${esc(i.nome)}</span>${barra(c.visitados, c.total)}` +
           `<span class="progresso__conta">${c.visitados}/${c.total}</span></li>`
         );

@@ -65,6 +65,8 @@ export const store = {
     return () => ouvintes.delete(fn);
   },
   visitado: (id) => Boolean(dados.visitados[id]),
+  /** Data da visita (AAAA-MM-DD) ou "" se não visitado. */
+  dataVisita: (id) => (dados.visitados[id] && dados.visitados[id] !== "true" ? String(dados.visitados[id]) : ""),
   favorito: (id) => Boolean(dados.favoritos[id]),
   alternarVisitado(id) {
     if (dados.visitados[id]) delete dados.visitados[id];

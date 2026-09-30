@@ -10,7 +10,7 @@ Site estático pessoal para explorar Amsterdam: 147 lugares curados por tema e b
 | 2. Mapa e filtros | Pronto |
 | 3. Visitados e favoritos | Pronto |
 | 4. Casa e tempo de bike | Pronto |
-| 5. Visual e acabamento | Pronto: direção "Delft" |
+| 5. Visual e acabamento | Pronto: direção "Carimbo" (versão web primeiro) |
 | 6. Deploy | Pronto: falta ativar o Pages ou a Vercel (depende da Fase 1) |
 
 ## Rodar localmente
@@ -51,13 +51,16 @@ Abra o endereço e use **Compartilhar → Adicionar à Tela de Início** (iPhone
 
 ## Visual (Fase 5)
 
-Foram propostas três direções (Delft, Gráfico e Noite); a escolhida foi **Delft**:
+Foram propostas duas rodadas de direções. Na primeira (Delft, Gráfico e Noite), Delft chegou a ser aplicado; depois ele foi trocado por direções mais ilustradas, a partir de referências de gravura, nanquim e cartaz. A escolhida foi **Carimbo** (gravura em linóleo):
 
-- **Paleta:** papel quente `#f5f1e8`/`#fffcf6`, texto azul-marinho `#1b2447`, acento azul de Delft `#2448a8` (favoritos, progresso), laranja `#c2410c` para foco de teclado e marcador de casa.
-- **Tipografia:** Fraunces (serifa, nomes de lugares e títulos) + Inter (interface), hospedadas em `vendor/fonts` (licença OFL), sem Google Fonts.
-- **Mapa:** CARTO Voyager, com cores suaves, água e parques bem visíveis e boa leitura no sol.
-- **Ícones:** Lucide. Cada tema tem cor **e** ícone; visitado = esmaecido **e** selo ✓; favorito = selo ♥.
-- **Acessibilidade:** alvos de toque de pelo menos 44 px (chips com área estendida), foco visível, contraste AA no texto (texto secundário 5,3:1 ou mais; o texto das etiquetas usa a cor principal, e a cor do tema vai só para a borda e o ícone, porque algumas cores de tema ficam abaixo de 4,5:1). Ícones brancos sobre as cores dos temas passam de 3:1.
+- **Carimbos por tema:** desenhos originais em SVG (arenque, cachorro, medalha, sacola, barraca de feira, caneca, trompete, folha, museu e ponte), recortados numa mancha de tinta com borda irregular e tinta falhada. São gerados uma vez por tema em `js/carimbos.js`, como imagens `data:`, e servem para pins, lista, legenda, filtros e progresso.
+- **Paleta:** papel cru `#f1e9d8` com grão, tinta marinho `#1d2a5a` (texto e contornos), cobalto `#2a55c9` (ação e estado ligado) e vermelhão `#c23a22` (favorito, visitado, casa e foco). As cores dos temas são tintas de gravura, todas com pelo menos 3,7:1 contra o recorte em papel.
+- **Tipografia:** Young Serif (nomes, títulos, descrições) + Bricolage Grotesque (interface), hospedadas em `vendor/fonts` (licença OFL).
+- **Mapa:** CARTO Voyager aquecido (sépia leve) com o grão do papel por cima dos tiles e dos carimbos.
+- **Visitado:** carimbo esmaecido com selo ✓ no mapa, e um carimbo de passaporte "VISITEI" com a data na lista.
+- **Acessibilidade:** alvos de toque de pelo menos 44 px, foco visível em vermelhão, texto secundário a 5,6:1, e cada tema com cor **e** desenho (o nome sempre aparece em texto ao lado).
+
+A página de comparação das direções não faz parte do site.
 
 ## Estrutura
 
@@ -72,7 +75,8 @@ js/
   store.js             visitados, favoritos e casa (localStorage)
   geo.js               distância, tempo de bike e links do Google Maps
   data.js              temas, bairros, preços e carregamento do JSON
-  icons.js             ícones Lucide (gerado)
+  carimbos.js          carimbos dos temas (desenhos + textura), gerados como imagens
+  icons.js             ícones Lucide da interface (gerado)
 vendor/                Leaflet 1.9.4, Leaflet.markercluster 1.5.3 e fontes, com licenças
 scripts/build.sh       monta _site/ para publicar
 vercel.json            config da Vercel (Root Directory: amsterdam)

@@ -1,17 +1,19 @@
 // Catálogo fixo (temas, bairros, preços) e carregamento de data/lugares.json.
 
+// glifo: desenho do carimbo (js/carimbos.js). As cores são tintas de gravura,
+// todas com contraste de pelo menos 3,7:1 contra o recorte em papel.
 export const TEMAS = [
-  { slug: "gastronomia", nome: "Gastronomia e cafés", curto: "Gastronomia", icone: "utensils", cor: "#d9480f" },
-  { slug: "parques", nome: "Parques e dog-friendly", curto: "Parques", icone: "trees", cor: "#2b8a3e" },
-  { slug: "esporte", nome: "Esporte", curto: "Esporte", icone: "medal", cor: "#0c8599" },
-  { slug: "lojas", nome: "Lojas e design", curto: "Lojas", icone: "shopping-bag", cor: "#c2255c" },
-  { slug: "feiras", nome: "Feiras de rua", curto: "Feiras", icone: "store", cor: "#8b5a2b" },
-  { slug: "bares", nome: "Bares", curto: "Bares", icone: "beer", cor: "#c92a2a" },
-  { slug: "baladas", nome: "Baladas e shows", curto: "Baladas", icone: "music", cor: "#6741d9" },
-  { slug: "coffeeshops", nome: "Coffeeshops", curto: "Coffeeshops", icone: "leaf", cor: "#5c940d" },
-  { slug: "museus", nome: "Museus", curto: "Museus", icone: "landmark", cor: "#364fc7" },
-  { slug: "canais", nome: "Canais e pontes", curto: "Canais", icone: "waves", cor: "#1971c2" },
-];
+  { slug: "gastronomia", nome: "Gastronomia e cafés", curto: "Gastronomia", glifo: "peixe", cor: "#c83d24" },
+  { slug: "parques", nome: "Parques e dog-friendly", curto: "Parques", glifo: "cao", cor: "#277a4c" },
+  { slug: "esporte", nome: "Esporte", curto: "Esporte", glifo: "medalha", cor: "#17798b" },
+  { slug: "lojas", nome: "Lojas e design", curto: "Lojas", glifo: "sacola", cor: "#b53b5e" },
+  { slug: "feiras", nome: "Feiras de rua", curto: "Feiras", glifo: "toldo", cor: "#a86e1f" },
+  { slug: "bares", nome: "Bares", curto: "Bares", glifo: "cerveja", cor: "#8a4a2b" },
+  { slug: "baladas", nome: "Baladas e shows", curto: "Baladas", glifo: "trompete", cor: "#2a55c9" },
+  { slug: "coffeeshops", nome: "Coffeeshops", curto: "Coffeeshops", glifo: "folha", cor: "#5a7a20" },
+  { slug: "museus", nome: "Museus", curto: "Museus", glifo: "museu", cor: "#1d2a5a" },
+  { slug: "canais", nome: "Canais e pontes", curto: "Canais", glifo: "ponte", cor: "#2f67ad" },
+].map((t, i) => ({ ...t, semente: 3 + i }));
 
 export const BAIRROS = [
   "Centrum", "Jordaan", "Westerpark", "Oud-West", "De Pijp", "Oud-Zuid", "Oost",
