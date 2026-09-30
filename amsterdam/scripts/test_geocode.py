@@ -49,6 +49,11 @@ class TestNomes(unittest.TestCase):
         self.assertEqual(q, ["Stadshart Amstelveen", "Stadshart, Amsterdam"])
 
 
+    def test_cidade(self):
+        self.assertEqual(g.cidade(row("Bos", "Amsterdamse Bos, Amstelveen")), "Amstelveen")
+        self.assertEqual(g.cidade(row("Hoppe", "Café Hoppe, Spui, Amsterdam")), "Amsterdam")
+
+
 class TestGeocode(unittest.TestCase):
     def test_ok_direto(self):
         r = row("Café Hoppe", "Café Hoppe, Spui, Amsterdam")

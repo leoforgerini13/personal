@@ -7,15 +7,39 @@ Site estático pessoal para explorar Amsterdam: 147 lugares curados por tema e b
 | Fase | Status |
 |---|---|
 | 1. Geocodificação | Script pronto e testado; **falta rodar** (ver abaixo) |
-| 2. Mapa e filtros | — |
-| 3. Visitados e favoritos | — |
-| 4. Casa e tempo de bike | — |
+| 2. Mapa e filtros | Pronto |
+| 3. Visitados e favoritos | Pronto |
+| 4. Casa e tempo de bike | Pronto |
 | 5. Visual e acabamento | — |
 | 6. Deploy | — |
+
+## Rodar localmente
+
+O site é estático, sem build. Os módulos JavaScript exigem um servidor HTTP (abrir o `index.html` direto com `file://` não funciona):
+
+```sh
+cd amsterdam
+python3 -m http.server 8000
+# abra http://localhost:8000
+```
+
+Sem `data/lugares.json` (antes de rodar a Fase 1), o site abre e mostra um aviso explicando o que fazer.
 
 ## Estrutura
 
 ```
+index.html             página única
+css/app.css            estilos (mobile first, tokens de cor em :root)
+js/
+  main.js              liga tudo: lista, cards, diálogos, eventos
+  mapa.js              Leaflet: pins, clusters, legenda, casa
+  painel.js            painel inferior arrastável (celular)
+  filtros.js           estado dos filtros, aplicação e URL
+  store.js             visitados, favoritos e casa (localStorage)
+  geo.js               distância, tempo de bike e links do Google Maps
+  data.js              temas, bairros, preços e carregamento do JSON
+  icons.js             ícones Lucide (gerado)
+vendor/                Leaflet 1.9.4 e Leaflet.markercluster 1.5.3, com licenças
 data/
   lugares.csv          fonte (curadoria manual)
   overrides.csv        correções manuais de coordenadas (id,lat,lng)
@@ -56,6 +80,16 @@ A primeira execução faz no máximo 3 consultas por lugar (em geral 1), ou seja
 - `falha`: sem coordenada (não encontrado, ou só encontrado fora da área). Não aparece no mapa.
 - `pendente`: só no modo `--offline`, quando falta cache.
 
+## Como o site funciona
+
+- **Mapa:** clusters que se desfazem no zoom 17; pins com cor e ícone por tema (cor nunca sozinha). Visitado fica esmaecido e com selo de check; favorito ganha selo de coração. A legenda também filtra: tocar num tema liga ou desliga o filtro.
+- **Lista:** no celular, painel inferior com três alturas (recolhido, meio, alto): arraste ou toque no cabeçalho. No desktop, coluna lateral. Tocar num item abre o card dentro da própria lista e centraliza o pin; tocar num pin abre e rola até o item.
+- **Card:** tema, bairro, preço com a faixa, descrição, tempo de bike (se houver casa), Visitei, Favorito, Abrir no Google Maps e Rota de bike.
+- **Filtros:** tema, bairro e preço (múltiplos), busca por nome ou descrição sem ligar para acentos, visitas (todos / não visitados / só visitados), só favoritos e raio de bike (10, 20 ou 30 min). Tudo vai para a URL, junto com o lugar aberto. Exemplo: `?tema=museus,bares&bairro=jordaan&lugar=rijksmuseum-museus`.
+- **Progresso:** os chips de tema e bairro mostram visitados/total (ex.: "Museus 3/17"), e o menu ⋮ tem barras por tema e por bairro.
+- **Backup:** menu ⋮ → Exportar/Importar JSON.
+- **Casa:** botão da casinha → buscar endereço (Nominatim, só ao tocar em Buscar, conforme a política de uso) ou escolher no mapa. O marcador pode ser arrastado para ajustar.
+
 ## Decisões técnicas
 
 - **Pasta `amsterdam/`**: o repositório `personal` já tem outro projeto (`dashboard.html`) na raiz, então o mapa fica isolado nesta pasta.
@@ -67,3 +101,13 @@ A primeira execução faz no máximo 3 consultas por lugar (em geral 1), ou seja
 - **`lugares.json` inclui os 147 lugares**, com `lat`/`lng` nulos nas falhas, para o site poder contar e listar o que ficou de fora.
 - **User-Agent** `mapa-amsterdam/1.0 (+URL do repositório)`; o e-mail de contato é opcional, via `NOMINATIM_EMAIL`, para não ficar no código.
 - **Atribuição:** os dados de coordenadas vêm do OpenStreetMap (ODbL); o JSON registra a fonte.
+- **Sem build e sem CDN:** HTML, CSS e módulos ES puros; Leaflet e markercluster copiados em `vendor/` (via `npm pack`). O site funciona igual em qualquer hospedagem estática e não depende de CDN de terceiros.
+- **Tiles:** CARTO Voyager provisoriamente (a escolha final é da Fase 5). A atribuição fica no canto inferior direito no desktop e no superior direito no celular, onde o painel não a cobre.
+- **Card dentro da lista** (acordeão), em vez de popup no mapa: no celular, popups do Leaflet ficam apertados, e assim "clicar no pin destaca o item na lista" e "card do lugar" viram a mesma coisa.
+- **Filtros de visita:** "esconder visitados" e "só visitados" viraram uma escolha única (Todos / Não visitados / Só visitados), porque os dois juntos se anulariam. "Só favoritos" é independente.
+- **Ao definir a casa pela primeira vez**, a lista passa a ordenar por proximidade (dá para voltar para A–Z).
+- **Lugares sem coordenada** (falhas da Fase 1) continuam na lista, marcados como "sem localização", com o link do Google Maps. Eles não entram no filtro de raio.
+- **Importar junta, não substitui:** une visitados e favoritos; a casa do backup só é usada se o aparelho ainda não tiver uma.
+- **Dados salvos** na chave `mapa-amsterdam:v1` do localStorage. Sem localStorage (aba anônima ou bloqueio), tudo funciona em memória, sem aviso.
+- **Tempo de bike:** distância em linha reta (haversine) × 1,3, a 15 km/h. O card e os filtros dizem que é uma estimativa.
+- **Rota de bike:** `google.com/maps/dir/?api=1&origin=lat,lng&destination=nome, cidade&travelmode=bicycling`. O destino é por nome, como no link de busca, para o Google achar o estabelecimento mesmo se a coordenada do OSM estiver um pouco deslocada.

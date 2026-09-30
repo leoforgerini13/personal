@@ -90,6 +90,10 @@ def names_match(expected, found):
     return difflib.SequenceMatcher(None, a, b).ratio() >= 0.8
 
 
+def cidade(row):
+    return "Amstelveen" if "amstelveen" in normalize(row["endereco_busca"]) else "Amsterdam"
+
+
 def in_bbox(lat, lng):
     return BBOX["south"] <= lat <= BBOX["north"] and BBOX["west"] <= lng <= BBOX["east"]
 
@@ -323,6 +327,7 @@ def write_outputs(rows, geo):
             "tema": row["tema"],
             "preco": row["preco"],
             "descricao": row["descricao"],
+            "cidade": cidade(row),
             "lat": round(g["lat"], 6) if g["lat"] is not None else None,
             "lng": round(g["lng"], 6) if g["lng"] is not None else None,
             "geo": g["status"],
