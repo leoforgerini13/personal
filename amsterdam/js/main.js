@@ -133,7 +133,8 @@ function itemHTML(l, b, casa) {
   const favorito = store.favorito(l.id);
   const meta = [esc(l.bairro.nome), `<span title="${esc(l.preco.dica)}">${esc(l.preco.rotulo)}</span>`];
   if (b) meta.push(metaBike(b));
-  if (!l.temCoord) meta.push(`<span class="sem-local">sem localização</span>`);
+  // Só marca a falta de coordenada quando ela é exceção (sem nenhuma, o aviso inicial explica).
+  if (!l.temCoord && app.algumaCoord) meta.push(`<span class="sem-local">sem localização</span>`);
   const toggles = aberto
     ? ""
     : `<button type="button" class="btn-icone btn-toggle" data-acao="favorito" aria-pressed="${favorito}" aria-label="Favorito: ${esc(l.nome)}">${icon("heart")}</button>` +
@@ -647,6 +648,7 @@ async function iniciar() {
     return;
   }
   app.porId = new Map(app.lugares.map((l) => [l.id, l]));
+  app.algumaCoord = app.lugares.some((l) => l.temCoord);
   if (app.selecionado && !app.porId.has(app.selecionado)) app.selecionado = null;
   if (app.f.ordem === "perto" && !store.casa()) app.f.ordem = "nome";
   $("#busca").value = app.f.q;
@@ -654,6 +656,9 @@ async function iniciar() {
   mapa.criarMarcadores(app.lugares, estadoPin);
   mapa.definirCasa(store.casa());
   render();
+  if (!app.algumaCoord) {
+    mostrarAviso("Os lugares ainda não têm coordenadas, então o mapa fica sem pins. A lista e os filtros funcionam.", { fixo: true, acao: "Ok" });
+  }
 
   if (app.selecionado) {
     const id = app.selecionado;

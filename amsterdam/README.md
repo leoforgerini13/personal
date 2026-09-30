@@ -25,6 +25,12 @@ python3 -m http.server 8000
 
 Sem `data/lugares.json` (antes de rodar a Fase 1), o site abre e mostra um aviso explicando o que fazer.
 
+## Arquivo único (abrir sem servidor)
+
+`python3 scripts/arquivo_unico.py` gera `mapa-amsterdam.html`, com o site inteiro num arquivo só (estilos, fontes, Leaflet, código e dados). Abre com dois cliques, sem servidor, e dá para mandar por e-mail ou guardar no celular. Precisa de Node (o esbuild roda via `npx`) e de internet só para o mapa e para a busca de endereço da casa.
+
+Usa `data/lugares.json` se existir; se não, monta a lista a partir do CSV, sem coordenadas (o mapa fica sem pins e um aviso explica). Depois de rodar a Fase 1, gere o arquivo de novo. O arquivo gerado não vai para o git.
+
 ## Publicar
 
 O site só precisa de `data/lugares.json`. Então, **antes de publicar, rode a Fase 1 e faça commit do JSON**. `sh scripts/build.sh` monta `_site/` só com o que o navegador usa (sem CSV, scripts nem cache) e falha com uma mensagem clara se o JSON não existir.

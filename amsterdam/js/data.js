@@ -48,7 +48,9 @@ export function slugify(texto) {
 
 export class DadosAusentes extends Error {}
 
-export async function carregarLugares(url = "data/lugares.json") {
+async function buscarJSON(url) {
+  // Versão de arquivo único (scripts/arquivo_unico.py): os dados vêm embutidos na página.
+  if (globalThis.LUGARES_EMBUTIDOS) return globalThis.LUGARES_EMBUTIDOS;
   let resp;
   try {
     resp = await fetch(url, { cache: "no-cache" });
@@ -56,7 +58,11 @@ export async function carregarLugares(url = "data/lugares.json") {
     throw new DadosAusentes(`não foi possível abrir ${url}`);
   }
   if (!resp.ok) throw new DadosAusentes(`${url} respondeu ${resp.status}`);
-  const json = await resp.json();
+  return resp.json();
+}
+
+export async function carregarLugares(url = "data/lugares.json") {
+  const json = await buscarJSON(url);
   return (json.lugares || []).map((l) => {
     const tema = TEMA_POR_NOME.get(l.tema);
     const bairro = BAIRRO_POR_NOME.get(l.bairro);
