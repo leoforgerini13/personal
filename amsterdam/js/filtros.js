@@ -87,7 +87,7 @@ export function lerURL(search = location.search) {
   const raio = Number(p.get("raio"));
   if (RAIOS.includes(raio)) f.raio = raio;
   if (p.get("ordem") === "perto") f.ordem = "perto";
-  return { filtros: f, lugar: p.get("lugar") || null, estilo: p.get("estilo") || null };
+  return { filtros: f, lugar: p.get("lugar") || null };
 }
 
 /** Escreve o estado na URL sem criar entradas no histórico. */

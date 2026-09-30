@@ -10,8 +10,8 @@ Site estático pessoal para explorar Amsterdam: 147 lugares curados por tema e b
 | 2. Mapa e filtros | Pronto |
 | 3. Visitados e favoritos | Pronto |
 | 4. Casa e tempo de bike | Pronto |
-| 5. Visual e acabamento | — |
-| 6. Deploy | — |
+| 5. Visual e acabamento | Pronto: direção "Delft" |
+| 6. Deploy | Pronto: falta ativar o Pages ou a Vercel (depende da Fase 1) |
 
 ## Rodar localmente
 
@@ -24,6 +24,40 @@ python3 -m http.server 8000
 ```
 
 Sem `data/lugares.json` (antes de rodar a Fase 1), o site abre e mostra um aviso explicando o que fazer.
+
+## Publicar
+
+O site só precisa de `data/lugares.json`. Então, **antes de publicar, rode a Fase 1 e faça commit do JSON**. `sh scripts/build.sh` monta `_site/` só com o que o navegador usa (sem CSV, scripts nem cache) e falha com uma mensagem clara se o JSON não existir.
+
+### GitHub Pages (recomendado)
+
+O workflow `.github/workflows/amsterdam-pages.yml` (na raiz do repositório) roda os testes, monta o site e publica.
+
+1. No GitHub: **Settings → Pages → Build and deployment → Source: GitHub Actions**.
+2. Faça merge desta branch na branch padrão do repositório. O workflow roda sozinho a cada push que mexa em `amsterdam/`, e também pode ser disparado à mão em **Actions → Mapa de Amsterdam → Run workflow**.
+3. O endereço será `https://<usuário>.github.io/<repositório>/`.
+
+O workflow só roda na branch padrão. Se o Pages deste repositório já publica outra coisa (por exemplo o `dashboard.html` da raiz), trocar a fonte para "GitHub Actions" substitui essa publicação. Nesse caso, prefira a Vercel ou mova o mapa para um repositório próprio.
+
+### Vercel
+
+1. **Add New → Project** e importe o repositório.
+2. Em **Root Directory**, escolha `amsterdam`. Framework: **Other**.
+3. O `vercel.json` já define `sh scripts/build.sh` como build e `_site` como saída. É só dar Deploy.
+
+### No celular
+
+Abra o endereço e use **Compartilhar → Adicionar à Tela de Início** (iPhone) ou **⋮ → Adicionar à tela inicial** (Android). O manifest dá nome e ícone próprios.
+
+## Visual (Fase 5)
+
+Foram propostas três direções (Delft, Gráfico e Noite); a escolhida foi **Delft**:
+
+- **Paleta:** papel quente `#f5f1e8`/`#fffcf6`, texto azul-marinho `#1b2447`, acento azul de Delft `#2448a8` (favoritos, progresso), laranja `#c2410c` para foco de teclado e marcador de casa.
+- **Tipografia:** Fraunces (serifa, nomes de lugares e títulos) + Inter (interface), hospedadas em `vendor/fonts` (licença OFL), sem Google Fonts.
+- **Mapa:** CARTO Voyager, com cores suaves, água e parques bem visíveis e boa leitura no sol.
+- **Ícones:** Lucide. Cada tema tem cor **e** ícone; visitado = esmaecido **e** selo ✓; favorito = selo ♥.
+- **Acessibilidade:** alvos de toque de pelo menos 44 px (chips com área estendida), foco visível, contraste AA no texto (texto secundário 5,3:1 ou mais; o texto das etiquetas usa a cor principal, e a cor do tema vai só para a borda e o ícone, porque algumas cores de tema ficam abaixo de 4,5:1). Ícones brancos sobre as cores dos temas passam de 3:1.
 
 ## Estrutura
 
@@ -39,7 +73,10 @@ js/
   geo.js               distância, tempo de bike e links do Google Maps
   data.js              temas, bairros, preços e carregamento do JSON
   icons.js             ícones Lucide (gerado)
-vendor/                Leaflet 1.9.4 e Leaflet.markercluster 1.5.3, com licenças
+vendor/                Leaflet 1.9.4, Leaflet.markercluster 1.5.3 e fontes, com licenças
+scripts/build.sh       monta _site/ para publicar
+vercel.json            config da Vercel (Root Directory: amsterdam)
+manifest.webmanifest   nome e ícone para "Adicionar à tela inicial"
 data/
   lugares.csv          fonte (curadoria manual)
   overrides.csv        correções manuais de coordenadas (id,lat,lng)
@@ -102,7 +139,7 @@ A primeira execução faz no máximo 3 consultas por lugar (em geral 1), ou seja
 - **User-Agent** `mapa-amsterdam/1.0 (+URL do repositório)`; o e-mail de contato é opcional, via `NOMINATIM_EMAIL`, para não ficar no código.
 - **Atribuição:** os dados de coordenadas vêm do OpenStreetMap (ODbL); o JSON registra a fonte.
 - **Sem build e sem CDN:** HTML, CSS e módulos ES puros; Leaflet e markercluster copiados em `vendor/` (via `npm pack`). O site funciona igual em qualquer hospedagem estática e não depende de CDN de terceiros.
-- **Tiles:** CARTO Voyager provisoriamente (a escolha final é da Fase 5). A atribuição fica no canto inferior direito no desktop e no superior direito no celular, onde o painel não a cobre.
+- **Tiles:** CARTO Voyager (uso gratuito não comercial; atribuição obrigatória). A atribuição fica no canto inferior direito no desktop e no superior direito no celular, onde o painel não a cobre.
 - **Card dentro da lista** (acordeão), em vez de popup no mapa: no celular, popups do Leaflet ficam apertados, e assim "clicar no pin destaca o item na lista" e "card do lugar" viram a mesma coisa.
 - **Filtros de visita:** "esconder visitados" e "só visitados" viraram uma escolha única (Todos / Não visitados / Só visitados), porque os dois juntos se anulariam. "Só favoritos" é independente.
 - **Ao definir a casa pela primeira vez**, a lista passa a ordenar por proximidade (dá para voltar para A–Z).
