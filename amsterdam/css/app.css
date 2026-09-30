@@ -319,9 +319,9 @@ button { cursor: pointer; }
 
 /* ------------------------------------------------------------------ mapa */
 
-/* O mapa real (CARTO Voyager) é "impresso" no papel: tons aquecidos e grão. */
+/* O mapa real (OpenStreetMap) é "impresso" no papel: cores amansadas, tom quente e grão. */
 .leaflet-container { font: inherit; background: var(--papel) var(--grao); }
-.leaflet-tile-pane { filter: sepia(.3) saturate(.8) contrast(1.02); }
+.leaflet-tile-pane { filter: grayscale(.3) sepia(.35) saturate(.8) contrast(.96) brightness(1.02); }
 /* grão de papel por cima de tiles e carimbos, abaixo dos controles */
 .leaflet-container::after {
   content: ""; position: absolute; inset: 0; z-index: 450; pointer-events: none;

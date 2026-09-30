@@ -4,7 +4,7 @@ import { aplicar, contarAtivos, escreverURL, filtrosVazios, lerURL, RAIOS, VISIT
 import { bike, formatarKm, formatarMin, linkGoogleMaps, linkRotaBike, NOTA_ESTIMATIVA } from "./geo.js";
 import { icon } from "./icons.js";
 import { seloTema, seloMarca } from "./carimbos.js";
-import { Mapa, TILES } from "./mapa.js";
+import { Mapa, tilesPadrao } from "./mapa.js";
 import { Painel } from "./painel.js";
 
 const $ = (sel, raiz = document) => raiz.querySelector(sel);
@@ -54,14 +54,13 @@ const mapa = new Mapa($("#mapa"), {
     bottom: painel.visivel(),
   }),
 });
-mapa.definirTiles(TILES.voyager);
+mapa.definirTiles(tilesPadrao());
 
 // Altura do topo em CSS, para os controles do mapa ficarem abaixo dele no celular.
 new ResizeObserver(() => {
   document.documentElement.style.setProperty("--topo-h", `${$("#topo").getBoundingClientRect().bottom}px`);
   painel.aplicar(false);
 }).observe($("#topo"));
-document.getElementById("sobre-carto").textContent = " e CARTO";
 
 // ------------------------------------------------------------------ render
 

@@ -62,7 +62,7 @@ Foram propostas duas rodadas de direções. Na primeira (Delft, Gráfico e Noite
 - **Carimbos por tema:** desenhos originais em SVG (arenque, cachorro, medalha, sacola, barraca de feira, caneca, trompete, folha, museu e ponte), recortados numa mancha de tinta com borda irregular e tinta falhada. São gerados uma vez por tema em `js/carimbos.js`, como imagens `data:`, e servem para pins, lista, legenda, filtros e progresso.
 - **Paleta:** papel cru `#f1e9d8` com grão, tinta marinho `#1d2a5a` (texto e contornos), cobalto `#2a55c9` (ação e estado ligado) e vermelhão `#c23a22` (favorito, visitado, casa e foco). As cores dos temas são tintas de gravura, todas com pelo menos 3,7:1 contra o recorte em papel.
 - **Tipografia:** Young Serif (nomes, títulos, descrições) + Bricolage Grotesque (interface), hospedadas em `vendor/fonts` (licença OFL).
-- **Mapa:** CARTO Voyager aquecido (sépia leve) com o grão do papel por cima dos tiles e dos carimbos.
+- **Mapa:** OpenStreetMap com as cores amansadas e o tom quente do papel, com grão por cima dos tiles e dos carimbos.
 - **Visitado:** carimbo esmaecido com selo ✓ no mapa, e um carimbo de passaporte "VISITEI" com a data na lista.
 - **Acessibilidade:** alvos de toque de pelo menos 44 px, foco visível em vermelhão, texto secundário a 5,6:1, e cada tema com cor **e** desenho (o nome sempre aparece em texto ao lado).
 
@@ -149,7 +149,7 @@ A primeira execução faz no máximo 3 consultas por lugar (em geral 1), ou seja
 - **User-Agent** `mapa-amsterdam/1.0 (+URL do repositório)`; o e-mail de contato é opcional, via `NOMINATIM_EMAIL`, para não ficar no código.
 - **Atribuição:** os dados de coordenadas vêm do OpenStreetMap (ODbL); o JSON registra a fonte.
 - **Sem build e sem CDN:** HTML, CSS e módulos ES puros; Leaflet e markercluster copiados em `vendor/` (via `npm pack`). O site funciona igual em qualquer hospedagem estática e não depende de CDN de terceiros.
-- **Tiles:** CARTO Voyager (uso gratuito não comercial; atribuição obrigatória). A atribuição fica no canto inferior direito no desktop e no superior direito no celular, onde o painel não a cobre.
+- **Tiles:** OpenStreetMap, sem chave de API. A CARTO passou a exigir chave (gratuita) e, sem ela, marca os tiles com "API KEY REQUIRED"; por isso saiu. O servidor principal do OSM (`tile.openstreetmap.org`) bloqueia páginas abertas do disco (sem cabeçalho Referer), então o arquivo único usa `tile.openstreetmap.de`. Uso pessoal e leve, dentro da política de uso dos servidores. A atribuição fica no canto inferior direito no desktop e no superior direito no celular, onde o painel não a cobre.
 - **Card dentro da lista** (acordeão), em vez de popup no mapa: no celular, popups do Leaflet ficam apertados, e assim "clicar no pin destaca o item na lista" e "card do lugar" viram a mesma coisa.
 - **Filtros de visita:** "esconder visitados" e "só visitados" viraram uma escolha única (Todos / Não visitados / Só visitados), porque os dois juntos se anulariam. "Só favoritos" é independente.
 - **Ao definir a casa pela primeira vez**, a lista passa a ordenar por proximidade (dá para voltar para A–Z).

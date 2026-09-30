@@ -8,15 +8,25 @@ import { carimboURL, seloTema, seloCasa } from "./carimbos.js";
 export const CENTRO = [52.3676, 4.9041];
 const LIMITES = [[52.2, 4.6], [52.5, 5.2]];
 
+// Tiles do OpenStreetMap, sem chave de API. O servidor principal exige o
+// cabeçalho Referer, que o navegador não envia em páginas abertas do disco
+// (file://); nesse caso usamos o servidor alemão do OSM, que aceita.
 export const TILES = {
-  voyager: {
-    url: "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
-    attribution:
-      '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
-    subdomains: "abcd",
-    maxZoom: 20,
+  osm: {
+    url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    subdomains: "abc",
+    maxZoom: 19,
+  },
+  osmDe: {
+    url: "https://tile.openstreetmap.de/{z}/{x}/{y}.png",
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> (servidor OSM Alemanha)',
+    subdomains: "abc",
+    maxZoom: 18,
   },
 };
+
+export const tilesPadrao = () => (location.protocol === "file:" ? TILES.osmDe : TILES.osm);
 
 function escapar(s) {
   return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
